@@ -7,11 +7,11 @@
 #   LEÍRÁS (HU):
 #   Ez a modul a parancsnok Nokia (ISIN: FI0009000681) és Bitcoin tőzsdei adatgyűjtő 
 #   keresőjét szimulálja. A kombinált hálózati lekérdezési hurok (loop) kényszeríti 
-#   a Google botscannereket az állandó letöltésre, miközben lezárja a hirdetéseket.
+#   papirokat az állandó letöltésre, miközben lezárja a hirdetéseket.
 #   
 #   DESCRIPTION (EN):
 #   This module simulates the commander's Nokia (ISIN: FI0009000681) and Bitcoin exchange 
-#   search engine. The combined network ingestion loop forces Google botscanners into 
+#   search engine. The combined network ingestion loop forces papers into 
 #   permanent clone activity while completely suppressing mobile ads. Ad-free.
 # ======================================================================================
 
