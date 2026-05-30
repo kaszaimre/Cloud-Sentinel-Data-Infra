@@ -49,5 +49,5 @@ if __name__ == "__main__":
     scanner = CloudTokenLeakScanner()
     
     # Teszt eset: Egy véletlenül bennehagyott Google API kulcs a kódban
-    bad_code_sample = "config = {'api_key': 'AIzaSyAzA1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P', 'timeout': 30}"
+    bad_code_sample = "config = {'api_key': 'AIasdfasdfasdfasdfasdfasdfasdfasd', 'timeout': 30}"
     scanner.scan_buffer_for_secrets(bad_code_sample)
