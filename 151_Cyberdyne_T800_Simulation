@@ -1,9 +1,17 @@
 # -*- coding: utf-8 -*-
-# -----------------------------------------------------------------------------
+# ==============================================================================
+# PROJEKT: 151_Cyberdyne_T800_Simulation
 # CYBERDYNE SYSTEMS - T-800 ARTILLERY MATRIX
+
+# LEÍRÁS (HU):
 # [HU] Borsodi Tüzérségi Mátrix: Automatizált piaci trendfigyelő és szignálgenerátor.
-# [EN] Borsodi Artillery Matrix: Automated market trend monitor and signal generator.
-# -----------------------------------------------------------------------------
+# Mottó: "A borsodi nem hackel, a borsodi optimalizál."
+#
+# DESCRIPTION (EN):
+# [EN] Borsodi Artillery Matrix: Automated market trend monitor and signal generator."
+#
+# SZERZŐ: Tábornok | BORSODI WAR ROOM
+# ==============================================================================
 
 class CyberdyneT800Simulation:
     def __init__(self):
