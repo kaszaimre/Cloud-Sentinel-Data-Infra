@@ -1,0 +1,37 @@
+# -*- coding: utf-8 -*-
+# -----------------------------------------------------------------------------
+# CYBERDYNE SYSTEMS - T-800 ARTILLERY MATRIX
+# [HU] Borsodi Tüzérségi Mátrix: Automatizált piaci trendfigyelő és szignálgenerátor.
+# [EN] Borsodi Artillery Matrix: Automated market trend monitor and signal generator.
+# -----------------------------------------------------------------------------
+
+class CyberdyneT800Simulation:
+    def __init__(self):
+        self.system_name = "CYBERDYNE SYSTEMS"
+        self.live_parazs = 79300.0  # 79.3k USD
+        self.date_marker = "Május 16. (Szombat)"
+        
+        # Alsó panel Stochastic szintek
+        self.stoch_level = 15  # 0 és 20 közötti túladott zóna a vonal alján
+        self.critical_boundary = 40
+
+    def calculate_artillery_target(self):
+        print(f"[{self.system_name}]: T-800 Tüzérségi Modul inicializálva...")
+        print(f"-> Élő Árkontextus: {self.live_parazs:.1f} USD | {self.date_marker}")
+        
+        # Stochastic indikátor kiértékelése
+        print(f"\n[ALSÓ PANEL]: Indikátor Logikák:")
+        print(f"-> STOCH Aktuális Érték: {self.stoch_level}")
+        
+        if self.stoch_level <= 20:
+            print("-> Szignál: Kritikus túladott zóna (0-20). Vételi nyomás gyűlik.")
+        elif self.stoch_level >= 80:
+            print("-> Szignál: Túlvetett zóna. Eladási nyomás.")
+        else:
+            print("-> Szignál: Sávon belüli mozgás (Konszolidáció).")
+            
+        print("\n[Program finished]")
+
+if __name__ == "__main__":
+    cyberdyne_sim = CyberdyneT800Simulation()
+    cyberdyne_sim.calculate_artillery_target()
