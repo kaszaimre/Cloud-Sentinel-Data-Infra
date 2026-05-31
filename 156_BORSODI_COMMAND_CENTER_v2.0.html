@@ -1,0 +1,77 @@
+<!-- 
+==============================================================================
+PROJEKT: 156_BORSODI_COMMAND_CENTER_v2.0
+ 
+LEÍRÁS (HU):
+A "Borsodi" tüzérségi operációs központ grafikus kezelőfelülete. Integrálja
+a Pork Protocol logikát, kezeli a 10x Multi-Stoch szűrőket és valós időben
+számolja a kockázatkezelési szinteket (SL/TP).
+Mottó: "A borsodi nem hackel, a borsodi optimalizál."
+
+DESCRIPTION (EN):
+Graphical user interface for the "Borsodi" artillery command center. Integrates 
+Pork Protocol logic, manages 10x Multi-Stoch filters, and calculates risk 
+management levels (SL/TP) in real-time.
+Motto: "The Borsodi doesn't hack, the Borsodi optimizes."
+
+SZERZŐ: Tábornok | BORSODI WAR ROOM
+==============================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BORSODI COMMAND CENTER v2.0</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #030303; color: #00FF00; font-family: 'Courier New', Courier, monospace; padding: 10px; }
+        header { border: 2px solid #00FF00; padding: 8px; text-align: center; background: #0a0a0a; margin-bottom: 10px; box-shadow: 0 0 8px #00FF00; }
+        h1 { font-size: 16px; text-transform: uppercase; letter-spacing: 2px; }
+        .container { display: flex; flex-direction: column; gap: 10px; }
+        .card { border: 1px solid #00AA00; background: #070707; padding: 10px; }
+        .card-title { font-size: 11px; font-weight: bold; border-bottom: 1px solid #00AA00; padding-bottom: 3px; margin-bottom: 8px; text-transform: uppercase; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+        .input-group { display: flex; justify-content: space-between; align-items: center; background: #0f0f0f; padding: 4px; border: 1px solid #003300; }
+        label { font-size: 10px; color: #00AA00; }
+        input { background: #000; border: 1px solid #00AA00; color: #00FF00; font-family: inherit; font-size: 11px; padding: 2px 4px; width: 70px; text-align: right; }
+        .btn { background: #00FF00; color: #000; font-family: inherit; font-weight: bold; font-size: 13px; padding: 10px; width: 100%; border: none; cursor: pointer; text-transform: uppercase; margin-top: 5px; }
+        .output-box { margin-top: 5px; padding: 8px; border: 1px dashed #00FF00; text-align: center; font-weight: bold; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>BORSODI COMMAND CENTER v2.0</h1>
+    <div style="font-size: 9px; color: #00AA00;">🚀 DON MÉRNÖK OFFLINE ENGINE // 10x STOCH MULTIPLEXER</div>
+</header>
+
+<div class="container">
+    <div class="card">
+        <div class="card-title">[ 🎯 PIAC BÁZIS ]</div>
+        <div class="grid-2">
+            <div class="input-group"><label>Tőke (USD):</label><input type="number" id="toke" value="10000"></div>
+            <div class="input-group"><label>Kockázat (%):</label><input type="number" id="kock" value="1.73" step="0.01"></div>
+            <div class="input-group"><label>Árfolyam:</label><input type="number" id="ar" value="72000"></div>
+            <div class="input-group"><label>ATR Sáv:</label><input type="number" id="atr" value="25"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">[ 🌊 10x MULTI-STOCH SZŰRŐ ]</div>
+        <div class="grid-2" id="stoch_inputs"></div>
+    </div>
+
+    <button class="btn" onclick="szamolMtrx()">[ 🔥 FIRST STRIKE EVALUATION ]</button>
+
+    <div class="card">
+        <div class="card-title">[ ⚡ JELZÉS & REPORT ]</div>
+        <div id="out_irany" class="output-box" style="background: #111;">RNDSZR BETÖLTVE...</div>
+        <div style="font-size: 11px; margin-top: 5px; display: flex; flex-direction: column; gap: 4px;">
+            <div>👉 <b>STOP LOSS:</b> <span id="out_sl">--</span></div>
+            <div>👉 <b>TAKE PROFIT:</b> <span id="out_tp">--</span></div>
+            <div>👉 <b>MÉRET:</b> <span id="out_size">--</span></div>
+            <div>👉 <b>STOCH ÁTLAG:</b> <span id="out_stoch">--</span></div>
+        </div>
+    </div>
