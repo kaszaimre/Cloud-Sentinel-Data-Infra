@@ -20,11 +20,6 @@
 import time
 from PIL import Image
 
-# ... innen jöhet a text_to_bin és az LSB logika ...
-
-import time
-from PIL import Image
-
 CYAN    = "\033[1;36m"
 GREEN   = "\033[1;32m"
 RED     = "\033[1;31m"
