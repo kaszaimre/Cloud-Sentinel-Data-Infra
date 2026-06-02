@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borsodi Bajnok - Folyamatos Harc</title>
+    <style>
+        body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #222; color: white; font-family: sans-serif; overflow: hidden; }
+        canvas { background: #333; border: 4px solid #555; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        #ui { position: absolute; top: 10px; left: 10px; font-size: 20px; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div id="ui">Pontszám: <span id="score">0</span> | Státusz: <span id="status">KÜLDETÉS ALATT</span></div>
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const statusEl = document.getElementById('status');
+
+        canvas.width = 600;
+        canvas.height = 400;
+
+        let score = 0;
+        let player = { x: 50, y: 50, size: 20, speed: 5 };
+        let enemy = { x: 500, y: 300, size: 20, speed: 2 };
+        let items = Array.from({ length: 5 }, () => ({ 
+            x: Math.random() * 550, y: Math.random() * 350, size: 10 
+        }));
+
+        const keys = {};
+        window.addEventListener('keydown', e => keys[e.key] = true);
+        window.addEventListener('keyup', e => keys[e.key] = false);
+
+        function update() {
+            // Mozgás
+            if (keys['ArrowUp'] && player.y > 0) player.y -= player.speed;
+            if (keys['ArrowDown'] && player.y < canvas.height - player.size) player.y += player.speed;
+            if (keys['ArrowLeft'] && player.x > 0) player.x -= player.speed;
+            if (keys['ArrowRight'] && player.x < canvas.width - player.size) player.x += player.speed;
+
+            // Ellenség követése
+            if (enemy.x < player.x) enemy.x += enemy.speed;
+            if (enemy.x > player.x) enemy.x -= enemy.speed;
+            if (enemy.y < player.y) enemy.y += enemy.speed;
+            if (enemy.y > player.y) enemy.y -= enemy.speed;
+
+            // Ütközés ellenséggel: NINCS ÚJRAINDÍTÁS, CSAK STÁTUSZJELZÉS
+            if (Math.hypot(player.x - enemy.x, player.y - enemy.y) < 20) {
+                statusEl.innerText = "ÜTKÖZÉS! MANŐVEREZZ!";
+                statusEl.style.color = "red";
+                // Nem reseteljük a játékot, a harc folytatódik
+            } else {
+                statusEl.innerText = "KÜLDETÉS ALATT";
+                statusEl.style.color = "white";
+            }
+
+            // Tárgyak begyűjtése
+            items.forEach((item, index) => {
+                if (Math.hypot(player.x - item.x, player.y - item.y) < 20) {
+                    items.splice(index, 1);
+                    score += 10;
+                    scoreEl.innerText = score;
+                    items.push({ x: Math.random() * 550, y: Math.random() * 350, size: 10 });
+                }
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Játékos
+            ctx.fillStyle = 'lime';
+            ctx.fillRect(player.x, player.y, player.size, player.size);
+
+            // Ellenség
+            ctx.fillStyle = 'red';
+            ctx.fillRect(enemy.x, enemy.y, enemy.size, enemy.size);
+
+            // Tárgyak
+            ctx.fillStyle = 'yellow';
+            items.forEach(item => {
+                ctx.beginPath();
+                ctx.arc(item.x, item.y, item.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            update();
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
+</body>
+</html>
