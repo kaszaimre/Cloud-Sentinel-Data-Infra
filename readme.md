@@ -161,4 +161,4 @@ The micro-service formats all mitigations into deterministic security structures
 | `import tkinter as tk2.py` | Nincs rögzített leírás. |
 | `import tkinter as tk4.py` | Nincs rögzített leírás. |
 | `main.py` | Nincs rögzített leírás. |
-| `majomfa2.py` | Nincs rögzített leírás. |
+| `majomfa2.py` | Nincs rögzített leírás. | 
