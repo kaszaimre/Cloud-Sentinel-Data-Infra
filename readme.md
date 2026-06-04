@@ -1,9 +1,66 @@
+@ -1,164 +1,108 @@
+@ -1,58 +1,107 @@
+# Cloud Sentinel Core — Infrastructure Guard Daemon
 # 🛡️ Cloud-Sentinel-Data-Infra
 
+An automated, cross-platform security daemon designed for real-time process monitoring, anomaly detection, and automated threat mitigation. This micro-service continuously audits active system workloads and neutralizes blacklisted signatures or unauthorized compliance breaches.
 Nagyvállalati szintű elosztott adatinfrastruktúra és kiberbiztonsági rendszer.
 
+## 🚀 Key Features
 ## 🗂️ Automatizált Rendszertérkép és Moduljegyzék
 
+- **Automated Threat Mitigation:** Real-time scanning and surgical containment of processes matching malicious signatures (e.g., reverse shells, unapproved binaries) [1].
+- **Cross-Platform Compatibility:** Dynamic runtime abstraction optimized for both Linux (`ps` orchestration) and Windows environments (`tasklist`/`taskkill` integration).
+- **Persistent Infrastructure Guard:** Daemonized deployment utilizing headless background pipelines for uninterrupted server-node monitoring.
+- **Unified Event Logging:** Standarized, chronological log management mapping system starts, runtime integrity checks, and security interventions.
+
+## 🛠️ Infrastructure Architecture
+
+```text
+📂 cloud-sentinel-core/
+├── 📄 cyber_sentinel.py     # Main security daemon engine
+├── 📄 start_infra.sh        # Infrastructure lifecycle launcher
+└── 📄 sentinel_events.log   # Centralized chronological security logs
+```
+
+## ⚙️ Deployment & Configuration
+
+### Prerequisites
+- Python 3.x installed and added to environment paths.
+- Administrative/Root privileges (required for secure process termination workflows).
+
+### Installation & Initialization
+
+1. Clone this repository to your local architecture:
+   ```bash
+   git clone github.com
+   cd cloud-sentinel-core
+   ```
+
+2. Configure your automated alerting constraints inside `cyber_sentinel.py` (CPU limits, specific keywords, custom alert mail relays).
+
+3. Spin up the infrastructure core daemon:
+   - **On Linux (Background Service):**
+     ```bash
+     chmod +x start_infra.sh
+     ./start_infra.sh
+     ```
+   - **On Windows (Direct Environment Shell):**
+     ```powershell
+     python .\cyber_sentinel.py
+     ```
+
+## 📊 Security Metrics & Compliance
+
+The micro-service formats all mitigations into deterministic security structures saved locally under `sentinel_events.log`:
+
+```text
+[2026-05-13 12:27:35] SYSTEM_START: Sentinel core infrastructure initialized.
+[2026-05-13 12:30:12] TASKKILL /F -> PID: 9999 | Name: reverse_shell_sim | Threat Mitigated.
+```
+
+---
+*Developed by Don Mérnök — Designed for Resilient Cloud Architecture and Scalable Infrastructure Operations.*
 | Sorszám / Fájlnév | Funkcionális Rendszerleírás |
 | :--- | :--- |
 | `009_router_security_audit.py` | Nincs rögzített leírás. |
@@ -104,4 +161,4 @@ Nagyvállalati szintű elosztott adatinfrastruktúra és kiberbiztonsági rendsz
 | `import tkinter as tk2.py` | Nincs rögzített leírás. |
 | `import tkinter as tk4.py` | Nincs rögzített leírás. |
 | `main.py` | Nincs rögzített leírás. |
-| `majomfa2.py` | Nincs rögzített leírás. |
+| `majomfa2.py` | Nincs rögzített leírás. | 
