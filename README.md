@@ -1,164 +1,147 @@
-@ -1,164 +1,108 @@
-@ -1,58 +1,107 @@
-# Cloud Sentinel Core — Infrastructure Guard Daemon
-# 🛡️ Cloud-Sentinel-Data-Infra
+# Borsodi Mátrix - Modulok Tára
 
-An automated, cross-platform security daemon designed for real-time process monitoring, anomaly detection, and automated threat mitigation. This micro-service continuously audits active system workloads and neutralizes blacklisted signatures or unauthorized compliance breaches.
-Nagyvállalati szintű elosztott adatinfrastruktúra és kiberbiztonsági rendszer.
-
-## 🚀 Key Features
-## 🗂️ Automatizált Rendszertérkép és Moduljegyzék
-
-- **Automated Threat Mitigation:** Real-time scanning and surgical containment of processes matching malicious signatures (e.g., reverse shells, unapproved binaries) [1].
-- **Cross-Platform Compatibility:** Dynamic runtime abstraction optimized for both Linux (`ps` orchestration) and Windows environments (`tasklist`/`taskkill` integration).
-- **Persistent Infrastructure Guard:** Daemonized deployment utilizing headless background pipelines for uninterrupted server-node monitoring.
-- **Unified Event Logging:** Standarized, chronological log management mapping system starts, runtime integrity checks, and security interventions.
-
-## 🛠️ Infrastructure Architecture
-
-```text
-📂 cloud-sentinel-core/
-├── 📄 cyber_sentinel.py     # Main security daemon engine
-├── 📄 start_infra.sh        # Infrastructure lifecycle launcher
-└── 📄 sentinel_events.log   # Centralized chronological security logs
-```
-
-## ⚙️ Deployment & Configuration
-
-### Prerequisites
-- Python 3.x installed and added to environment paths.
-- Administrative/Root privileges (required for secure process termination workflows).
-
-### Installation & Initialization
-
-1. Clone this repository to your local architecture:
-   ```bash
-   git clone github.com
-   cd cloud-sentinel-core
-   ```
-
-2. Configure your automated alerting constraints inside `cyber_sentinel.py` (CPU limits, specific keywords, custom alert mail relays).
-
-3. Spin up the infrastructure core daemon:
-   - **On Linux (Background Service):**
-     ```bash
-     chmod +x start_infra.sh
-     ./start_infra.sh
-     ```
-   - **On Windows (Direct Environment Shell):**
-     ```powershell
-     python .\cyber_sentinel.py
-     ```
-
-## 📊 Security Metrics & Compliance
-
-The micro-service formats all mitigations into deterministic security structures saved locally under `sentinel_events.log`:
-
-```text
-[2026-05-13 12:27:35] SYSTEM_START: Sentinel core infrastructure initialized.
-[2026-05-13 12:30:12] TASKKILL /F -> PID: 9999 | Name: reverse_shell_sim | Threat Mitigated.
-```
-
----
-*Developed by Don Mérnök — Designed for Resilient Cloud Architecture and Scalable Infrastructure Operations.*
-| Sorszám / Fájlnév | Funkcionális Rendszerleírás |
+| Modul neve | Leírás |
 | :--- | :--- |
-| `009_router_security_audit.py` | Nincs rögzített leírás. |
-| `010_crypto_market_analytics.py` | Nincs rögzített leírás. |
-| `011_trade_risk_manager.py` | Nincs rögzített leírás. |
-| `012_moving_average_crossover.py` | Nincs rögzített leírás. |
-| `01_infrastructure_milestone_vault.py` | Nincs rögzített leírás. |
-| `021_steganography_lsb_core.py` | Nincs rögzített leírás. |
-| `022_network_packet_packetizer.py` | Alacsony szintű hálózati csomag-összeállító (packetizer) és elemző modul. A kód egyéni fejléc-struktúrákat (headers) és ellenőrző összegeket (checksum) számol ki, amellyel a Cyber-Borsod protokoll adatcsomagjait validálja és készíti fel a hálózati továbbításra. |
-| `023_system_telemetry_logger.py` | Nincs rögzített leírás. |
-| `024_secure_symmetric_cipher.py` | Szimmetrikus áramtitkosító és adatrejtő modul. Alacsony szintű XOR-alapú kriptográfiai logikát és dinamikus kulcs-rotációt használ a 5TB-os hálózati pipeline-on átfolyó belső parancsok és szenzitív szövegek azonnali, valós idejű titkosítására és visszafejtésére. |
-| `025_firewall_rate_limiter.py` | Automatikus hálózati sebességkorlátozó (Rate Limiter) és DDoS-védelmi modul. Nyomon követi az érkező kérések időbélyegeit forrás-IP alapján. Ha egy IP-cím túllépi a megengedett másodpercenkénti küszöbértéket, a modul javaslatot tesz a tűzfalnak a forrás azonnali blokkolására (DROP). |
-| `026_file_integrity_monitor.py` | Fájlintegritás-ellenőrző (FIM) modul. SHA-256 kriptográfiai hash-ek segítségével figyeli a kijelölt biztonsági könyvtárakat és konfigurációs fájlokat. Automatikusan detektálja és naplózza, ha egy illetéktelen támadó módosította a rendszer belső szkriptjeit. |
-| `027_dns_exfiltration_detector.py` | DNS alapú adatszivárgás-detektáló (DNS Exfiltration Detector) modul. Heurisztikus elemzéssel vizsgálja a lekérdezett aldomainek hosszát és entrópiáját. Ha egy hosztnév túl hosszú vagy gyanúsan kódolt karakterláncot tartalmaz, a modul riasztást ad, mert a támadók titkosított adatokat próbálnak kicsempészni a hálózatból. |
-| `028_memory_buffer_overflow_shield.py` | Memóriapuffer-túlcsordulás elleni védelmi modul (Buffer Overflow Shield). Alacsony szintű beviteli adatfolyamokat ellenőriz a C-alapú memóriakezelő rendszerek előtt. Ha a beérkező adatméret meghaladja a lefoglalt statikus pufferméretet, a modul azonnal elvágja a bevitelt és izolálja a szálat, megakadályozva a tetszőleges kódvégrehajtást (RCE). |
-| `029_secure_env_vault.py` | Biztonságos Környezeti Változó és Token Kezelő (Secure Environment Vault) modul. Megakadályozza, hogy a szenzitív API kulcsok, adatbázis jelszavak és az SMTP jelszavak nyers szövegként (hardcoded) szerepeljenek a kódokban. A modul titkosított környezeti fájlokat (.env) olvas be, és ellenőrzi a kötelező biztonsági kulcsok meglétét a 5TB-os pipeline indítása előtt. |
-| `02_trader_price_predictor.py` | Trader Árkalkulátor és Pánik-Mérő Predikciós (Price Predictor) magmodul. A 5TB-os adatcsatorna legfrissebb 10 áradatát elemzi. Kiszámítja a piaci lendületet, az átlagtól való eltérést (Volatilitás), és meghatározza a piaci feszültség rizikófaktorát. Egy egyedi, bájtszintű karakteres grafikonnal jeleníti meg a várható jövőbeli irányt, szorosan együttműködve a 011-es Kockázatkezelővel. |
-| `030_log_rotation_policy.py` | Biztonságos Környezeti Változó és Token Kezelő (Secure Environment Vault) modul. Megakadályozza, hogy a szenzitív API kulcsok, adatbázis jelszavak és az SMTP jelszavak nyers szövegként (hardcoded) szerepeljenek a kódokban. A modul titkosított környezeti fájlokat (.env) olvas be, és ellenőrzi a kötelező biztonsági kulcsok meglétét a 5TB-os pipeline indítása előtt. |
-| `031_network_port_knocking.py` | Port-Knocking (Kopogásos Portnyitás) védelmi modul. Elrejti a kritikus SSH/API menedzsment kapukat a külvilág elől. A tűzfal alapértelmezetten minden bejövő kapcsolatot tilt. A modul figyeli a hálózati csomagokat: ha egy kliens egy előre meghatározott, pontos matematikai szekvencia (pl. 7000 -> 8500 -> 9000) szerint "kopogtat" a zárt portokon, a rendszer ideiglenesen megnyitja neki a hozzáférést. |
-| `032_hardware_token_authenticator.py` | Hardveres Token Alapú Hitelesítési (Hardware Token Authenticator) modul. Időalapú egyszeri jelszavak (TOTP) generálását és ellenőrzését szimulálja a 5TB-os hálózati pipeline és a SOC központ védelmére. HMAC-SHA256 alapú kriptográfiával biztosítja, hogy csak az léphessen be az infrastruktúrába, aki rendelkezik a fizikai biztonsági kulccsal. |
-| `033_sql_injection_waf_filter.py` | Webes Alkalmazásszintű Tűzfal (WAF) és SQL Injection (SQLi) szűrő modul. Heurisztikus és szignatúra-alapú elemzéssel vizsgálja a 5TB-os pipeline-ba érkező adatbázis-lekérdezési paramétereket. Ha a beviteli mezőkben kártékony adatbázis-módosító mintákat (pl. ' OR 1=1 --, UNION SELECT) észlel, azonnal blokkolja a kérést, megelőzve az adatszivárgást. |
-| `034_ssh_honeypot_node.py` | Kiberbiztonsági Csapda (SSH Honeypot) modul. Egy hamis, sebezhetőnek tűnő SSH menedzsment felületet emulál a hálózaton. Amikor egy támadó vagy egy automatizált bot megpróbál belépni (Brute-Force találgatással), a modul nem engedi be, de rögzíti a támadó IP-címét, a próbált jelszavakat, és azonnali riasztást küld a központi SOC csapatnak. |
-| `035_tls_certificate_validator.py` | TLS Tanúsítvány Érvényességi és Biztonsági Ellenőrző (TLS Certificate Validator) modul. A 5TB-os hálózati pipeline és API csomópontok titkosított HTTPS/TLS kapcsolatait auditálja. Ellenőrzi a tanúsítványok lejárati idejét, a titkosító algoritmus erősségét (SHA256 vagy újabb), és riaszt, ha elavult, lehallgatható (pl. MD5, SHA1) vagy lejárt SSL/TLS tanúsítványt észlel a hálózaton. |
-| `036_arp_spoof_detector.py` | Automatikus fiók-zárolási házirend (Account Lockout Policy) modul. Számolja a sikertelen bejelentkezési kísérleteket felhasználónként. Ha a próbálkozások száma eléri a kritikus küszöbértéket, a fiókot biztonsági okokból időalapon zárolja, megakadályozva a szótár- és jelszótalálgatásos (Brute-Force) támadásokat. |
-| `038_ransomware_canary_file_deployer.py` | Zsarolóvírus-csapda és korai detektáló (Ransomware Canary File Deployer) modul. Rejtett, csalétek fájlokat (.dat / .txt) helyez el a kritikus mappákban. Mivel a zsarolóvírusok ábécésorrendben titkosítják a merevlemezt, a modul folyamatosan ellenőrzi ezeket a korai "kanári" fájlokat. Ha a kanári fájl tartalma vagy kiterjesztése megváltozik, azonnal leállítja a rendszert, mielőtt a vírus a valódi 5TB-os adatállományhoz érne. |
-| `039_linux_capabilities_privilege_audit.py` | Linux Jogosultság-kiterjesztés Elleni Audit (Privilege Escalation Audit) modul. Ellenőrzi a 5TB-os felhőcsomópontokon futó Python folyamatok rendszerjogosultságait. Kiszűri, ha a kódok a veszélyes 'root' (rendszergazda) módban futnak anélkül, hogy ez indokolt lenne. Ha jogosultság-kiterjesztési kísérlet gyanúját észleli, azonnal korlátozza a folyamat hálózati és lemezhozzáférési képességeit (Capabilities). |
-| `03_trader_price_predictor.py` | Automatizált Kereskedelmi Árszkenner és Predikciós (Price Scanner) magmodul. Kiküszöböli a manuális billentyűzet-alapú adatbevitelt. Automatikusan generál valós idejű szimulált piaci ármozgásokat egy elosztott tömbbe, majd emberi kéz beavatkozása nélkül lefuttatja a lendület- és pánik-elemzést, bájtszintű karakteres grafikont rajzolva a központi 100-as Master Orchestrator számára. |
-| `040_secure_session_token_generator.py` | Kriptográfiailag Biztonságos Munkamenet-Token Generáló (Secure Session Token) modul. A 5TB-os hálózati pipeline és API hívások hitelesítéséhez készít hamisíthatatlan, magas entrópiájú munkamenet-azonosítókat. A Python beépített 'secrets' modulját használja, ami az operációs rendszer saját hardveres véletlenszám-generátorából (CSPRNG) dolgozik, így a tokenek kiszámíthatatlanok. |
-| `041_shadow_password_hash_auditor.py` | Linux Shadow Jelszó-Hash Auditáló (Shadow Password Hash Auditor) modul. Ellenőrzi a rendszerbázisban tárolt jelszó-hashek kriptográfiai erejét. Kiszűri a gyenge, elavult algoritmusokat (pl. MD5, SHA1), és kikényszeríti a modern, vállalati szintű SHA-512 ($6$) vagy argon2 használatát, megvédve a 18 éves infrastruktúrát az offline szótáralapú és szivárgási támadásoktól. |
-| `042_cloud_metadata_ssrf_shield.py` | Felhő Infrastruktúra SSRF (Server-Side Request Forgery) Védelmi modul. Megakadályozza, hogy a támadók a 5TB-os pipeline belső API-jait kihasználva lekérdezzék a felhő szolgáltató (GCP, AWS) belső metaadat-szerverét (169.254.169.254). A modul blokkolja a privát IP-tartományok felé irányuló jogosulatlan kéréseket. |
-| `043_host_intrusion_rootkit_hunter.py` | Gazdagép Alapú Behatolásjelző és Rootkit Vadász (HIDS Rootkit Hunter) modul. Heurisztikus ellenőrzést futtat a Linux és Windows rendszermag fájljain. Kiszűri a gyanús, rejtett folyamatokat, az elrejtett konfigurációs állományokat, valamint a fertőzésre utaló rendszerkönyvtár-módosításokat (pl. LD_PRELOAD manipuláció), megvédve a 18 éves maginfrastruktúrát a láthatatlan kártevőktől. |
-| `045_zero_trust_api_gateway.py` | Zéró Bizalom Alapú API Kapu (Zero-Trust API Gateway) modul. A "Soha ne bízz meg senkiben, mindig ellenőrizd" elv alapján működik. Minden egyes bejövő hálózati kéréstől megköveteli a titkosított kriptográfiai hitelesítést (Bearer Token) és az érvényes azonosítást, függetlenül attól, hogy a kérés a belső hálózatról vagy az internetről érkezett-e a 5TB-os pipeline-hoz. |
-| `046_secure_memory_wipe.py` | Biztonságos Memóriatisztító és Token-Megsemmisítő (Secure Memory Wipe) modul. Gondoskodik arról, hogy a kritikus kriptográfiai kulcsok, jelszavak és API tokenek a használat után ne maradjanak benne a RAM memóriában. A modul alacsony szintű memóriafelülírást szimulál (Garbage Collection kényszerítéssel és nullázó bájtok beírásával), megakadályozva a Core Dump és Memory Dump alapú adathalászatot. |
-| `047_active_directory_ldap_auditor.py` | Céges Címtár és LDAP Biztonsági Auditáló (LDAP Compliance Auditor) modul. A 5TB-os hálózati pipeline vállalati integrációit és a felhasználói jogokat ellenőrzi az Active Directory (AD) környezetben. Kiszűri, ha a kritikus szervizfiókok nincsenek megfelelően korlátozva, vagy ha elavult, titkosítatlan egyszerű LDAP (Clear-Text Simple Bind) kapcsolatot használnak a hálózaton. |
-| `048_siem_syslog_forwarder.py` | Központi SIEM (Security Information and Event Management) Syslog Továbbító modul. A 5TB-os hálózati pipeline és a Sentinel által generált kritikus riasztásokat és incidenseket szabványos RFC 5424 formátumú Syslog üzenetekké alakítja, majd biztonságos UDP/TCP csatornán keresztül továbbítja a központi SOC elemző szerverek (pl. Splunk, ELK Stack) felé. |
-| `049_pcap_packet_sniffer.py` | Alacsony szintű Hálózati Forgalomelemző (PCAP Packet Sniffer) és Audit modul. Nyers socket hálózati kapcsolatok segítségével képes belehallgatni a hálózati kártya forgalmába (Promiscuous mode szimuláció). Kicsomagolja az IPv4 és TCP/UDP fejléceket, elemzi a csomagméreteket a 5TB-os pipeline-ban, és azonnal riaszt, ha gyanús, strukturálatlan vagy túlméretezett hálózati frame-eket észlel. |
-| `04_android_play_store_ready.py` | Google Play Store Kompatibilis Grafikus Felület (UI Launcher) magmodul. Átalakítja a 03-as automata árszkennert egy önálló ablakos alkalmazássá. Ez a kód szolgál az Android APK csomagolás (Buildozer) alapjául, lehetővé téve, hogy a Crypto-Jós 2500 PRO 1 dolláros fizetős appként fusson a mobilokon. |
-| `050_cloud_iam_privilege_audit.py` | Felhő Alapú Identitás- és Hozzáférés-kezelési (IAM) Compliance és Audit modul. A 5TB-os felhőcsomópontok és szolgáltatásfiókok (Service Accounts) kulcsait, jogosultsági szintjeit vizsgálja a "Legkisebb Jogosultság Elve" (Principle of Least Privilege) alapján. Automatikusan kiszűri a túlméretezett, veszélyes adminisztrátori jogköröket (pl. '*' vagy Owner), megelőzve az infrastruktúra teljes kompromittálódását egy esetleges kulcsszivárgás esetén. |
-| `051_data_anonymizer_pipeline.py` | Adat-anonimizáló és GDPR Megfelelőségi (Data Anonymizer) modul. A 5TB-os hálózati pipeline-ba beérkező adatok elemzése előtt kiszűri a személyes azonosításra alkalmas adatokat (PII - Personally Identifiable Information). Kriptográfiai SHA-256 maszkolással és csonkolással anonimizálja az IP-címeket, e-mail címeket, megvédve a felhasználók adatait a naplófájlokban. |
-| `052_secure_time_sync_validator.py` | Biztonságos Időszinkronizáció Ellenőrző (Secure Time Sync Validator) modul. A kiberbiztonsági logfájlokban az időbélyegek hitelessége kritikus fontosságú. A modul ellenőrzi a helyi rendszeridőt egy megbízható külső NTP időszerverhez képest. Ha a kettő közötti eltérés (Time Drift) meghaladja a megengedett limitet, riasztást ad, mert a támadók manipulálhatták az időt a logok meghamisítására. |
-| `053_linux_pam_backdoor_hunter.py` | Linux Pluggable Authentication Modules (PAM) hátsó kapu kereső és audit modul. A 5TB-os felhőcsomópontok hitelesítési alrendszerét (PAM) monitorozza. Kiszűri a kártékony vagy módosított megosztott könyvtárakat (pl. pam_unix.so), amelyeket a támadók mesterjelszavas (Master Password) hozzáférés beépítésére használnak, garantálva a rendszermag hitelességét. |
-| `054_steganography_watermark_verifier.py` | Steganográfiai Vízjel és Eredetiség-ellenőrző (Watermark Verifier) modul. A 18 éves tapasztalatod adatrejtési elveire építve digitális aláírásokat és rejtett vízjeleket keres a kiber-rendszer médiaállományaiban. Kiszűri a manipulált vagy kicserélt képeket, biztosítva, hogy a pipeline-ban közlekedő grafikus tokenek kizárólag a hitelesített forrásból származnak. |
-| `055_cloud_kms_key_rotator.py` | Felhő Alapú Kulcskezelő és Rotációs (Cloud KMS Key Rotator) modul. A 5TB-os hálózati pipeline és adattárház titkosításához használt mesterkulcsok (Master Encryption Keys) életciklusát menedzseli. Automatikusan végrehajtja a kulcsok időszakos cseréjét és rotációját, megakadályozva, hogy egy esetlegesen kiszivárgott régi kulccsal a támadók visszafejthessék az új adatfolyamokat. |
-| `057_network_data_exfiltration_limiter.py` | Hálózati Adatkicsempészés-korlátozó (Data Exfiltration Limiter) modul. A 5TB-os hálózati pipeline és API kapuk kimenő (outbound) adatforgalmát monitorozza bájtszinten. Ha egy külső IP-cím felé irányuló adatfolyam volumene egy előre meghatározott időablakon belül eléri a kritikus riasztási korlátot, a modul azonnal lezárja a hálózati kapcsolatot az adatvagyon védelméért. |
-| `058_windows_registry_tamper_sensor.py` | Windows Rendszerleíró-adatbázis Manipuláció-érzékelő (Registry Tamper Sensor) modul. A helyi Windows tesztkörnyezet automatikus indítókulcsait (Run Keys) és rendszerbiztonsági beállításait (UAC, Windows Defender szabályok) ellenőrzi. Kiszűri, ha egy kártevő vagy illetéktelen folyamat tartós rendszer-elérést (Persistence) próbál kiépíteni a regisztrációs adatbázis kulcsainak titkos módosításával. |
-| `059_linux_auditd_syslog_analyzer.py` | Linux Auditd Rendszernapló Elemző (Linux Auditd Log Analyzer) modul. A 5TB-os felhőcsomópontok Linux kernel-szintű biztonsági naplóit (auditd) vizsgálja. Kiszűri a gyanús rendszermeghívásokat (syscalls), mint például az illetéktelen fájlrendszer-módosítások vagy hálózati socket nyitások, és azonnali strukturált riasztást küld az anomáliák észlelésekor. |
-| `060_automated_incident_playbook_orchestrator.py` | Automatizált Incidens-kezelési Forgatókönyv Rendező (Playbook Orchestrator) modul. A SOAR (Security Orchestration, Automation, and Response) elvek alapján működik. Ha a Sentinel vagy a szimulációs konzol kritikus incidenst észlel, ez a modul koordinálja a válaszlépéseket: elindítja a tűzfal tiltást (DROP), végrehajtja a folyamatleállítást (ISOLATE), és frissíti a központi 'sentinel_events.log' naplót. |
-| `061_web_parameter_xss_filter.py` | Cross-Site Scripting (XSS) injekció szűrő modul. A 5TB-os adatfolyam és az API végpontok felé érkező szöveges beviteleket tisztítja. Reguláris kifejezésekkel (Regex) kiszűri a kártékony HTML/JavaScript kódokat (pl. <script>, alert()), megakadályozva, hogy a támadók böngésző-alapú adathalász vagy session-eltérítő kódokat ágyazzanak a rendszerbe. |
-| `062_windows_active_process_hardener.py` | Windows Folyamat-keményítő és DLL-Injekció Elleni Védelmi (Process Hardener) modul. A helyi Windows tesztkörnyezetben futó kritikus Python folyamatok védelmét látja el. Szimulálja a Windows API-szintű biztonsági flagjeinek beállítását (mint a DEP - Data Execution Prevention, vagy a Mitigations Policy), ami megakadályozza, hogy a támadók idegen DLL fájlokat injektáljanak a memóriaterületünkre. |
-| `063_cloud_api_token_leak_scanner.py` | Felhő API Kulcs- és Kiszivárgás-szűrő (API Token Leak Scanner) modul. A 5TB-os pipeline-ba kerülő nyers naplófájlokat, konfigurációkat vagy kódrészleteket szkenneli a beküldés előtt. Reguláris kifejezésekkel (Regex) automatikusan kiszűri és blokkolja, ha egy fejlesztő véletlenül éles felhő jelszót (pl. Google OAuth, AWS Access Key, Slack Webhook) felejtett a szövegekben, megelőzve a szivárgást. |
-| `065_cryptographic_file_packer.py` | Kriptográfiai Fájlcsomagoló és Integritás-védelmi (Cryptographic File Packer) modul. A 5TB-os hálózati pipeline-ba érkező szenzitív kódokat és konfigurációs fájlokat egyetlen titkosított archívumba tömöríti. Minden egyes csomagolás során egyedi AES/HMAC alapú ellenőrző aláírást generál, így biztosítja, hogy a mentett adatok offline tárolás közben sem módosíthatók illetéktelenül. |
-| `066_kubernetes_rbac_compliance_auditor.py` | Kubernetes RBAC (Role-Based Access Control) Hozzáférés-kezelési Audit modul. A felhőalapú klaszterek belső jogosultsági szabályzatait (YAML definíciók) ellenőrzi. Kiszűri a kritikus biztonsági szabálysértéseket, például ha egy szolgáltatásfiók korlátlan hozzáférést (ClusterAdmin) kap, vagy vadkártya ("*") karakterrel minden erőforrást elérhet a 5TB-os fürtön belül. |
-| `067_linux_kernel_sysctl_hardener.py` | Linux Rendszermag Biztonsági Paraméter-keményítő (Kernel Sysctl Hardener) modul. A 5TB-os felhőcsomópontok biztonsági beállításait vizsgálja az /etc/sysctl.conf fájlon keresztül. Ellenőrzi a kritikus hálózati és memóriavédelmi kernel flag-eket, mint az IP továbbítás letiltása (ip_forward) vagy az ICMP átirányítások elutasítása, megvédve a host gépet az útvonal-eltérítéses (Routing Hijack) támadásoktól. |
-| `068_web_api_jwt_token_validator.py` | Web API JWT Token Kriptográfiai Validáló és Audit (JWT Token Validator) modul. A 5TB-os pipeline-ba érkező elosztott hitelesítési tokeneket (JSON Web Tokens) vizsgálja meg. Kiszűri a kritikus „None” algoritmusos biztonsági réseket (amikor a támadó aláírás nélkül küldi be a tokent), ellenőrzi a lejárati időbélyegeket, garantálva a mikroszolgáltatások közötti hívások hitelességét. |
-| `069_docker_security_compliance_auditor.py` | Rendszernapló Integritás-védelmi és Kriptográfiai Lezáró (Syslog Integrity Vault) modul. A 5TB-os kiber-infrastruktúra végső védelmi vonala. Időszakosan beolvassa a 'sentinel_events.log' legfrissebb bejegyzéseit, blokkosítja őket, és egy láncolt SHA-256 hash lenyomatot generál róluk. Ha egy támadó utólag megpróbálja letörölni a nyomait a logfájlból, a modul azonnal jelzi az integritás sérülését. |
-| `06_brigad_war_room_dashboard.py` | Borsodi War Room Központi Profit Kijelző és Rendszer-Stabilizáló magmodul. Beolvassa a Cyber-Borsod Brigád vizuális parancsnoki táblájának adatait. Szimulálja a fix 29,735.00-ös Profit Faktort, lefuttatja a 'Mai Terv' 8 pontos ellenőrző listáját, és élesíti a GPT Approved zöld jelzést a terminálban, garantálva, hogy a Brigád a piac összeomlása esetén is mindig nyerjen. |
-| `071_felelem_simulalas_anomalia.py` | Kiber-pszichológiai Felelem-szimulációs és Anomália-tesztelő (Fear Simulation) modul. A rendszerbe épített mesterséges intelligencia viselkedési stressz-tesztje. Szimulálja a hálózat kritikus pontjainak (Node-ok) túlterheltségét és félelmi reakcióit (válaszidő növekedés, pánik-alapú sávszélesség-elvágás), majd teszteli, hogy az automatikus védelmi algoritmusok képesek-e stabilizálni a rendszert. |
-| `072_reakcio_teszt_milisecond.py` | Ezredmásodperc Alapú Hálózati Reakcióteszt és Latencia Auditor (Reaction Test) modul. A 5TB-os pipeline hálózati válaszidejét (RTT) méri mikroszekundumos pontossággal. Amikor a Sentinel támadást észlel, ez a modul teszteli, hogy a védelmi falak hány ezredmásodperc alatt reagálnak (TASKKILL / DROP parancsok kiküldése). Ha a reakcióidő meghaladja a 200 ms-ot, automatikusan optimalizálja a hálózati szoftvercsatornákat. |
-| `073_market_analizator_volatility.py` | Kriptovaluta Piaci Volatilitás Elemző és Predikciós (Market Analizator) modul. A 5TB-os Parquet adatbázisból behúzott záróárak standard deviációját és napi ármozgásait elemzi. Kiszámolja a piaci pánik és a hirtelen árzuhanások (Market Crash) valószínűségét, és ha a volatilitási index átlépi a kritikus biztonsági szintet, parancsot küld a 011-es Kockázatkezelőnek a pozíciók azonnali fedezékbe mentésére. |
-| `074_gyors_strategia_pipeline.py` | Nincs rögzített leírás. |
-| `075_reakcio_optimalizalo_sandbox.py` | Nincs rögzített leírás. |
-| `076_bigquery_parquet_archive_roaster.py` | Google BigQuery és Parquet Archívum Optimalizáló (Archive Roaster) modul. A 5TB-os adattárház felhőalapú logjait és partícióit rendezi át. Az elavult, strukturálatlan adatokat "pörköli" (tömöríti és indexeli), majd automatikusan átmozgatja a költséghatékony Cold Storage (hideg tároló) rétegbe, ezzel radikálisan csökkentve a felhős infrastruktúra fenntartási költségeit. |
-| `077_shib_engine_load_balancer.py` | SHIB Pörkölt Motor Terheléselosztó és Szimulációs (SHIB Engine) modul. A 80 aktív Python példány és a 5TB-os adatfolyam belső hálózati forgalmát irányítja. Egy egyéni, körbeforgó (Round-Robin) algoritmus segítségével automatikusan elosztja a beérkező adatcsomagokat a szabad felhőcsomópontok között. Ha az egyik node túlterhelődik, azonnal átirányítja a forgalmat, megelőzve a rendszer lassulását és a reakcióidő romlását. |
-| `078_hardware_resource_throttle_mitigator.py` | Hardver Erőforrás-Korlátozó és Akadozás-gátló (Resource Throttle Mitigator) modul. Folyamatosan monitorozza a helyi gazdagép processzorterhelését (CPU) és szabad memóriáját (RAM). Ha a 80 aktív Python példány vagy a 5TB-os pipeline miatt a gép elkezd akadozni vagy túlmelegedni, a modul automatikusan korlátozza a háttérszálak sebességét (Throttling), kényszerített pihentetést (time.sleep) iktat be, megvédve a hardvert az összeomlástól. |
-| `082_watchlist_matrix_aggregator.py` | Watchlist Mátrix Aggregátor és Portfólió Súlyozó modul. Központosítja és összefésüli a TradingView felületről (pl. US ELITE, SAJÁT fülek) érkező különböző eszközcsoportok adatait. Kiszámolja a globális piaci kitettséget, és ha túl sok eszköz ad egyszerre BUY jelzést (mint a képen az AAPL, NVDA, GOOGL), korlátozza a maximális tőkeallokációt, hogy megvédje a rendszert a piaci korrekcióktól. |
-| `083_infrastructure_janitor.py` | Automata Rendszertisztító és Memóriafelszabadító (Infrastructure Janitor) modul. Kifejezetten a háttérben ragadt kártékony vagy beragadt .exe folyamatok, zombi Python szálak és pufferelt memóriaszemét azonnali, kényszerített törlésére szolgál. Tisztítja a munkakörnyezetet, megszünteti a gép akadozását, és maximális RAM kapacitást biztosít a pipeline-nak. |
-| `084_risk_position_sizer.py` | Kockázatarányos Pozícióméretező és Tőkeallokációs (Position Sizing) modul. A 082-es mátrix aggregátor kimeneti adatai alapján dolgozik. Kiszámítja, hogy a teljes tőke maximum hány százaléka (pl. strict 1-2%) kockáztatható egyetlen ügyleten a stop-loss távolság függvényében. Megvédi az 5TB-os kereskedési magot a túlméretezett pozícióktól és a gyors tőkefogyástól. |
-| `087_git_bash_taskkill_hardener.py` | Keresztplatformos Git Bash Folyamat-izolációs és Hardening modul. Automatikusan áthidalja a Git Bash (MINGW64) és a Windows OS közötti parancsbeli eltéréseket. Közvetlen alacsony szintű OS hívásokkal kényszerített takarítást hajt végre a beragadt Python szálakon, garantálva az erőforrások azonnali felszabadítását a 5TB-os pipeline zökkenőmentes működéséhez. |
-| `088_sh_script_formatter.py` | Shell Script Szöveges Formázó és Kompatibilitási (Shell Script Formatter) modul. Automatikusan ellenőrzi a .sh fájlok sörvégi karaktereit (Line Endings). Kiszűri a Windows-féle \r\n (CRLF) karaktereket, és átalakítja őket tiszta Linux-féle \n (LF) formátumba. Megakadályozza, hogy a Git Bash vagy a felhős Linux node-ok 'standard syntax error' hibát dobjanak a script futtatásakor. |
-| `089_git_repository_path_resolver.py` | Git Repozitórium Útvonal-ellenőrző és Validáló (Repository Path Resolver) modul. Automatikusan ellenőrzi az aktuális munkakönyvtárat a 5TB-os pipeline indítása és a Git parancsok kiadása előtt. Megvizsgálja a rejtett .git mappa jelenlétét. Ha a felhasználó rossz alkönyvtárban áll (pl. nem inicializált mappában), figyelmeztetést dob, és megkeresi a szülőkönyvtárakban a helyes Git gyökeret. |
-| `08_pipeline_shutdown_sequence.py` | Rendszerleállító és Biztonsági Puffer-Lezáró (Shutdown Sequence) modul. Ellenőrzi, hogy a 122-es War Room Dashboard sikeresen lefutott-e. Az aktív hálózati portokat és a futási memóriapuffereket biztonságosan lezárja, majd a helyi rendszermagot egy ellenőrzött, sterilebb KÉSZENLÉTI (Standby) állapotba helyezi át a hétvégi inaktivitási periódusra. |
-| `090_automated_git_push_trigger.py` | Automatizált Git Szinkronizációs és Pipeline Élesítő (Git Push Trigger) modul. Ellenőrzi a 089-es útvonal-ellenőrző kimenetét. Ha a rendszer alkönyvtárban van, a kód automatikusan kezeli a kontextusváltást a szülőkönyvtár felé, majd alacsony szintű rendszermeghívásokkal (subprocess) automatikusan végrehajtja a Git hozzáadást, commitot és a GitHub felhőbe való biztonságos feltolást. |
-| `091_absolute_path_sanitizer.py` | Abszolút Útvonal Szanáló és Workspace Igazító (Absolute Path Sanitizer) modul. Közvetlenül térképezi fel a '05132026' mappába ágyazott .git gyökérkönyvtárat. Megakadályozza az elcsúszott terminálkontextusokból adódó végrehajtási hibákat. Automatikusan kiszámítja a relatív utakat, garantálva, hogy a 5TB-os pipeline és a Git modulok mindig a valós fizikai lemezterületre hivatkozzanak. |
-| `092_commit_pipeline_auditor.py` | Automatikus Verziókövetési és Commit Pipeline Auditor modul. Közvetlenül a '05132026' mappában lévő aktív .git állapotot vizsgálja meg. Alacsony szintű helyi Git hívásokkal lekérdezi az aktuális ág (branch) nevét, és ellenőrzi az online GitHub szerverrel való szinkronizáció teljességét. Megakadályozza az ütközéseket és a lokális adatvesztést a 5TB-os pipeline-on belül. |
-| `093_automated_autosync_daemon.py` | Automatikus Verziókövetési és Commit Pipeline Auditor modul. Közvetlenül a '05132026' mappában lévő aktív .git állapotot vizsgálja meg. Alacsony szintű helyi Git hívásokkal lekérdezi az aktuális ág (branch) nevét, és ellenőrzi az online GitHub szerverrel való szinkronizáció teljességét. Megakadályozza az ütközéseket és a lokális adatvesztést a 5TB-os pipeline-on belül. |
-| `094_automated_telemetry_test.py` | Automatikus Telemetria és Daemon Tesztelő (Automated Telemetry Test) modul. Kifejezetten a 093-as háttér-szinkronizációs démon éles működésének tesztelésére szolgál. Lefutásakor ellenőrzi a processzor és a memória alapvető válaszidejét, miközben a puszta létezésével és elmentésével validálja az automatizált, emberi beavatkozás nélküli felhőbe küldési munkafolyamatokat. |
-| `095_network_socket_keepalive.py` | Hálózati Socket Kapcsolat-megtartó (Network Socket Keepalive) modul. Folyamatos, alacsony szintű szívverés (Heartbeat) jeleket küld a távoli 5TB-os felhőcsomópontok és a helyi terminál között. Megakadályozza, hogy a tűzfalak vagy az internetszolgáltatók inaktivitás miatt lezárják az éles Git csatornákat és az adatfolyamokat, garantálva a folyamatos online jelenlétet. |
-| `096_git_remote_url_sanitizer.py` | Git Távoli Elérési Út Validáló és Javító (Remote URL Sanitizer) modul. Automatikusan ellenőrzi a .git/config fájlban rögzített távoli szerver (Remote) címét. Ha hibás struktúrát (pl. sima github.com-ot a teljes HTTPS/SSH link helyett) észlel, figyelmeztetést küld, és parancssori szinten újrakonfigurálja az origin mutatót, garantálva a 5TB-os adatinfrastruktúra hibátlan felhős szinkronizációját. |
-| `097_secure_channel_audit.py` | Titkosított Csatorna és Hálózati Adatátviteli Audit (Secure Channel Audit) modul. A 5TB-os felhőcsomópontok és a helyi terminál között folyó hálózati stream-eket ellenőrzi. Kiszűri a titkosítatlan, sebezhető csatornákat, validálja az SSH és TLS titkosítási protokollok meglétét, megakadályozva a Man-in-the-Middle (MitM) adathalász és lehallgatásos támadásokat a hálózaton. |
-| `098_git_auto_push_scheduler.py` | Automata Felhő-szinkronizációs és Időzítő (Git Auto-Push Scheduler) modul. Biztosítja a háttérben futó automatikus adatfeltöltést. Időzített ciklusokban (másodpercenkénti frissítéssel) futtatja a Git hozzáadási és kilövési parancsait. Ha új vagy módosított Python fájlt észlel a helyi mappában, emberi beavatkozás nélkül azonnal szinkronizálja azt a távoli GitHub repozitóriummal. |
-| `099_staging_area_validator.py` | Git Átmeneti Tároló és Index Validáló (Staging Area Validator) modul. Közvetlenül a 'git add' parancs lefutása után ellenőrzi a megjelölt fájlok bájtszerkezetét. Kiszűri a sérült, üres vagy hibás kiterjesztésű állományokat, mielőtt a rendszer véglegesítené a commitot, garantálva, hogy a GitHub felhőbe kizárólag 100%-ban tiszta és futtatható kiber-infrastruktúra kódok kerülhetnek. |
-| `101_ai_command_image_processor.py` | AI Master Command Képfeldolgozó és Stratégiai Kinyerő (Image Processor) modul. A Google Photos albumból származó vizuális adatok (TradingView chartok, indikátortáblák, parancssori naplók) automatizált elemzését szimulálja. Kiszűri a lime zöld trendeket és a 75%-os intézményi tőkebeáramlást a 5TB-os adatinfrastruktúrához, majd elküldi az adatokat a központi irányítópultnak. |
-| `102_terminal_prompt_stabilizer.py` | Terminál Prompt Stabilizáló és Környezet-Helyreállító modul. Folyamatosan ellenőrzi, hogy a VS Code aktív terminálja nem csúszott-e bele a rejtett .git alkönyvtárba. Ha ezt észleli, automatikusan visszalépteti a promptot a fő projektmappába (05132026), megakadályozva, hogy a Python futtatókörnyezet relatív elérési útvonal-hibákat dobjon a pipeline indításakor. |
-| `103_infrastructure_milestone_vault.py` | Infrastruktúra Mérföldkő Lezáró és Élesítési (Milestone Vault) modul. A kétnapos intenzív DevSecOps és kiberbiztonsági kódolási ciklus hivatalos záró csomópontja. Összegzi a 103 aktív Python modul élesítési státuszát, kriptográfiai pecsétet helyez el a helyi '05132026' workspace-en, és véglegesíti az adatstruktúrák verziókövetését a felhőben. |
-| `104_water_polo_pixel_extractor.py` | Vízilabda Grafikai Pixel-Statisztika és Kiber-Adatkinyerő (Water Polo Extractor) modul. A Gemini 'Saját dolgok' menüpontjában látható WATER POLO digitális művészeti eszközök vizuális rétegeit elemzi. Kinyeri a labdadobási szögek, a reakciósebesség és a fizikai állóképesség szimulált mátrixait, majd az adatokat strukturált JSON formátumban átadja a 100-as Master Orchestrator központi irányítópultnak. |
-| `107_gemini_browser_api_optimizer.py` | Gemini Böngésző Alapú API Optimalizáló és Puffer-kezelő modul. Közvetlenül a webes interfész és az 5TB-os adatinfrastruktúra közötti felhőalapú JSON adatfolyamokat hangolja össze. Biztosítja, hogy a 'Saját dolgok' galériából behívott képi metaadatok (vízilabda és MMA vektorok) azonnal, hálózati késleltetés nélkül átkerüljenek a helyi és a felhőalapú biztonsági ellenőrző modulokba. |
-| `125_brigad_access_authenticator.py` | Brigád Hozzáférés-Hitelesítő és Titkos Jelszó Validáló (Authenticator) modul. A 125. mérföldkő a nagyvállalati adatinfrastruktúrában. Egy egyedi, belső karakterlánc-ellenőrzéssel validálja a titkos 'Kvak fckra' Brigád-jelszót. Sikeres hitelesítés esetén zöld utat ad a 100-as Master Orchestrator felé, ellenkező esetben azonnal lezárja az összes hálózati és 5TB-os adatportot. |
-| `44_container_escape_mitigator.py` | Konténer-kitörés Elleni Védelem (Container Escape Mitigator) modul. Ellenőrzi, hogy a Docker/Kubernetes mikroszolgáltatások nincsenek-e túl nagy (Privileged) jogosultsággal elindítva a felhőcsomópontokon. Kiszűri, ha a konténer közvetlenül hozzáfér a gazdagép kerneléhez (pl. cgroups, release_agent), és riaszt, ha olyan anomáliát észlel, amivel a támadó kitörhetne a fizikai szerverre. |
-| `56_kernel_core_dump_shield.py` | Rendszermag Emlékkép-szivárgás Elleni Védelmi (Kernel Core Dump Shield) modul. Megakadályozza, hogy a Python folyamatok összeomlásakor a Linux vagy Windows rendszermag egy teljes memóriaképet (Core Dump) írjon ki a lemezre. Mivel az emlékképek tartalmazhatják a RAM-ban lévő nyers jelszavakat és AES kulcsokat, a modul a kernel határain belül letiltja a dumpok generálását (PR_SET_DUMPABLE). |
-| `64_linux_ssh_audit_hardening.py` | Linux SSH Konfiguráció-ellenőrző és Keményítő (SSH Configuration Hardening) modul. A 5TB-os felhőcsomópontok távoli elérését biztosító `/etc/ssh/sshd_config` fájlt auditálja. Ellenőrzi a vállalati biztonsági irányelveket: letiltja a Root belépést (PermitRootLogin), kikényszeríti a jelszómentes, kulcs-alapú hitelesítést, és kiszűri a gyenge, elavult titkosítási algoritmusokat a hálózat védelmében. |
-| `Bacon farmer calculator app03.py` | Pork Protocol Szellemi Tulajdon Védelmi és Izolációs (Vault Shield) magmodul. A 120. kerek mérföldkő az infrastruktúrában. Szigorúan offline fut a helyi 'bacon farmer calculator' mappában. Automatikusan ellenőrzi, hogy a 'bacon_farmer.png' (1M letöltéses prémium borítókép) és a mobilapp forráskódjai teljesen el vannak-e zárva a nyilvános Git csatornáktól, garantálva a szellemi termék 100%-os helyi biztonságát. |
-| `cloud-sentinel-core.py` | Nincs rögzített leírás. |
-| `cyber_sentinel.py` | Nincs rögzített leírás. |
-| `git bash ciber sentinelhez.py` | Nincs rögzített leírás. |
-| `import os.py` | Nincs rögzített leírás. |
-| `import tkinter as tk.py` | Nincs rögzített leírás. |
-| `import tkinter as tk1.py` | Nincs rögzített leírás. |
-| `import tkinter as tk2.py` | Nincs rögzített leírás. |
-| `import tkinter as tk4.py` | Nincs rögzített leírás. |
-| `main.py` | Nincs rögzített leírás. |
-| `majomfa2.py` | Nincs rögzített leírás. | 
+| `00001 pathlib import Path.py` | --- |
+| `009_router_security_audit.py` | --- |
+| `010_crypto_market_analytics.py` | --- |
+| `011_trade_risk_manager.py` | --- |
+| `012_moving_average_crossover.py` | --- |
+| `0130 Honyautospace.py` | --- |
+| `0131Autotracker.py` | --- |
+| `01_infrastructure_milestone_vault.py` | --- |
+| `021_steganography_lsb_core.py` | --- |
+| `022_network_packet_packetizer.py` | --- |
+| `023_system_telemetry_logger.py` | --- |
+| `024_secure_symmetric_cipher.py` | --- |
+| `025_firewall_rate_limiter.py` | --- |
+| `026_file_integrity_monitor.py` | --- |
+| `027_dns_exfiltration_detector.py` | --- |
+| `028_memory_buffer_overflow_shield.py` | --- |
+| `029_secure_env_vault.py` | --- |
+| `02_trader_price_predictor.py` | --- |
+| `030_log_rotation_policy.py` | --- |
+| `031_network_port_knocking.py` | --- |
+| `032_hardware_token_authenticator.py` | --- |
+| `033_sql_injection_waf_filter.py` | --- |
+| `034_ssh_honeypot_node.py` | --- |
+| `035_tls_certificate_validator.py` | --- |
+| `036_arp_spoof_detector.py` | --- |
+| `038_ransomware_canary_file_deployer.py` | --- |
+| `039_linux_capabilities_privilege_audit.py` | --- |
+| `03_trader_price_predictor.py` | --- |
+| `040_secure_session_token_generator.py` | --- |
+| `041_shadow_password_hash_auditor.py` | --- |
+| `042_cloud_metadata_ssrf_shield.py` | --- |
+| `043_host_intrusion_rootkit_hunter.py` | --- |
+| `045_zero_trust_api_gateway.py` | --- |
+| `046_secure_memory_wipe.py` | --- |
+| `047_active_directory_ldap_auditor.py` | --- |
+| `048_siem_syslog_forwarder.py` | --- |
+| `049_pcap_packet_sniffer.py` | --- |
+| `04_android_play_store_ready.py` | --- |
+| `050_cloud_iam_privilege_audit.py` | --- |
+| `051_data_anonymizer_pipeline.py` | --- |
+| `052_secure_time_sync_validator.py` | --- |
+| `053_linux_pam_backdoor_hunter.py` | --- |
+| `054_steganography_watermark_verifier.py` | --- |
+| `055_cloud_kms_key_rotator.py` | --- |
+| `057_network_data_exfiltration_limiter.py` | --- |
+| `058_windows_registry_tamper_sensor.py` | --- |
+| `059_linux_auditd_syslog_analyzer.py` | --- |
+| `060_automated_incident_playbook_orchestrator.py` | --- |
+| `061_web_parameter_xss_filter.py` | --- |
+| `062_windows_active_process_hardener.py` | --- |
+| `063_cloud_api_token_leak_scanner.py` | --- |
+| `065_cryptographic_file_packer.py` | --- |
+| `066_kubernetes_rbac_compliance_auditor.py` | --- |
+| `067_linux_kernel_sysctl_hardener.py` | --- |
+| `068_web_api_jwt_token_validator.py` | --- |
+| `069_docker_security_compliance_auditor.py` | --- |
+| `06_brigad_war_room_dashboard.py` | --- |
+| `071_felelem_simulalas_anomalia.py` | --- |
+| `072_reakcio_teszt_milisecond.py` | --- |
+| `073_market_analizator_volatility.py` | --- |
+| `074_gyors_strategia_pipeline.py` | --- |
+| `075_reakcio_optimalizalo_sandbox.py` | --- |
+| `076_bigquery_parquet_archive_roaster.py` | --- |
+| `077_shib_engine_load_balancer.py` | --- |
+| `078_hardware_resource_throttle_mitigator.py` | --- |
+| `082_watchlist_matrix_aggregator.py` | --- |
+| `083_infrastructure_janitor.py` | --- |
+| `084_risk_position_sizer.py` | --- |
+| `087_git_bash_taskkill_hardener.py` | --- |
+| `088_sh_script_formatter.py` | --- |
+| `089_git_repository_path_resolver.py` | --- |
+| `08_pipeline_shutdown_sequence.py` | --- |
+| `090_automated_git_push_trigger.py` | --- |
+| `091_absolute_path_sanitizer.py` | --- |
+| `092_commit_pipeline_auditor.py` | --- |
+| `093_automated_autosync_daemon.py` | --- |
+| `094_automated_telemetry_test.py` | --- |
+| `095_network_socket_keepalive.py` | --- |
+| `096_git_remote_url_sanitizer.py` | --- |
+| `097_secure_channel_audit.py` | --- |
+| `098_git_auto_push_scheduler.py` | --- |
+| `099_staging_area_validator.py` | --- |
+| `101_ai_command_image_processor.py` | --- |
+| `102_terminal_prompt_stabilizer.py` | --- |
+| `103_infrastructure_milestone_vault.py` | --- |
+| `104_water_polo_pixel_extractor.py` | --- |
+| `107_gemini_browser_api_optimizer.py` | --- |
+| `125_brigad_access_authenticator.py` | --- |
+| `126_auto_infrastructure_indexer.py` | --- |
+| `127_hr_recruiter_telemetry_webhook.py` | --- |
+| `129_cyber_amoba_matrix.py` | --- |
+| `130 cyber_attack_simulator.py` | --- |
+| `131_Perpetual_Search_Launcher_Engine v4.0.py` | --- |
+| `132_CRYPTO-JÓS_2500_PRO v1.6.py` | --- |
+| `133_sodi_t800_meszaros_szin_v1.8.py` | --- |
+| `134_cyber_borsod_navigacios_app_v2.5.py` | --- |
+| `135_cyber_borsod_obfuscator_v3.2.py` | --- |
+| `136_cyber_borsod_kraken3x_app_v1.5.py` | --- |
+| `137_crypto_jos_2500_pro_v1.5.py` | --- |
+| `138_crypto_jos_2500_pro_v1.6_hacker.py` | --- |
+| `139_RAKOSCSABA_LIVE_MONITOR_v1.0.py` | --- |
+| `140_cyber_borsod_incident_simulator_v2.5.py` | --- |
+| `141_CYBER_BORSOD_SECURITY_CORE_v2.6_MOBILE.py` | --- |
+| `142_cyber_borsod_core_v3.0_borsodi.py` | --- |
+| `143_CYBER_BORSOD_MATRIX_LOOP.py` | --- |
+| `144_KIBER_BORSODI_LOGIC_BOMB_SIMULATOR_v1.0.py` | --- |
+| `145_CYBER_BORSOD_TRAFFIC_AUDIT_v5.8.py` | --- |
+| `146_CYBER_BORSOD_CORE_ADMIN_v3.10.py` | --- |
+| `147_PORK_PROTOCOL_v4.10_MEGA_MATRIX.py` | --- |
+| `148_PORK_PROTOCOL_v3.80_UNIVERSA.py` | --- |
+| `148_PORK_PROTOCOL_v3.80_UNIVERSAL.py` | --- |
+| `149_T800_STEALTH_CRAWLER_WHISPERER_v2.0.py` | --- |
+| `150_CYBER_BORSOD_AI_04_CORE_v3.7.1.py` | --- |
+| `151_Cyberdyne_T800_Simulation.py` | --- |
+| `152_CYBER_BORSOD_AI_04_CORE_v3.7.1.py` | --- |
+| `153_pork_protocol_v3_panel.py` | --- |
+| `154_PORK_PROTOCOL_v3_DATA_STREAM.py` | --- |
+| `155_KRAKEN_LIVE_CRYPTO_OBFUSCATOR_v4.1.py` | --- |
+| `157_PORK_PROTOCOL_v3.6_KRAKEN_DECENTRALIZED.py` | --- |
+| `158_PORK_PROTOCOL_v4.0_COMPOUND_SIMULATOR.py` | --- |
+| `159_KIBER_BORSODI_LOG_PARSER_MATRIX.py` | --- |
+| `160_BORSODI_BRIGAD_STEGANOGRAPHY_LSB.py` | LEÍRÁS (HU):  Képalapú információ-elrejtő modul (LSB - Least Significant Bit technika). Lehetővé teszi hadi utasítások és bizalmas adatok beágyazását képfájlok  pixeladataiba, láthatatlan módon. Bot-biztos operátori csatorna. Mottó: A borsodi nem hackel, a borsodi optimalizál.  DESCRIPTION (EN):  Image-based data hiding module (LSB - Least Significant Bit technique). Enables embedding sensitive instructions and data into image pixel data  invisibly. Bot-proof operator channel. Motto: The Borsodi doesn't hack, the Borsodi optimizes.  SZERZŐ: Don Mérnök (Tábornok) | BORSODI WAR ROOM |
+| `44_container_escape_mitigator.py` | --- |
+| `56_kernel_core_dump_shield.py` | --- |
+| `64_linux_ssh_audit_hardening.py` | --- |
+| `BORSOD RADAR PULSING.py` | --- |
+| `Bacon farmer calculator app03.py` | --- |
+| `Cyber Borsod Engine Data System.py` | --- |
+| `NokiasharePRICEscannerBorsodmoney.py` | --- |
+| `ROCK-PAPER-SCISSORS AUTOMATION.py` | --- |
+| `cloud-sentinel-core.py` | --- |
+| `cyber_sentinel.py` | --- |
+| `downloadermultiplikatorbyborsod.py` | --- |
+| `git bash ciber sentinelhez.py` | --- |
+| `import os.py` | --- |
+| `import tkinter as tk.py` | --- |
+| `import tkinter as tk1.py` | --- |
+| `import tkinter as tk2.py` | --- |
+| `import tkinter as tk4.py` | --- |
+| `main.py` | --- |
+| `majomfa2.py` | --- |
+| `majomkergeto sakk rpg.py` | --- |
+| `tablasvalami.code-workspace.py` | --- |

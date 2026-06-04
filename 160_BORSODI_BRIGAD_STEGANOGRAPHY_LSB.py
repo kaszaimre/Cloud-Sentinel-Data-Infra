@@ -2,20 +2,27 @@
 # ==============================================================================
 # PROJEKT: 160_BORSODI_BRIGAD_STEGANOGRAPHY_LSB
 # 
-# LEÍRÁS (HU):
-# Képalapú információ-elrejtő modul (LSB - Least Significant Bit technika).
-# Lehetővé teszi hadi utasítások és bizalmas adatok beágyazását képfájlok 
-# pixeladataiba, láthatatlan módon. Bot-biztos operátori csatorna.
-# Mottó: "A borsodi nem hackel, a borsodi optimalizál."
-#
-# DESCRIPTION (EN):
-# Image-based data hiding module (LSB - Least Significant Bit technique).
-# Enables embedding sensitive instructions and data into image pixel data 
-# invisibly. Bot-proof operator channel.
-# Motto: "The Borsodi doesn't hack, the Borsodi optimizes."
-#
-# SZERZŐ: Don Mérnök (Tábornok) | BORSODI WAR ROOM
+module_desc = """ 
+LEÍRÁS (HU):
+
+Képalapú információ-elrejtő modul (LSB - Least Significant Bit technika).
+Lehetővé teszi hadi utasítások és bizalmas adatok beágyazását képfájlok 
+pixeladataiba, láthatatlan módon. Bot-biztos operátori csatorna.
+Mottó: A borsodi nem hackel, a borsodi optimalizál.
+
+DESCRIPTION (EN):
+
+Image-based data hiding module (LSB - Least Significant Bit technique).
+Enables embedding sensitive instructions and data into image pixel data 
+invisibly. Bot-proof operator channel.
+Motto: The Borsodi doesn't hack, the Borsodi optimizes.
+
+SZERZŐ: Don Mérnök (Tábornok) | BORSODI WAR ROOM """
 # ==============================================================================
+
+#module_desc = """Ez a modul leírása.
+#Több sorban is írhatod, mert a szkript kezeli a tripla idézőjelet."""
+
 
 import time
 from PIL import Image
