@@ -1,0 +1,107 @@
+import os
+import glob
+from datetime import datetime
+from PIL import Image, ImageOps, ImageEnhance
+import pytesseract
+from docx import Document
+from docx.shared import Pt, RGBColor
+
+# Tesseract OCR elérési útja (szükség esetén módosítsd)
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+def add_enterprise_header(doc, total_images):
+    """Létrehozza a hivatalos BORSODI WAR ROOM kódfejlécet f-string trükkel"""
+    p = doc.add_paragraph()
+    p.paragraph_format.space_before = Pt(0)
+    p.paragraph_format.space_after = Pt(24)
+    
+    header_text = f"""# ==============================================================================
+# ARCHÍVUM NÉV: SZOVEGARHIV_MASTER_LOG.docx
+# DÁTUM: {datetime.now().strftime('%Y-%m-%d')}
+# FELDOLGOZOTT MENNYISÉG: {total_images} darab fotó / images
+#
+# LEÍRÁS ÉS FELADAT / DESCRIPTION AND TASK:
+# A 'SZOVEGARHIV' digitális gyűjtemény automatizált, rendszerszintű feldolgozása.
+# Megakadályozza az információvesztést azáltal, hogy az 5000+ képernyőfotóból és
+# dokumentum-kivonatból álló 'Borsodi' master stratégia szöveges anyagát
+# optikai karakterfelismeréssel (OCR) egyetlen kereshető Word dokumentummá fűzi.
+#
+# This module serves as the automated compilation of the 'SZOVEGARHIV' repository.
+# It prevents information loss by consolidating the textual data of the 'Borsodi'
+# master strategy from 5000+ screenshots into a single searchable Word file
+# utilizing Optical Character Recognition (OCR) engines.
+#
+# SZERZŐ: Don Mérnök (Tábornok) | BORSODI WAR ROOM
+# =============================================================================="""
+    
+    run = p.add_run(header_text)
+    run.font.name = 'Consolas'
+    run.font.size = Pt(10.5)
+    run.font.color.rgb = RGBColor(50, 50, 50)
+
+def kep_elokezeles_ocr_hez(img):
+    """Átalakítja a képet szürkeárnyalatossá és megemeli a kontrasztot a tökéletes OCR-ért"""
+    # 1. Szürkeárnyalat (Grayscale)
+    gray_img = ImageOps.grayscale(img)
+    # 2. Kontraszt növelése (2.0x-es szorzóval, hogy a halványabb betűk is beugorjanak)
+    enhancer = ImageEnhance.Contrast(gray_img)
+    optimized_img = enhancer.enhance(2.0)
+    return optimized_img
+
+def tomeges_ocr_wordbe(kepek_mappaja, kimeneti_word_fajl):
+    kep_formatumok = ["*.jpg", "*.jpeg", "*.png", "*.JPG", "*.JPEG", "*.PNG"]
+    fajlok = []
+    for ext in kep_formatumok:
+        fajlok.extend(glob.glob(os.path.join(kepek_mappaja, ext)))
+    
+    fajlok.sort()
+    osszes_kep = len(fajlok)
+    
+    if osszes_kep == 0:
+        print("❌ Nem találtam képeket a megadott mappában!")
+        return
+
+    doc = Document()
+    add_enterprise_header(doc, osszes_kep)
+    doc.add_page_break()
+    
+    print(f"Mátrix indítva: {osszes_kep} mozaik és kép feldolgozása kontraszt-tuninggal... 🔥")
+    
+    for index, kep_utvonal in enumerate(fajlok, start=1):
+        fajl_neve = os.path.basename(kep_utvonal)
+        print(f"[{index}/{osszes_kep}] Feldolgozás: {fajl_neve}...")
+        
+        try:
+            with Image.open(kep_utvonal) as img:
+                # Digitális retusálás és optimalizálás futtatása az OCR előtt
+                kesz_kep = kep_elokezeles_ocr_hez(img)
+                szoveg = pytesseract.image_to_string(kesz_kep, lang='hun')
+            
+            # Forrás megjelölése
+            p_file = doc.add_paragraph()
+            p_file.paragraph_format.space_before = Pt(12)
+            run_file = p_file.add_run(f"[#] FORRÁS / SOURCE: {fajl_neve}\n" + "-"*40)
+            run_file.font.name = 'Consolas'
+            run_file.bold = True
+            
+            # Felismert szöveg mentése a Wordbe
+            doc.add_paragraph(szoveg)
+            doc.add_page_break()
+            
+        except Exception as e:
+            print(f"⚠️ Hiba a {fajl_neve} fájlnál: {e}")
+            p_err = doc.add_paragraph()
+            run_err = p_err.add_run(f"[!] HIBA / ERROR: {fajl_neve}\nSikertelen OCR művelet: {e}")
+            run_err.font.name = 'Consolas'
+            run_err.font.color.rgb = RGBColor(200, 0, 0)
+            doc.add_page_break()
+
+    doc.save(kimeneti_word_fajl)
+    print(f"\n✅ KÉSZ! A 5TB-os tárhelyre mehet a mentés: {kimeneti_word_fajl}")
+
+# --- FELDOLGOZÁSI ZÓNA ---
+KEPEK_DIR = r"C:\kepek" 
+KIMENET_DOCX = r"C:\kepek\SZOVEGARHIV_MASTER_LOG.docx"
+
+if __name__ == "__main__":
+    tomeges_ocr_wordbe(KEPEK_DIR, KIMENET_DOCX)
