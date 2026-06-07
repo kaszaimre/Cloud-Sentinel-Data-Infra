@@ -125,9 +125,39 @@ def tomeges_ocr_wordbe(kepek_mappaja, kimeneti_word_fajl):
     doc.save(kimeneti_word_fajl)
     print(f"\n✅ KÉSZ! Mentve ide: {kimeneti_word_fajl}")
 
+"# ==============================================================================\n"
+"#def hosszú_kép_feldolgozás(kep_utvonal, max_magassag=2000):
+"#   """Felszeleteli a túl hosszú kollázsokat a pontosabb szövegfelismerésért"""
+"#    from PIL import Image
+"#   import pytesseract
+"#    
+"#    teljes_szoveg = ""
+    with Image.open(kep_utvonal) as img:
+"#        szelesseg, magassag = img.size
+        
+        # Ha a kép hosszabb, mint a biztonságos limit, daraboljuk
+        if magassag > max_magassag:
+            szeletek = magassag // max_magassag + 1
+            for i in range(szeletek):
+                felso = i * max_magassag
+                also = min((i + 1) * max_magassag, magassag)
+                
+                # Szelet kivágása a memóriában
+                szelet = img.crop((0, felso, szelesseg, also))
+                szoveg_resz = pytesseract.image_to_string(szelet, lang='hun')
+                teljes_szoveg += szoveg_resz + "\n"
+        else:
+            teljes_szoveg = pytesseract.image_to_string(img, lang='hun')
+            
+    return teljes_szoveg
+
 # Beállítások
 KEPEK_DIR = r"C:\kepek" 
 KIMENET_DOCX = r"C:\kepek\teljes_szovegarhiv.docx"
 
 if __name__ == "__main__":
     tomeges_ocr_wordbe(KEPEK_DIR, KIMENET_DOCX)
+    
+    Ha ezt beépíted az ocr_to_word_enterprise.py fő ciklusába a sima image_to_string helyére, akkor az 
+    összes ilyen monumentális képernyőkép-sorozatot másodpercek alatt át tudod nyomni a Word dokumentumba
+"# ==============================================================================\n"
