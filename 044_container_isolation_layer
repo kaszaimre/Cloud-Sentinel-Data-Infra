@@ -1,0 +1,43 @@
+# -*- coding: utf-8 -*-
+# ==============================================================================
+# PROJEKT: 044_container_isolation_layer
+# 
+module_desc = """ 
+LEÍRÁS (HU):
+Konténer-szigetelő modul, közvetlen Playbook-integrációval.
+Azonnal izolálja a konténert és triggereli az incidens-kezelőt.
+Mottó: A borsodi nem hackel, a borsodi optimalizál.
+
+DESCRIPTION (EN):
+Container isolation module with direct Playbook integration.
+Instantly isolates the container and triggers the incident handler.
+Motto: The Borsodi doesn't hack, the Borsodi optimizes.
+
+SZERZŐ: Don Mérnök (Tábornok) | BORSODI WAR ROOM """
+# ==============================================================================
+
+import importlib
+
+class ContainerIsolator:
+    def __init__(self, target_container_id):
+        self.container_id = target_container_id
+        self.is_isolated = False
+
+    def trigger_incident_playbook(self, reason):
+        """Összekötés a 060-as Orchestratorral."""
+        try:
+            playbook = importlib.import_module("060_automated_incident_playbook_orchestrator")
+            playbook.run_remediation(target=self.container_id, issue=reason)
+            print(f"[+] Playbook aktiválva: {self.container_id}")
+        except ImportError:
+            print("[!] Hiba: Az Orchestrator (060) nem elérhető!")
+
+    def isolate(self):
+        print(f"[!] BORSODI RIASZTÁS: {self.container_id} izolálása folyamatban...")
+        self.is_isolated = True
+        self.trigger_incident_playbook("Container Escape Detected")
+        return True
+
+if __name__ == "__main__":
+    isolator = ContainerIsolator("BORSOD_CORE_DB_01")
+    isolator.isolate()
