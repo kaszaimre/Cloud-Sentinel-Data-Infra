@@ -1,0 +1,45 @@
+# -*- coding: utf-8 -*-
+# ==============================================================================
+# PROJEKT: 037_network_traffic_shaper
+# 
+module_desc = """ 
+LEÍRÁS (HU):
+
+Hálózati forgalom-szabályozó és sávszélesség-optimalizáló modul.
+Monitorozza az aktív kapcsolatokat, és korlátozza a gyanús, nagy volumenű 
+adatátvitelt, megakadályozva a hálózati túlterhelést vagy DDoS-kísérleteket.
+Mottó: A borsodi nem hackel, a borsodi optimalizál.
+
+DESCRIPTION (EN):
+
+Network traffic shaper and bandwidth optimization module.
+Monitors active connections and throttles suspicious, high-volume 
+data transfers, preventing network congestion or DDoS attempts.
+Motto: The Borsodi doesn't hack, the Borsodi optimizes.
+
+SZERZŐ: Don Mérnök (Tábornok) | BORSODI WAR ROOM """
+# ==============================================================================
+
+import time
+
+class TrafficShaper:
+    def __init__(self, max_mbps=100):
+        self.max_mbps = max_mbps
+        self.active_conns = {}
+
+    def inspect_packet(self, source_ip, data_size):
+        """Vizsgálja a csomagot és korlátozza, ha szükséges."""
+        print(f"[*] Forgalom elemzése: {source_ip} | Méret: {data_size}MB")
+        
+        # Egyszerű throttle logika
+        if data_size > 50:  # Ha egy csomag túl nagy, throttling lép életbe
+            print(f"[!] FIGYELMEZTETÉS: {source_ip} túllépte a keretet! Korlátozás...")
+            return False, "Throttled"
+        
+        return True, "Passed"
+
+if __name__ == "__main__":
+    shaper = TrafficShaper()
+    # Szimulált forgalom
+    result, msg = shaper.inspect_packet("192.168.1.105", 75)
+    print(f"Státusz: {result}, Üzenet: {msg}")
