@@ -1,0 +1,87 @@
+# -*- coding: utf-8 -*-
+# ==============================================================================
+# PROJEKT: 119_SHADOW_STATE_ROLLBACK_MECHANISM
+# 
+module_desc = """ 
+LEÍRÁS (HU):
+
+Árnyék-állapot visszaállítási modul (Rollback Mechanism).
+Biztosítja a Phoenix Master memóriájának konzisztenciáját. Ha egy tőzsdei vagy 
+védelmi alrendszer hibás adatot generál, a rendszer azonnal visszaáll egy korábbi, 
+ellenőrzött és stabil állapot-pillanatképbe (Snapshot).
+Mottó: A borsodi nem hackel, a borsodi optimalizál.
+
+DESCRIPTION (EN):
+
+Shadow-state rollback mechanism module.
+Ensures the memory consistency of the Phoenix Master. If a trading or security 
+subsystem generates corrupted data, the system immediately rolls back to a previous, 
+verified and stable state snapshot.
+Motto: The Borsodi doesn't hack, the Borsodi optimizes.
+
+SZERZŐ: Don Mérnök (Tábornok) | BORSODI WAR ROOM """
+# ==============================================================================
+
+import copy
+import time
+from datetime import datetime
+
+class ShadowStateManager:
+    def __init__(self):
+        self.snapshots = []
+        print("[INIT] T800 Árnyék-állapot Kezelő aktiválva.")
+
+    def create_snapshot(self, state_data):
+        """Elmenti a jelenlegi stabil állapot egy mély másolatát."""
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        snapshot = {
+            "timestamp": timestamp,
+            "data": copy.deepcopy(state_data)
+        }
+        self.snapshots.append(snapshot)
+        # Csak az utolsó 3 állapotot tartjuk meg a memóriában az optimalizálás miatt
+        if len(self.snapshots) > 3:
+            self.snapshots.pop(0)
+        print(f"[✓] [{timestamp}] Új stabil állapot-pillanatkép mentve.")
+
+    def rollback(self):
+        """Visszaállítja a legutolsó ismert stabil állapotot."""
+        if not self.snapshots:
+            print("[CRITICAL] Nincs elérhető visszaállítási pont!")
+            return None
+        
+        last_good_state = self.snapshots.pop()
+        print(f"\n[⚠️] [{datetime.now().strftime('%H:%M:%S')}] ANOMÁLIA MIATTI VISSZAÁLLÍTÁS (ROLLBACK) INDÍTÁSA!")
+        print(f"-> Visszaállási célpont: {last_good_state['timestamp']}")
+        time.sleep(1)
+        return last_good_state["data"]
+
+if __name__ == "__main__":
+    print("=== 119_shadow_state_rollback_mechanism INDÍTÁSA ===")
+    
+    manager = ShadowStateManager()
+    
+    # 1. Szimulálunk egy stabil piaci/rendszer állapotot (pl. Bitcoin long pozíció és EMA értékek)
+    rendszer_allapot = {
+        "ticker": "BTC-USD",
+        "last_valid_price": 104419.05,
+        "ema_trend": "BULLISH",
+        "shield_level": 2
+    }
+    
+    manager.create_snapshot(rendszer_allapot)
+    time.sleep(0.5)
+    
+    # 2. Szimulálunk egy hibás adatinjekciót vagy sérült hálózati csomagot
+    print("\n-> Adatfolyam frissítése érkezik...")
+    rendszer_allapot["last_valid_price"] = -999.00  # Kritikus anomália (negatív ár)
+    rendszer_allapot["ema_trend"] = "CORRUPTED"
+    
+    # Elemző logika észleli a hibát
+    if rendszer_allapot["last_valid_price"] <= 0 or rendszer_allapot["ema_trend"] == "CORRUPTED":
+        # Aktiváljuk a rollback mechanizmust
+        rendszer_allapot = manager.rollback()
+        print("[✓] Rendszerállapot helyreállítva.")
+        print(f"-> Aktuális biztonságos ár: ${rendszer_allapot['last_valid_price']:,} | Trend: {rendszer_allapot['ema_trend']}")
+        
+    print("\n[✓] A 119-es modul sikeresen lefutott, a gap betöltve a Git-ben.")
