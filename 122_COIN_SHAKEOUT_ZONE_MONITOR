@@ -1,0 +1,61 @@
+# -*- coding: utf-8 -*-
+# ==============================================================================
+# PROJEKT: 122_COIN_SHAKEOUT_ZONE_MONITOR
+# 
+module_desc = """ 
+LEÍRÁS (HU):
+
+COIN (Coinbase) piaci kirázási zóna (Shakeout Zone) monitorozó modul.
+Észleli a hirtelen likviditási anomáliákat és stop-vadászatokat a tőzsdén.
+Figyelmeztetést ad ki, ha az árfolyam eléri a kritikus volatilitási sávokat.
+Mottó: A borsodi nem hackel, a borsodi optimalizál.
+
+DESCRIPTION (EN):
+
+COIN (Coinbase) market shakeout zone monitoring module.
+Detects sudden liquidity anomalies and stop-hunting behavior on the exchange.
+Issues alerts when the price hits critical volatility bands.
+Motto: The Borsodi doesn't hack, the Borsodi optimizes.
+
+SZERZŐ: Don Mérnök (Tábornok) | BORSODI WAR ROOM """
+# ==============================================================================
+
+import time
+from datetime import datetime
+
+def check_shakeout_zone(current_price, support_level, resistance_level):
+    """
+    Meghatározza, hogy az árfolyam a veszélyes kirázási zónában van-e.
+    A zóna a támasz és ellenállás körüli 1.5%-os sáv.
+    """
+    # 1.5%-os puffer zóna kiszámítása a stop-hunting észleléséhez
+    buffer_pct = 0.015
+    
+    in_lower_shakeout = support_level * (1 - buffer_pct) <= current_price <= support_level * (1 + buffer_pct)
+    in_upper_shakeout = resistance_level * (1 - buffer_pct) <= current_price <= resistance_level * (1 + buffer_pct)
+    
+    if in_lower_shakeout:
+        return "[WARN] [ANOMÁLIA] Alsó kirázási zóna! Stop-vadászat lehetséges."
+    elif in_upper_shakeout:
+        return "[WARN] [ANOMÁLIA] Felső kirázási zóna! Likviditási csapda."
+    else:
+        return "[OK] Stabil zóna, nincs aktív kirázás."
+
+if __name__ == "__main__":
+    print("=== 122_coin_shakeout_zone_monitor INDÍTÁSA ===")
+    print("Likviditási anomália-szűrő inicializálása...")
+    time.sleep(0.8)
+    
+    # Teszt adatok COIN (Coinbase) részvény mintájára
+    coin_price = 248.50
+    coin_support = 250.00      # A jelenlegi ár közel van a támaszhoz (kirázás gyanú)
+    coin_resistance = 280.00
+    
+    status = check_shakeout_zone(coin_price, coin_support, coin_resistance)
+    
+    print(f"\n[MARKET MONITOR] [{datetime.now().strftime('%H:%M:%S')}]")
+    print(f"-> Eszköz: COIN (Coinbase)")
+    print(f"-> Aktuális Ár: ${coin_price:.2f} | Támasz: ${coin_support:.2f}")
+    print(f"-> Rendszerüzenet: {status}")
+    
+    print("\n[✓] A 122-as modul sikeresen lefutott, a gap betöltve a Git-ben.")
