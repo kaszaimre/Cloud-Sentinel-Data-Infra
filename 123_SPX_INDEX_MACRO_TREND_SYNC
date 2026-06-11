@@ -1,0 +1,60 @@
+# -*- coding: utf-8 -*-
+# ==============================================================================
+# PROJEKT: 123_SPX_INDEX_MACRO_TREND_SYNC
+# 
+module_desc = """ 
+LEÍRÁS (HU):
+
+SPX (S&P 500) index makro-trend szinkronizáló modul (Dinamikus verzió).
+Manuális adatbekéréssel ellenőrzi a piacvezető index globális irányát.
+Biztosítja, hogy a Phoenix Master alrendszerei ne kereskedjenek a fő 
+piaci iránnyal szemben, minimalizálva a rendszerszintű kockázatokat.
+Mottó: A borsodi nem hackel, a borsodi optimalizál.
+
+DESCRIPTION (EN):
+
+SPX (S&P 500) index macro trend synchronization module (Dynamic version).
+Verifies the global direction of the market-leading index via manual input.
+Ensures that Phoenix Master subsystems do not trade against the main market 
+direction, minimizing systemic risks.
+Motto: The Borsodi doesn't hack, the Borsodi optimizes.
+
+SZERZŐ: Don Mérnök (Tábornok) | BORSODI WAR ROOM """
+# ==============================================================================
+
+import time
+from datetime import datetime
+
+def evaluate_macro_trend(spx_close, spx_ema_200):
+    """
+    Tiszta logikájú makro-szűrő a manuálisan megadott értékek alapján.
+    """
+    if spx_close > spx_ema_200:
+        return "BULLISH", "🟢 GLOBÁLIS EMELKEDŐ TREND - Kereskedés engedélyezve."
+    elif spx_close < spx_ema_200:
+        return "BEARISH", "🔴 GLOBÁLIS CSÖKKENŐ TREND - Fokozott kockázat, védelem aktív."
+    else:
+        return "NEUTRAL", "🟡 OLDALAZÓ PIAC - Kivárás javasolt."
+
+if __name__ == "__main__":
+    print("=== 123_spx_index_macro_trend_sync INDÍTÁSA ===")
+    print("SPX makro-trend elemző motor inicializálása...\n")
+    time.sleep(0.5)
+    
+    # DINAMIKUS ADATBEKÉRÉS A TERMINÁLBÓL
+    try:
+        current_spx = float(input("Írd be az aktuális SPX árat (pl. 7200): "))
+        ema_200_spx = float(input("Írd be az SPX EMA 200 értéket (pl. 5620.5): "))
+        
+        trend_status, message = evaluate_macro_trend(current_spx, ema_200_spx)
+        
+        print(f"\n[MACRO SYNC] [{datetime.now().strftime('%H:%M:%S')}]")
+        print(f"-> Eszköz: SPX (S&P 500 Index)")
+        print(f"-> Megadott Állás: {current_spx} | Makro Határvonal (EMA200): {ema_200_spx}")
+        print(f"-> Globális Irány: {trend_status}")
+        print(f"-> Rendszerutasítás: {message}")
+        
+    except ValueError:
+        print("\n[HIBA] Érvénytelen számformátum! Kérlek, csak számokat adj meg.")
+    
+    print("\n[✓] A 123-as modul sikeresen lefutott, a gap betöltve a Git-ben.")
