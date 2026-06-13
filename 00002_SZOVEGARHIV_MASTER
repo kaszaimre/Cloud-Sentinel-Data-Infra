@@ -19,7 +19,7 @@ def add_enterprise_header(doc, total_images):
 # ARCHÍVUM NÉV: SZOVEGARHIV_MASTER_LOG.docx
 # DÁTUM: {datetime.now().strftime('%Y-%m-%d')}
 # FELDOLGOZOTT MENNYISÉG: {total_images} darab fotó / images
-#
+module_desc = """ 
 # LEÍRÁS ÉS FELADAT / DESCRIPTION AND TASK:
 # A 'SZOVEGARHIV' digitális gyűjtemény automatizált, rendszerszintű feldolgozása.
 # Megakadályozza az információvesztést azáltal, hogy az 5000+ képernyőfotóból és
@@ -31,7 +31,7 @@ def add_enterprise_header(doc, total_images):
 # master strategy from 5000+ screenshots into a single searchable Word file
 # utilizing Optical Character Recognition (OCR) engines.
 #
-# SZERZŐ: Don Mérnök (Tábornok) | BORSODI WAR ROOM
+# SZERZŐ: Don Mérnök (Tábornok) | BORSODI WAR ROOM """
 # =============================================================================="""
     
     run = p.add_run(header_text)
