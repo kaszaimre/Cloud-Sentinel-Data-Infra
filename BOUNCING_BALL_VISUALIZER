@@ -1,0 +1,65 @@
+# -*- coding: utf-8 -*-
+# ==============================================================================
+# PROJEKT: BOUNCING_BALL_VISUALIZER
+# 
+module_desc = """ 
+LEÍRÁS (HU):
+
+Dinamikus, ütközés-alapú mozgásmodell vizualizációja (Pygame).
+A rendszer kinetikus energiájának valós idejű leképezése, a 'Pork Protocol' 
+vizuális ellenőrzése.
+Mottó: A borsodi nem hackel, a borsodi optimalizál.
+
+DESCRIPTION (EN):
+
+Dynamic, collision-based motion model visualization (Pygame).
+Real-time mapping of system kinetic energy for visual verification of 
+the 'Pork Protocol'.
+Motto: The Borsodi doesn't hack, the Borsodi optimizes.
+
+SZERZŐ: Don Mérnök (Tábornok) | BORSODI WAR ROOM """
+# ==============================================================================
+
+import pygame
+import sys
+import random
+
+pygame.init()
+
+screen = pygame.display.set_mode((0, 0))
+pygame.display.set_caption("Bouncing Ball")
+
+ball_radius = 100
+ball_color = (255, 0, 0)
+background_color = (0, 0, 0)
+
+ball_x, ball_y = 100, 100
+velocity_x, velocity_y = 5, 5
+
+clock = pygame.time.Clock()
+
+def random_color():
+    return (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+
+while True:
+    width, height = pygame.display.get_surface().get_size()
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            ball_color = random_color()
+    
+    ball_x += velocity_x
+    ball_y += velocity_y
+    
+    if ball_x - ball_radius <= 0 or ball_x + ball_radius >= width:
+        velocity_x = -velocity_x
+    if ball_y - ball_radius <= 0 or ball_y + ball_radius >= height:
+        velocity_y = -velocity_y
+    
+    screen.fill(background_color)
+    pygame.draw.circle(screen, ball_color, (int(ball_x), int(ball_y)), ball_radius)
+    
+    pygame.display.flip()
+    clock.tick(60)
