@@ -3,7 +3,7 @@
 
 # ======================================================================================
 #   CYBER-BORSOD SECURITY CORE - AUTOMATED GITHUB BOT HONEY-TRAP v5.0
-#   
+#   module_desc = """ 
 #   LEÍRÁS (HU):
 #   Ez a modul szándékosan formázott, de teljesen ártalmatlan csali mintákat (Honeytokens)
 #   használ, hogy automatikusan bevonzatja a GitHub és a Google automata szkenner-
@@ -14,7 +14,7 @@
 #   This module utilizes intentionally formatted but completely harmless bait patterns 
 #   (Honeytokens) to automatically attract GitHub and Google automated scanner and 
 #   search bots to your public repository. Bots identify patterns and index the Git page.
-#   At the end, the Perpetual Sleep triggers to block Pydroid ads.
+#   At the end, the Perpetual Sleep triggers to block Pydroid ads. """ 
 # ======================================================================================
 
 import random
