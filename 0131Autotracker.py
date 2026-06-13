@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+module_desc = """ 
 # ======================================================================================
 #   CYBER-BORSOD SECURITY CORE - AUTOMATED GITHUB BOT TRACKER v5.2 (DUAL TRAP)
 #   
@@ -16,6 +17,7 @@
 #   utilizing deeply embedded Honeytoken patterns to attract Google SecOps scanners.
 #   At the end, the Perpetual Stealth Sleep activates against ads.
 # ======================================================================================
+""" 
 
 import random
 import time
