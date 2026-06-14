@@ -1,0 +1,104 @@
+module_desc = """
+#163_PORK_PROTOCOL v3.90
+# ==============================================================================
+# LEÍRÁS (HU):
+# 
+# PORK PROTOCOL v3.90 - Automatizált piaci szkennelő és döntéstámogató modul.
+# Valós idejű BTC-USD elemzés CCI és ADX matematikai modellek alapján.
+# Kíméletlen SL/TP számítás, bot-biztos operátori csatorna.
+# Mottó: A borsodi nem hackel, a borsodi optimalizál.
+# 
+# DESCRIPTION (EN):
+# 
+# PORK PROTOCOL v3.90 - Automated market scanner and decision support module.
+# Real-time BTC-USD analysis based on CCI and ADX mathematical models.
+# Ruthless SL/TP calculation, bot-proof operator channel.
+# Motto: The Borsodi doesn't hack, the Borsodi optimizes.
+# 
+# SZERZŐ: Don Mérnök (Tábornok) | BORSODI WAR ROOM """
+# ==============================================================================
+
+import time
+import os
+import yfinance as yf
+import pandas_ta as ta
+
+RED     = "\033[1;31m"
+GREEN   = "\033[1;32m"
+YELLOW  = "\033[1;33m"
+CYAN    = "\033[1;36m"
+RESET   = "\033[0m"
+
+def run_pork_protocol_auto():
+    # A terminál letakarítása a tiszta szindikátusi dizájnhoz
+    os.system('cls' if os.name == 'nt' else 'clear')
+    
+    print(CYAN + "==========================================================")
+    print(" [🐖] PORK PROTOCOL v3.90 - AUTOMATIZÁLT TERMINÁL PANEL")
+    print("==========================================================" + RESET)
+    print(YELLOW + "[!] Élő adatok lekérése a Yahoo Finance-ről..." + RESET)
+
+    # 1. ÉLŐ ADATOK LETÖLTÉSE (BTC-USD)
+    ticker = "BTC-USD"
+    szimbolum = yf.Ticker(ticker)
+    adatok = szimbolum.history(period="3mo", interval="1d")
+
+    if adatok.empty:
+        print(RED + "[!] Hiba: Nem érkezett adat a Yahoo szerverekről!" + RESET)
+        return
+
+    # 2. DON MÉRNÖK-FÉLE MATEMATIKAI ÉS TECHNIKAI INDIKÁTOR MOTOR
+    adatok.ta.cci(length=10, append=True)
+    adatok.ta.cci(length=60, append=True)
+    adatok.ta.adx(length=14, append=True)
+
+    aktualis_sor = adatok.iloc[-1]
+    
+    arfolyam = aktualis_sor['Close']
+    cci_10   = aktualis_sor['CCI_10_0.015']
+    cci_60   = aktualis_sor['CCI_60_0.015']
+    adx_14   = aktualis_sor['ADX_14']
+    bika_di  = aktualis_sor['DMP_14'] 
+    medve_di = aktualis_sor['DMN_14']
+
+    # 3. NYERS PARAMÉTEREK KIÍRATÁSA
+    print(f"-> AKTUÁLIS ÁRFOLYAM ({ticker}): {arfolyam:.2f} USD")
+    print(f"-> CCI(10) értéke: {cci_10:.2f}")
+    print(f"-> CCI(60) értéke: {cci_60:.2f}")
+    print(f"-> ADX(14) nyers erő: {adx_14:.2f}")
+    print(f"-> +DI (Bika erő): {bika_di:.2f}")
+    print(f"-> -DI (Medve erő): {medve_di:.2f}")
+    print(CYAN + "==========================================================" + RESET)
+
+    # 4. FIZIKAI KIÉRTÉKELÉS ÉS LOGIKAI DÖNTÉSHOZATAL
+    print("[FIZIKAI KIÉRTÉKELÉS ÉS MATEMATIKAI SZÁMÍTÁS / EVALUATION]")
+    print(CYAN + "==========================================================" + RESET)
+
+    if medve_di > bika_di and cci_60 < 0:
+        jelzes = f"{RED}🔴 JELZÉS: SELL (Medve dominancia + DI- megerősítés!){RESET}"
+        sl = arfolyam * 1.0333
+        tp = arfolyam * 0.955
+        print(jelzes)
+        print(f"-> Javasolt Stop Loss  (SL): +{sl-arfolyam:.2f} USD  (Ár: {sl:.2f})")
+        print(f"-> Javasolt Take Profit (TP): -{arfolyam-tp:.2f} USD  (Ár: {tp:.2f})")
+        
+    elif bika_di > medve_di and cci_60 > 0:
+        jelzes = f"{GREEN}🟢 JELZÉS: BUY (Bika dominancia + DI+ megerősítés!){RESET}"
+        sl = arfolyam * 0.9667
+        tp = arfolyam * 1.045
+        print(jelzes)
+        print(f"-> Javasolt Stop Loss  (SL): -{arfolyam-sl:.2f} USD  (Ár: {sl:.2f})")
+        print(f"-> Javasolt Take Profit (TP): +{tp-arfolyam:.2f} USD  (Ár: {tp:.2f})")
+    else:
+        print(f"{YELLOW}🟡 JELZÉS: NEUTRÁLIS (A hurok feszül, nincs tiszta irány!){RESET}")
+
+    print(CYAN + "==========================================================" + RESET)
+
+if __name__ == "__main__":
+    try:
+        while True:
+            run_pork_protocol_auto()
+            print("[Új automatikus kalkuláció indítása 60 másodperc múlva...]")
+            time.sleep(60)
+    except KeyboardInterrupt:
+        print(RED + "\n[!] PORK PROTOCOL leállítva." + RESET)
