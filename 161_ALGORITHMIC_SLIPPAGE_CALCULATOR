@@ -1,0 +1,62 @@
+# -*- coding: utf-8 -*-
+# ==============================================================================
+# PROJEKT: 161_ALGORITHMIC_SLIPPAGE_CALCULATOR
+# 
+module_desc = """ 
+LEÍRÁS (HU):
+
+Algoritmus alapú tőzsdei csúszás (Slippage) számító modul.
+Méri a kért és a bróker által teljesített ár közötti különbséget.
+Biztosítja, hogy a Phoenix Master ne szenvedjen rejtett veszteségeket 
+a hálózati késleltetések (Latency) és a piaci volatilitás miatt.
+Mottó: A borsodi nem hackel, a borsodi optimalizál.
+
+DESCRIPTION (EN):
+
+Algorithmic trade slippage calculator module.
+Measures the difference between the requested price and the broker's actual 
+execution price. Ensures the Phoenix Master doesn't suffer hidden losses 
+due to network latency and high market volatility.
+Motto: The Borsodi doesn't hack, the Borsodi optimizes.
+
+SZERZŐ: Don Mérnök (Tábornok) | BORSODI WAR ROOM """
+# ==============================================================================
+
+import time
+from datetime import datetime
+
+def calculate_slippage(requested_price, execution_price, asset_name):
+    """
+    Kiszámolja a csúszás mértékét dollárban és százalékban.
+    """
+    slippage_usd = execution_price - requested_price
+    slippage_pct = (slippage_usd / requested_price) * 100
+    
+    return slippage_usd, slippage_pct
+
+if __name__ == "__main__":
+    print("=== 020_algorithmic_slippage_calculator INDÍTÁSA ===")
+    time.sleep(0.5)
+    
+    # Teszt környezet: A HOOD részvényed alapján szimulálunk egy gyors piaci vételt
+    asset = "HOOD"
+    asked_price = 92.23       # Ezen az áron akartál venni a chartodon
+    filled_price = 92.45      # A bróker a volatilitás miatt kicsit feljebb teljesítette
+    
+    usd_slip, pct_slip = calculate_slippage(asked_price, filled_price, asset)
+    
+    print(f"\n[SLIPPAGE AUDIT] [{datetime.now().strftime('%H:%M:%S')}]")
+    print(f"-> Eszköz:            {asset}")
+    print(f"-> Kért kötési ár:    ${asked_price:.2f}")
+    print(f"-> Teljesült ár:      ${filled_price:.2f}")
+    print(f"-> Regisztrált csúszás: ${usd_slip:+.2f} ({pct_slip:+.2f}%)")
+    
+    # Kockázati limit ellenőrzése
+    MAX_ALLOWED_SLIP_PCT = 0.15  # maximum 0.15% csúszást engedünk meg
+    
+    if pct_slip > MAX_ALLOWED_SLIP_PCT:
+        print("-> T800 Határozat:   🚨 KRITIKUS CSÚSZÁS! Végrehajtási sebesség nem optimális.")
+    else:
+        print("-> T800 Határozat:   🟢 BIZTONSÁGOS SZINT (Határértéken belül)")
+        
+    print("\n[✓] A 020-as modul sikeresen lefutott, a 20-as luk betömve.")
