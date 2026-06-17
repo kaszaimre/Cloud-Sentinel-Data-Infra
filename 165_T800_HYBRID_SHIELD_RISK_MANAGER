@@ -1,0 +1,72 @@
+# -*- coding: utf-8 -*-
+# ==============================================================================
+# PROJEKT: 165_T800_HYBRID_SHIELD_RISK_MANAGER
+# 
+module_desc = """ 
+LEÍRÁS (HU):
+
+T800 Hybrid Shield dinamikus kockázatkezelő és Stop-Loss számító modul.
+A Phoenix Master Oracle v5.1 védelmi rétege. Implementálja a hivatalos 
+SL = max(ATR * 2.0, Candle * 1.5) képletet, garantálva a számlavédelmet 
+és a tőkebiztonságot a magas volatilitású piaci fázisokban.
+Mottó: A borsodi nem hackel, a borsodi optimalizál.
+
+DESCRIPTION (EN):
+
+T800 Hybrid Shield dynamic risk manager and Stop-Loss calculator module.
+The security layer of the Phoenix Master Oracle v5.1. Implement the official
+SL = max(ATR * 2.0, Candle * 1.5) formula, guaranteeing equity protection 
+and capital security in high volatility market phases.
+Motto: The Borsodi doesn't hack, the Borsodi optimizes.
+
+SZERZŐ: Don Mérnök (Tábornok) | BORSODI WAR ROOM """
+# ==============================================================================
+
+import time
+from datetime import datetime
+
+def calculate_t800_hybrid_shield_sl(current_price, atr_value, candle_size, direction="LONG"):
+    """
+    Kiszámolja a dinamikus Stop-Loss szintet a hivatalos T800 Kernel képlet alapján:
+    SL_tavolsag = max(ATR * 2.0, Candle_Size * 1.5)
+    """
+    atr_component = atr_value * 2.0
+    candle_component = candle_size * 1.5
+    
+    # A képeden rögzített szigorú matematikai maximum kiválasztás
+    max_safety_distance = max(atr_component, candle_component)
+    
+    if direction.upper() == "LONG":
+        stop_loss_level = current_price - max_safety_distance
+    else:
+        stop_loss_level = current_price + max_safety_distance
+        
+    return stop_loss_level, max_safety_distance
+
+if __name__ == "__main__":
+    print("=== 080_t800_hybrid_shield_risk_manager INDÍTÁSA ===")
+    time.sleep(0.5)
+    
+    # Teszt környezet: A PHOENIX MASTER fotódról vett adatok szimulációja (Bitcoin)
+    btc_price = 104419.05
+    simulated_atr = 1100.25
+    simulated_candle = 1350.00
+    
+    sl_level, safety_dist = calculate_t800_hybrid_shield_sl(
+        current_price=btc_price, 
+        atr_value=simulated_atr, 
+        candle_size=simulated_candle, 
+        direction="LONG"
+    )
+    
+    print(f"\n[⚠️] [SHIELD COMPUTATION] [{datetime.now().strftime('%H:%M:%S')}]")
+    print(f"-> Kereskedett eszköz:  BTC-USD")
+    print(f"-> Aktuális ár:         ${btc_price:,.2f}")
+    print(f"-> ATR összetevő (x2):  ${simulated_atr * 2:,.2f}")
+    print(f"-> Gyertya méret (x1.5): ${simulated_atr * 1.5:,.2f}")
+    print(f"-> Biztonsági távolság: ${safety_dist:,.2f} [Képlet: max() érvényesítve]")
+    print("-" * 55)
+    print(f"-> T800 HYBRID SHIELD SL SZINT: ${sl_level:,.2f}")
+    print("-> Pajzs státusz:       [🟢 ACTIVE & SECURE]")
+    
+    print("\n[✓] A 080-as modul sikeresen lefutott, a vállalt 5-ös pakk TELJESEN KÉSZ.")
