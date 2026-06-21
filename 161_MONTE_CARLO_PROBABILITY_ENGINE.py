@@ -18,40 +18,41 @@ class MonteCarloEngine:
 
     def __init__(self, alap_ar, volatilitas):
         self.alap_ar = alap_ar
+        # Don Mérnök extra: volatilitás + A "Pista bá' féle rángatódzás" mértéke
         self.volatilitas = volatilitas 
-    
-    # Don Mérnök Extra: Súlyozott stabilitási faktor
-    # Ha az érték túl magas (> 104), az integritásnak is nőnie kell
-    szukseges_szint = self.min_stabilitasi_szint
 
-    if adat['ertek'] > 104:
-        szukseges_szint += 0.05  # Magasabb árfolyamnál szigorúbb ellenőrzés
+    def ellenoriz_stabilitas(self, adat):
+        """Don Mérnök extra: súlyozott stabilitási faktor ellenőrzése"""
+        szukseges_szint = 0.5  # Alapértelmezett minimum szint
+        
+        if adat.get('ertek', 0) > 104:
+            # Ha az érték túl magas (> 104), az integritásnak is nőnie kell
+            szukseges_szint += 0.05  # Magasabb árfolyamnál szigorúbb ellenőrzés
 
-    if adat['integritás'] >= szukseges_szint:
-        return True, f"STABIL ({szukseges_szint:.2%}) - Mehet a Market Killing ✅"
-    else:
-        return False, f"INSTABIL - Küszöb: {szukseges_szint:.2%} ❌"
-class MonteCarloEngine:
-    def __init__(self, alap_ar, volatilitas):
-        self.alap_ar = alap_ar
-        self.volatilitas = volatilitas # A "Pista bá' féle rángatódzás" mértéke
+        if adat.get('integritás', 0) >= szukseges_szint:
+            return True, f"STABIL ((szukseges_szint: {szukseges_szint:.2f})) - Mehet a market killing 🚀"
+        else:
+            return False, f"INSTABIL - Küszöb: ({szukseges_szint:.2f}) ❌"
 
     def szimulal(self, napok=30, szimulaciok=5000):
-        # Don Mérnök: Nem a jövőt nézzük, hanem a kereteket.
-        # Geometriai Brown-mozgás a káosz szimulálására.
-        dt = 1/252 # Napi lépés
-        mu = 0.0001 # Drift (kicsi, mert a piac nem jótékony)
+        """
+        Don Mérnök: nem a jövőt nézzük, hanem a kereteket.
+        Geometriai Brown-mozgás a káosz szimulálására.
+        """
+        dt = 1 / 252  # Napi lépésköz (kereskedési napok alapján)
+        mu = 0.0001   # Drift (kicsi, mert a piac nem jótékony)
         
-        hozzamok = np.random.normal(mu * dt, self.volatilitas * np.sqrt(dt), (napok, szimulaciok))
-        arak = self.alap_ar * np.exp(np.cumsum(hozzamok, axis=0))
+        # Véletlenszerű sokkok generálása az összes szimulációra és napra egyszerre
+        sokkok = np.random.normal(0, np.sqrt(dt), (napok, szimulaciok))
         
-        # Stabilitási küszöb: Hány százalékban esik be a tőke a 0.5x szint alá?
-        osszeomlas_esely = np.sum(arak[-1] < (self.alap_ar * 0.5)) / szimulaciok
+        # Átpályázás kalkulációja
+        hozamok = np.exp((mu - 0.5 * self.volatilitas**2) * dt + self.volatilitas * sokkok)
         
-        print(f"\n[v161] MONTE CARLO - 5000 jövő futtatva.")
-        print(f">>> Pista bá': 'Ha 5% felett van az esély a bedőlésre, húzd meg a gatyát!'")
-        return osszeomlas_esely
-
-# Don Mérnök teszt:
-engine = MonteCarloEngine(alap_ar=62000, volatilitas=0.03)
-print(f"Összeomlási valószínűség: {engine.szimulal():.2%}")
+        # Az indító sor feltöltése az alapárral
+        ar_matrix = np.zeros((napok + 1, szimulaciok))
+        ar_matrix[0] = self.alap_ar
+        
+        for t in range(1, napok + 1):
+            ar_matrix[t] = ar_matrix[t - 1] * hozamok[t - 1]
+            
+        return ar_matrix
