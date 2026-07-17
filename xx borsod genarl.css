@@ -1,0 +1,457 @@
+/* Phoenix Master - Borsodi General v1.0 Globális Beállítások */
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Orbitron:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #060b11;
+    color: #e2e8f0;
+    font-family: 'Roboto Mono', 'Courier New', monospace;
+    overflow-x: hidden;
+    padding: 10px;
+}
+
+/* FELSŐ PARANCSNOKI HÍD HEADER */
+.phoenix-header {
+    background: linear-gradient(185deg, #0b1523 0%, #070d16 100%);
+    border: 1px solid #14253d;
+    border-radius: 12px;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.phoenix-logo {
+    width: 32px;
+    height: 32px;
+    background-color: #f59e0b;
+    clip-path: polygon(50% 0%, 100% 35%, 82% 100%, 18% 100%, 0% 35%);
+    box-shadow: 0 0 10px #f59e0b;
+}
+
+.main-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.2rem;
+    color: #f59e0b;
+    letter-spacing: 2px;
+    font-weight: 700;
+}
+
+.subtitle {
+    font-size: 0.65rem;
+    color: #4ade80;
+    opacity: 0.8;
+    letter-spacing: 1px;
+}
+
+/* HEADER NAVIGÁCIÓ */
+.header-nav {
+    display: flex;
+    gap: 6px;
+    background-color: rgba(5, 10, 18, 0.6);
+    padding: 4px;
+    border-radius: 8px;
+    border: 1px solid #0f1c2e;
+}
+
+.nav-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.75rem;
+    padding: 8px 14px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    font-weight: 700;
+}
+
+.nav-btn:hover {
+    background-color: #12223a;
+    color: #fff;
+}
+
+.sub-btn { color: #c084fc; }
+.alert-btn { color: #f59e0b; }
+.active-game-btn {
+    background: linear-gradient(135deg, #7c2d12 0%, #451a03 100%);
+    color: #f97316;
+    border: 1px solid #b45309;
+    box-shadow: 0 0 8px rgba(249, 115, 22, 0.3);
+}
+
+/* HEADER JOBB OLDAL */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.75rem;
+}
+
+.user-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #0c1624;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #172a45;
+}
+
+.status-badge {
+    color: #22c55e;
+    font-weight: bold;
+    background-color: rgba(34, 197, 94, 0.1);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+}
+
+.pf-badge {
+    color: #f59e0b;
+    border: 1px solid #b45309;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(245, 158, 11, 0.05);
+}
+
+.mode-badge {
+    color: #ef4444;
+    border: 1px solid #7f1d1d;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(239, 68, 68, 0.05);
+    font-size: 0.65rem;
+}
+
+.system-time {
+    text-align: right;
+    font-family: 'Courier Prime', monospace;
+    color: #38bdf8;
+    border-left: 1px solid #14253d;
+    padding-left: 12px;
+}
+
+.time-nano { font-size: 1rem; font-weight: bold; }
+.date-nano { font-size: 0.65rem; opacity: 0.7; }
+
+/* MAIN GAME CONTAINER */
+.game-container {
+    background-color: #070f19;
+    border: 1px solid #14253d;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+
+/* SUBHEADER VISSZA-ÓRÁVAL */
+.game-subheader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #111f33;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.game-subheader h2 {
+    font-size: 0.9rem;
+    color: #4ade80;
+    letter-spacing: 1px;
+}
+
+.sub-tag {
+    color: #64748b;
+    font-size: 0.75rem;
+    font-weight: normal;
+}
+
+.subheader-right {
+    font-size: 0.75rem;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sound-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+/* PULT ELRENDEZÉS HÁROMOSZTATÚ */
+.main-battleground {
+    display: grid;
+    grid-template-columns: 280px 1fr 340px;
+    gap: 15px;
+}
+
+.side-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* BAL OLDAL: CRYPTO TICKET & PROFIL */
+.crypto-ticket-box {
+    background-color: #040910;
+    border: 1px solid #0f1c2e;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.ticket-label {
+    font-size: 0.6rem;
+    color: #475569;
+    letter-spacing: 1px;
+}
+
+.ticket-value {
+    color: #4ade80;
+    font-weight: bold;
+    font-size: 0.95rem;
+    margin: 4px 0;
+}
+
+.ticket-price {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.price-num { font-size: 1.2rem; font-weight: bold; color: #fff; }
+.price-pct { font-size: 0.75rem; color: #22c55e; }
+
+.ticket-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.6rem;
+    color: #64748b;
+    border-top: 1px solid #0f1c2e;
+    padding-top: 6px;
+}
+
+/* UNIT PROFILE BOX */
+.unit-profile-box {
+    background-color: #040910;
+    border: 1px solid #0f1c2e;
+    border-radius: 8px;
+    padding: 15px;
+    flex-grow: 1;
+}
+
+.unit-profile-box h3 {
+    font-size: 0.75rem;
+    color: #4ade80;
+    text-align: center;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+}
+
+.unit-card {
+    text-align: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #0f1c2e;
+    padding-bottom: 15px;
+}
+
+.unit-avatar-container {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 10px;
+    background-color: #0b1320;
+    border: 1px solid #14253d;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.unit-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 7px;
+}
+
+.unit-fallback-icon {
+    font-size: 2rem;
+    position: absolute;
+}
+
+.sys-active-tag {
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    background-color: #ef4444;
+    color: #fff;
+    font-size: 0.5rem;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+.unit-card h4 {
+    font-size: 0.85rem;
+    color: #fff;
+    margin-bottom: 6px;
+}
+
+.unit-quote {
+    font-size: 0.65rem;
+    color: #38bdf8;
+    font-style: italic;
+}
+
+/* ADATTÁBLÁZAT */
+.profile-stats-table {
+    width: 100%;
+    font-size: 0.7rem;
+    border-collapse: collapse;
+}
+
+.profile-stats-table td {
+    padding: 6px 0;
+    color: #64748b;
+}
+
+.stat-val {
+    text-align: right;
+    color: #fff;
+    font-weight: bold;
+}
+
+.highlight-green { color: #4ade80; }
+.highlight-red { color: #ef4444; }
+.highlight-orange { color: #fb923c; }
+
+/* AKCIÓ GOMBOK */
+.action-buttons-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.action-btn {
+    background-color: #040910;
+    border: 1px solid #111f33;
+    color: #475569;
+    padding: 10px;
+    border-radius: 6px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    padding-left: 15px;
+}
+
+.action-btn:hover {
+    background-color: #0b1523;
+    border-color: #1e3a8a;
+    color: #38bdf8;
+}
+
+/* KÖZÉPSŐ CANVAS PANEL */
+.center-grid-panel {
+    background-color: #040910;
+    border: 1px solid #0f1c2e;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.canvas-wrapper {
+    width: 100%;
+    max-width: 550px;
+    aspect-ratio: 1/1;
+}
+
+#gameCanvas {
+    width: 100%;
+    height: 100%;
+    background-color: #050a12;
+    display: block;
+}
+
+/* JOBB OLDAL: KIBER-TERMINÁL NAPLÓ */
+.terminal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.terminal-header h3 {
+    font-size: 0.75rem;
+    color: #4ade80;
+    letter-spacing: 1px;
+}
+
+.restart-btn {
+    background: transparent;
+    border: 1px solid #1e3a8a;
+    color: #38bdf8;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.65rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.restart-btn:hover {
+    background-color: rgba(56, 189, 248, 0.1);
+}
+
+.terminal-log-box {
+    background-color: #040910;
+    border: 1px solid #0f1c2e;
+    border-radius: 8px;
+    padding: 12px;
+    flex-grow: 1;
+    overflow-y: auto;
+    max-height: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* RETRO TERMINÁL SOROK KÜLÖNBÖZŐ SZÍNEKKEL */
+.log-row {
+    font-size: 0.65rem;
+    line-height: 1.3;
+    padding-bottom: 4px;
+    border-bottom: 1px dashed #0c1522;
+}
+
+.combat-log { color: #f43f5e; }  /* Piros csata */
+.system-log { color: #64748b; }  /* Szürke infó */
+.move-log { color: #38bdf8; }    /* Kék mozgás */
+.select-log { color: #4ade80; }  /* Zöld kiválasztás */
+.phase-log { color: #fb923c; }   /* Narancs fázisváltás */
+.enemy-log { color: #e11d48; font-weight: bold; } /* Ellenséges támadás */
+
+/* Scrollbar dizájn a terminálhoz */
+.terminal-log-box::-webkit-scrollbar { width: 4px; }
+.terminal-log-box::-webkit-scrollbar-track { background: #040910; }
+.terminal-log-box::-webkit-scrollbar-thumb { background: #14253d; border-radius: 2px; }
