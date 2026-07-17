@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phoenix Master - Borsodi General v1.0</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header class="phoenix-header">
+        <div class="header-left">
+            <div class="phoenix-logo"></div>
+            <div>
+                <h1 class="main-title">PHOENIX MASTER</h1>
+                <p class="subtitle">ORACLE V5.1 | T800 KERNEL</p>
+            </div>
+        </div>
+
+        <nav class="header-nav">
+            <button class="nav-btn">MŰSZERFAL</button>
+            <button class="nav-btn">MONITOR 📊</button>
+            <button class="nav-btn">KIBER-ROBOT 🤖</button>
+            <button class="nav-btn">GIGA-FÚZIÓ 🧬</button>
+            <button class="nav-btn sub-btn">ORACLE OS 🔮</button>
+            <button class="nav-btn alert-btn">S O S 🦺</button>
+            <button class="nav-btn active-game-btn">BORSODI GENERAL 🎮</button>
+        </nav>
+
+        <div class="header-right">
+            <div class="user-status">
+                <span class="user-name">kukkori kak...</span>
+                <span class="status-badge">ONLINE</span>
+            </div>
+            <div class="pf-badge">PF: 1.7+</div>
+            <div class="mode-badge">STEALTH_LOG_MODE</div>
+            <div class="lock-icon">🔒</div>
+            <div class="system-time">
+                <div class="time-nano" id="topTime">15:54:46</div>
+                <div class="date-nano" id="topDate">2026. 07. 17.</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="game-container">
+
+        <section class="game-subheader">
+            <h2>[ BORSODI GENERAL v1.0 ] <span class="sub-tag">TACTICAL TRADING SANDBOX</span></h2>
+            <div class="subheader-right">
+                <span id="subClock">15:54:47 | 2026.07.17. Budapest</span>
+                <button class="sound-btn">🔊</button>
+            </div>
+        </section>
+
+        <div class="main-battleground">
+
+            <aside class="side-panel left-panel">
+                <div class="crypto-ticket-box">
+                    <p class="ticket-label">AKTÍV INSTRUMENTUM</p>
+                    <div class="ticket-value">BINANCE:BTCUSD</div>
+                    <div class="ticket-price">
+                        <span class="price-num">$71.60</span>
+                        <span class="price-pct">(+19.6%)</span>
+                    </div>
+                    <div class="ticket-footer">
+                        <span>ALAP: 100% LIME</span>
+                        <span>BRAID: EMELKEDŐ</span>
+                    </div>
+                </div>
+
+                <div class="unit-profile-box">
+                    <h3>[ EGYSÉG PROFIL ]</h3>
+                    <div class="unit-card">
+                        <div class="unit-avatar-container">
+                            <div class="unit-fallback-icon" id="profile-icon">🤖</div>
+                            <div class="sys-active-tag">SYS_ACTIVE</div>
+                        </div>
+                        <h4 id="profile-name">VÁLASSZ EGYSÉGET</h4>
+                        <blockquote class="unit-quote">"I NEED YOUR SHORTS, YOUR LONGS, AND YOUR TRACTOR. 🦾"</blockquote>
+                    </div>
+
+                    <table class="profile-stats-table">
+                        <tr>
+                            <td>ÉLETERŐ (HP):</td>
+                            <td class="stat-val highlight-green" id="profile-hp">-</td>
+                        </tr>
+                        <tr>
+                            <td>MOZGÁSPONT (MP):</td>
+                            <td class="stat-val highlight-red" id="profile-mp">-</td>
+                        </tr>
+                        <tr>
+                            <td>LŐTÁV (RANGE):</td>
+                            <td class="stat-val" id="profile-range">-</td>
+                        </tr>
+                        <tr>
+                            <td>SZINT (LEVEL):</td>
+                            <td class="stat-val highlight-orange" id="profile-level">-</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="action-buttons-container">
+                    <button class="action-btn" id="btn-move" disabled>[ MOVE / LÉPÉS ]</button>
+                    <button class="action-btn" id="btn-attack" disabled>[ ATTACK / TÁMADÁS ]</button>
+                    <button class="action-btn" id="btn-fortify" disabled>[ FORTIFY / SÁNC ]</button>
+                    <button class="action-btn" id="btn-end-turn" disabled>[ END TURN / KÖR VÉGE ]</button>
+                </div>
+            </aside>
+
+            <section class="center-grid-panel">
+                <div class="canvas-wrapper">
+                    <canvas id="gameCanvas"></canvas>
+                </div>
+            </section>
+
+            <aside class="side-panel right-panel">
+                <div class="terminal-header">
+                    <h3>[ KIBER-TERMINÁL NAPLÓ ]</h3>
+                    <button class="restart-btn" id="btn-restart">🔄 RESTART</button>
+                </div>
+                <div class="terminal-log-box" id="logBox"></div>
+            </aside>
+
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
