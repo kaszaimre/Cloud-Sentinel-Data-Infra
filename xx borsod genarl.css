@@ -1,8 +1,13 @@
 /* Phoenix Master - Borsodi General v1.0 Globális Beállítások */
 @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Orbitron:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap');
 
-<link rel="stylesheet" href="xx borsod genarl.css">
-<script src="xx borsod general.js"></script>
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
 * {
     margin: 0;
