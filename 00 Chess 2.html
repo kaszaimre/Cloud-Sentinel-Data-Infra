@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VASR-800 Sakk-Terminál v3.5 (4-Oldalas Koordinátás)</title>
+    <style>
+        body {
+            background-color: #0d0d0d;
+            color: #deff9a;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        h1 { margin-bottom: 5px; }
+        p { margin-top: 0; color: #888; font-style: italic; }
+
+        /* 4-oldalas grid elrendezés */
+        .board-container {
+            display: grid;
+            grid-template-columns: 30px 480px 30px;
+            grid-template-rows: 30px 480px 30px;
+            gap: 5px;
+            border: 4px solid #deff9a;
+            padding: 10px;
+            background-color: #141414;
+            box-shadow: 0 0 20px rgba(222, 255, 154, 0.4);
+            align-items: center;
+            justify-items: center;
+        }
+
+        /* Számsorok (8-1) bal és jobb oldalon */
+        .ranks {
+            display: grid;
+            grid-template-rows: repeat(8, 60px);
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            color: #ffd700;
+        }
+
+        /* Betűsorok (a-h) fent és alul */
+        .files {
+            grid-column: 2;
+            display: grid;
+            grid-template-columns: repeat(8, 60px);
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            color: #ffd700;
+            text-align: center;
+            width: 100%;
+        }
+
+        #board {
+            grid-column: 2;
+            grid-row: 2;
+            display: grid;
+            grid-template-columns: repeat(8, 60px);
+            grid-template-rows: repeat(8, 60px);
+            border: 2px solid #deff9a;
+        }
+
+        .square {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .light { background-color: #2a2a2a; }
+        .dark { background-color: #141414; }
+
+        .square.selected {
+            background-color: #005522 !important;
+            border: 2px solid #deff9a;
+        }
+
+        /* Fehér bábuk (T-800) -> Neon Zöld */
+        .white-piece {
+            color: #deff9a;
+            text-shadow: 0 0 5px rgba(222, 255, 154, 0.8);
+        }
+
+        /* Fekete bábuk (Tábornok úr) -> Arany/Sárga */
+        .black-piece {
+            color: #ffd700;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.8);
+        }
+
+        #status {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #deff9a;
+        }
+
+        #game-log {
+            margin-top: 10px;
+            width: 560px;
+            height: 120px;
+            background-color: #141414;
+            border: 1px solid #deff9a;
+            overflow-y: auto;
+            padding: 10px;
+            font-size: 13px;
+            box-sizing: border-box;
+            color: #00ff66;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>VASR-800 Sakk-Terminál v3.5</h1>
+    <p>"FULL 4-SIDE RADAR KOORDINÁTÁK ONLINE!"</p>
+    
+    <div class="board-container">
+        <div class="files" style="grid-row: 1;">
+            <div>a</div><div>b</div><div>c</div><div>d</div>
+            <div>e</div><div>f</div><div>g</div><div>h</div>
+        </div>
+
+        <div class="ranks" style="grid-column: 1; grid-row: 2;">
+            <div>8</div><div>7</div><div>6</div><div>5</div>
+            <div>4</div><div>3</div><div>2</div><div>1</div>
+        </div>
+        
+        <div id="board"></div>
+
+        <div class="ranks" style="grid-column: 3; grid-row: 2;">
+            <div>8</div><div>7</div><div>6</div><div>5</div>
+            <div>4</div><div>3</div><div>2</div><div>1</div>
+        </div>
+
+        <div class="files" style="grid-row: 3;">
+            <div>a</div><div>b</div><div>c</div><div>d</div>
+            <div>e</div><div>f</div><div>g</div><div>h</div>
+        </div>
+    </div>
+
+    <div id="status">Indítás...</div>
+    <div id="game-log"></div>
+
+    <script>
+        const boardElement = document.getElementById('board');
+        const statusElement = document.getElementById('status');
+        const logElement = document.getElementById('game-log');
+
+        let game = {
+            board: [
+                ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
+                ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+                [null, null, null, null, null, null, null, null],
+                [null, null, null, null, null, null, null, null],
+                [null, null, null, null, null, null, null, null],
+                [null, null, null, null, null, null, null, null],
+                ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+                ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
+            ],
+            turn: 'W',
+            selectedSquare: null
+        };
+
+        const pieceUnicode = {
+            'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟',
+            'R': '♜', 'N': '♞', 'B': '♝', 'Q': '♛', 'K': '♚', 'P': '♟'
+        };
+
+        function drawBoard() {
+            boardElement.innerHTML = '';
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const square = document.createElement('div');
+                    square.className = `square ${(row + col) % 2 === 0 ? 'light' : 'dark'}`;
+                    
+                    if (game.selectedSquare && game.selectedSquare.row === row && game.selectedSquare.col === col) {
+                        square.classList.add('selected');
+                    }
+
+                    square.onclick = () => handleSquareClick(row, col);
+
+                    const piece = game.board[row][col];
+                    if (piece) {
+                        const pieceSpan = document.createElement('span');
+                        const isWhite = piece === piece.toUpperCase();
+                        pieceSpan.className = isWhite ? 'white-piece' : 'black-piece';
+                        pieceSpan.textContent = pieceUnicode[piece];
+                        square.appendChild(pieceSpan);
+                    }
+
+                    boardElement.appendChild(square);
+                }
+            }
+        }
+
+        function handleSquareClick(row, col) {
+            const clickedPiece = game.board[row][col];
+
+            if (game.selectedSquare) {
+                const fromRow = game.selectedSquare.row;
+                const fromCol = game.selectedSquare.col;
+
+                if (fromRow !== row || fromCol !== col) {
+                    executeMove(fromRow, fromCol, row, col);
+                }
+                game.selectedSquare = null;
+                drawBoard();
+            } else {
+                if (clickedPiece) {
+                    const isWhitePiece = clickedPiece === clickedPiece.toUpperCase();
+                    if ((game.turn === 'W' && isWhitePiece) || (game.turn === 'B' && !isWhitePiece)) {
+                        game.selectedSquare = { row, col };
+                        drawBoard();
+                    }
+                }
+            }
+        }
+
+        function executeMove(fromRow, fromCol, toRow, toCol) {
+            const piece = game.board[fromRow][fromCol];
+            const target = game.board[toRow][toCol];
+            const moveTxt = `${String.fromCharCode(97 + fromCol)}${8 - fromRow} ➔ ${String.fromCharCode(97 + toCol)}${8 - toRow}`;
+
+            game.board[toRow][toCol] = piece;
+            game.board[fromRow][fromCol] = null;
+
+            logToConsole(`[MŰVELET] ${piece === piece.toUpperCase() ? 'Fehér (T-800)' : 'Fekete (Tábornok)'}: ${moveTxt} ${target ? '⚔️ (ÜTÉS!)' : ''}`);
+
+            game.turn = game.turn === 'W' ? 'B' : 'W';
+            updateStatus();
+        }
+
+        function updateStatus() {
+            statusElement.textContent = `KÖVETKEZIK: ${game.turn === 'W' ? 'Fehér (T-800 Bot)' : 'Tábornok úr (Arany Fekete)'}`;
+        }
+
+        function logToConsole(msg) {
+            logElement.innerHTML += msg + '<br>';
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        // INIT & MECCS ÁLLÁSA
+        logToConsole("Sakk Engine v3.5 online. 4-oldalas koordináták aktívak!");
+        
+        // 1. e4 c5
+        executeMove(6, 4, 4, 4);
+        executeMove(1, 2, 3, 2);
+        
+        // 2. Nf3 Nf6
+        executeMove(7, 6, 5, 5);
+        executeMove(0, 6, 2, 5);
+
+        drawBoard();
+    </script>
+</body>
+</html>
