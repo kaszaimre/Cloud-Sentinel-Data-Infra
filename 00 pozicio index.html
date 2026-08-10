@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=device-width, initial-scale=1.0">
+    <title>BORSODI BRIGÁD - PHOENIX MASTER LOGIC</title>
+    <style>
+        body { background-color: #020804; color: #00ff66; font-family: 'Courier New', monospace; margin: 10px; padding: 0; font-size: 11px; }
+        .hud-header { border: 2px solid #00ff66; padding: 10px; text-align: center; background: #041408; box-shadow: 0 0 15px rgba(0,255,102,0.3); margin-bottom: 15px; }
+        .skull { white-space: pre; color: #ff0055; font-size: 8px; line-height: 8px; text-align: center; margin: 10px 0; font-weight: bold; }
+        .bento-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .card { border: 1px solid #00ff66; background: #030e05; padding: 10px; border-radius: 4px; position: relative; }
+        .card.open { border-color: #ffaa00; }
+        .ticker { font-size: 14px; font-weight: bold; color: #ffffff; }
+        .direction-long { color: #00ff66; font-weight: bold; }
+        .badge { position: absolute; top: 10px; right: 10px; padding: 2px 6px; background: #00ff66; color: #000; font-weight: bold; border-radius: 3px; font-size: 9px; }
+        .badge.open { background: #ffaa00; }
+        .matrix-text { color: #88aa88; margin-top: 5px; font-size: 10px; line-height: 12px; }
+        .footer { text-align: center; margin-top: 20px; padding: 10px; font-size: 10px; color: #668866; border-top: 1px dashed #00ff66; }
+    </style>
+</head>
+<body>
+
+    <div class="hud-header">
+        <div>=== BORSODI BRIGÁD: MASTER PHOENIX v1.0 ===</div>
+        <div class="skull">
+   _______  _______  _______             _______  _______  _______ 
+  (  ____ \(  ____ \(  ___  )  |\     /|(  ____ \(  ____ \(  ____ \
+
+  | (    \/| (    \/| (   ) |  | )   ( || (    \/| (    \/| (    \/
+  | |      | (__    | (___) |  | |   | || (__    | (__    | (__    
+  | |      |  __)   |  ___  |  ( (   ) )|  __)   |  __)   |  __)   
+  | |      | (      | (   ) |   \ \_/ / | (      | (      | (      
+  | (____/\| (____/\| )   ( |    \   /  | (____/\| (____/\| (____/\
+  (_______/(_______/|/     \|     \_/   (_______/(_______/(_______/
+        </div>
+        <div>[ STATUS: BEPORKOLVA | POWER: UNASSAILABLE ]</div>
+    </div>
+
+    <div class="bento-grid" id="signal-container">
+        <!-- Az adatbázis ide injektálódik automatikusan -->
+    </div>
+
+    <div class="footer">
+        "FIAM, A SZALONNA SÜL, A TÁSKA HÍZIK, A GUGOLI MEG NÉZII"<br>
+        © BORSODI DISTRICT 352 | LOCAL-FIRST OFFLINE CORE
+    </div>
+
+    <script>
+        // A tegnap élesített 13-as Giga-Mátrix tömbök közvetlen injektálása
+        const rawSignals = [
+            {id:"#1", ticker:"BINANCE:XVGUSDT", name:"Xvg / USDT", dir:"LONG", entry:"0.002171", tp:"0", sl:"0", score:"97%", status:"AI SZIGNÁL ⚡", desc:"MCDX Bálna tőke (93%) + Squeeze kitörési impulzus + Oracle AI Braid megerősítés."},
+            {id:"#2", ticker:"NASDAQ:AMZN", name:"Amazon.com, Inc.", dir:"LONG", entry:"277.86", tp:"319.54", sl:"261.19", score:"98%", status:"AI SZIGNÁL ⚡", desc:"Szent Grál 10-éves algoritmus konszenzus: Stoch túladott zónából pattan, MACD histogram váltás."},
+            {id:"#3", ticker:"INDEX:SHCOMP", name:"Shanghai Composite China", dir:"LONG", entry:"178.60", tp:"205.4", sl:"167.89", score:"96%", status:"AI SZIGNÁL ⚡", desc:"Volumetric AI Signal Radar 800 (VASR) intézményi vételi jelzés + Vektor irány megerősítve."},
+            {id:"#4", ticker:"NASDAQ:PANW", name:"Palo Alto Networks", dir:"LONG", entry:"379.79", tp:"436.76", sl:"357.01", score:"98%", status:"AI SZIGNÁL ⚡", desc:"Keltner csatorna alsó szalag visszateszt + Williams %R túladott forduló + Bálna felhalmozás."},
+            {id:"#5", ticker:"NYSE:WDC", name:"Western Digital Corp.", dir:"LONG", entry:"442.63", tp:"509.02", sl:"416.07", score:"92%", status:"AI SZIGNÁL ⚡", desc:"MCDX Bálna tőke (72%) + Squeeze kitörési impulzus + Oracle AI Braid megerősítés."},
+            {id:"#6", ticker:"NASDAQ:CHTR", name:"Charter Communications", dir:"LONG", entry:"150.89", tp:"173.52", sl:"141.84", score:"97%", status:"AI SZIGNÁL ⚡", desc:"Szent Grál 10-éves algoritmus konszenzus: Stoch túladott zónából pattan, MACD histogram váltás."},
+            {id:"#7", ticker:"BINANCE:MEMEUSDT", name:"Meme / USDT", dir:"LONG", entry:"0.000519", tp:"0", sl:"0", score:"93%", status:"AI SZIGNÁL ⚡", desc:"Volumetric AI Signal Radar 800 (VASR) intézményi vételi jelzés + Vektor irány megerősítve."},
+            {id:"#8", ticker:"NYSE:BAC", name:"Bank of America Corp.", dir:"LONG", entry:"63.75", tp:"73.32", sl:"59.93", score:"94%", status:"AI SZIGNÁL ⚡", desc:"Keltner csatorna alsó szalag visszateszt + Williams %R túladott forduló + Bálna felhalmozás."},
+            {id:"#9", ticker:"NYSE:PFE", name:"Pfizer Inc.", dir:"LONG", entry:"26.94", tp:"30.99", sl:"25.33", score:"95%", status:"AI SZIGNÁL ⚡", desc:"MCDX Bálna tőke (82%) + Squeeze kitörési impulzus + Oracle AI Braid megerősítés."},
+            {id:"#10", ticker:"NYSE:ED", name:"ED Inc. Equity", dir:"LONG", entry:"106.23", tp:"122.17", sl:"99.86", score:"95%", status:"AI SZIGNÁL ⚡", desc:"Szent Grál 10-éves algoritmus konszenzus: Stoch túladott zónából pattan, MACD histogram váltás."},
+            {id:"#11", ticker:"NASDAQ:NVDA", name:"NVIDIA Corporation", dir:"LONG", entry:"128.5", tp:"152", sl:"119", score:"98%", status:"NYITVA 🟢", desc:"Bálna tőkebeáramlás (MCDX 98%) + Volumetric AI breakout + Williams %R túladott forduló."},
+            {id:"#12", ticker:"BINANCE:BTCUSD", name:"Bitcoin / USD", dir:"LONG", entry:"67500", tp:"74200", sl:"64800", score:"95%", status:"AI SZIGNÁL ⚡", desc:"Oracle OS Braid Bull kereszteződés + Keltner csatorna kitörés + Stoch(60,10,20) bottom bounce."},
+            {id:"#13", ticker:"BET:OTP", name:"OTP Bank Nyrt.", dir:"LONG", entry:"18450", tp:"21000", sl:"17600", score:"92%", status:"NYITVA 🟢", desc:"BÉT Rally támasz + Tábornoki Radar v14.3 PES 95/100 + Intézményi konszenzus."}
+        ];
+
+        const container = document.getElementById('signal-container');
+        rawSignals.forEach(sig => {
+            const isOpen = sig.status.includes("NYITVA");
+            const card = document.createElement('div');
+            card.className = `card ${isOpen ? 'open' : ''}`;
+            card.innerHTML = `
+                <div class="badge ${isOpen ? 'open' : ''}">${sig.status} (Bizalom: ${sig.score})</div>
+                <div class="ticker">${sig.id} ${sig.ticker}</div>
+                <div><strong>Eszköz:</strong> ${sig.name}</div>
+                <div><strong>Irány:</strong> <span class="direction-long">${sig.dir}</span></div>
+                <div><strong>Belépő:</strong> $${sig.entry} | <strong>TP:</strong> $${sig.tp} | <strong>SL:</strong> $${sig.sl}</div>
+                <div class="matrix-text"><strong>Mátrix Elemzés:</strong> ${sig.desc}</div>
+            `;
+            container.appendChild(card);
+        });
+    </script>
+</body>
+</html>
