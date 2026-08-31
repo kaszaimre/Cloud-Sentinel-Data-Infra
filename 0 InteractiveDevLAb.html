@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="hu" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explorable Explanations & Interactive DevLab - Engine Portfolio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=JetBrains+Mono:wght@400;600;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #06080d;
+      color: #cbd5e1;
+      user-select: none;
+    }
+    .cinzel { font-family: 'Cinzel', serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    .hub-panel {
+      background: radial-gradient(circle at 50% 0%, #111827 0%, #090d16 70%, #06080d 100%);
+      border: 1px solid #1f293d;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+    .hub-tab.active {
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+      border-color: #38bdf8;
+      color: #f8fafc;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+    }
+    .code-box {
+      background: #030508;
+      border: 1px solid #1e293b;
+    }
+    pre {
+      scrollbar-width: thin;
+      scrollbar-color: #38bdf8 #030508;
+    }
+    details summary {
+      cursor: pointer;
+      list-style: none;
+    }
+    details summary::-webkit-details-marker {
+      display: none;
+    }
+    details[open] summary .toggle-icon {
+      transform: rotate(180deg);
+    }
+    .orb-glow {
+      box-shadow: inset 0 0 25px rgba(0,0,0,0.9), 0 0 15px rgba(220, 38, 38, 0.4);
+    }
+    .mana-glow {
+      box-shadow: inset 0 0 25px rgba(0,0,0,0.9), 0 0 15px rgba(37, 99, 235, 0.4);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <!-- TOP HEADER & BRAND -->
+  <header class="border-b border-slate-800/80 bg-gradient-to-b from-[#0f172a] via-[#090e17] to-[#06080d] py-10 px-4">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="space-y-2 text-center md:text-left">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-cyan-950/50 border border-cyan-500/40 text-cyan-300 text-xs mono uppercase tracking-widest">
+          <i class="fa-solid fa-atom animate-spin" style="animation-duration: 10s;"></i> Explorable Explanations & Engine Blueprint Suite
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-200 via-cyan-400 to-amber-400 tracking-wide mono">
+          INTERACTIVE DEV-LAB
+        </h1>
+        <p class="text-slate-400 text-xs sm:text-sm max-w-2xl">
+          Felfedezhető mérnöki magyarázatok, valós idejű Canvas motorok és interaktív szimulátorok zéró külső függőséggel.
+        </p>
+      </div>
+
+      <!-- Gyors Státusz Badge-ek -->
+      <div class="flex items-center gap-3 bg-black/60 border border-slate-800 p-3 rounded-2xl mono text-xs">
+        <div class="text-center px-3 border-r border-slate-800">
+          <div class="text-slate-500 text-[10px]">FPS ENGINE</div>
+          <div class="text-emerald-400 font-bold">60.0 RAF</div>
+        </div>
+        <div class="text-center px-3 border-r border-slate-800">
+          <div class="text-slate-500 text-[10px]">STACK</div>
+          <div class="text-cyan-400 font-bold">Vanilla JS + Canvas</div>
+        </div>
+        <div class="text-center px-3">
+          <div class="text-slate-500 text-[10px]">DEPLOY</div>
+          <div class="text-amber-400 font-bold">GitHub Pages</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- FŐ LAB NAVIGÁCIÓS SÁV (4 FŐ MODUL) -->
+  <div class="bg-black/90 border-b border-slate-800 sticky top-0 z-40 backdrop-blur">
+    <div class="max-w-7xl mx-auto px-4 py-2.5 flex items-center gap-2 overflow-x-auto">
+      <button onclick="switchMainLab('panzer')" id="tabBtn-panzer" class="hub-tab active px-4 py-2 rounded-xl border border-slate-700 text-xs mono font-bold shrink-0 transition flex items-center gap-2">
+        <i class="fa-solid fa-shield-halved text-amber-400"></i> 1. Panzer General II (10 Modul)
+      </button>
+      <button onclick="switchMainLab('ballistics')" id="tabBtn-ballistics" class="hub-tab px-4 py-2 rounded-xl border border-slate-800 text-slate-400 text-xs mono font-bold shrink-0 transition flex items-center gap-2">
+        <i class="fa-solid fa-crosshairs text-rose-400"></i> 2. Ballisztika & Recoil Lab
+      </button>
+      <button onclick="switchMainLab('diablo')" id="tabBtn-diablo" class="hub-tab px-4 py-2 rounded-xl border border-slate-800 text-slate-400 text-xs mono font-bold shrink-0 transition flex items-center gap-2">
+        <i class="fa-solid fa-fire text-red-500"></i> 3. Diablo II ARPG Motor
+      </button>
+      <button onclick="switchMainLab('stegano')" id="tabBtn-stegano" class="hub-tab px-4 py-2 rounded-xl border border-slate-800 text-slate-400 text-xs mono font-bold shrink-0 transition flex items-center gap-2">
+        <i class="fa-solid fa-user-secret text-cyan-400"></i> 4. Stegano Master HD
+      </button>
+    </div>
+  </div>
+
+  <!-- FŐ TARTALOMTERÜLET -->
+  <main class="max-w-7xl mx-auto px-4 py-8 flex-1 w-full">
+
+    <!-- ==================== 1. LAB: PANZER GENERAL II (10 MODUL) ==================== -->
+    <section id="lab-panzer" class="main-pane space-y-6">
+      
+      <!-- Modul Navigáció -->
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-stone-950/80 p-3 rounded-2xl border border-amber-900/40">
+        <div class="flex items-center gap-2 overflow-x-auto pb-1" id="pgNavContainer"></div>
+        <div class="flex items-center gap-2">
+          <button onclick="pgPrev()" class="px-3 py-1.5 rounded-lg bg-stone-900 border border-stone-700 text-xs mono text-amber-300 font-bold hover:bg-stone-800">
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
+          <span id="pgIndicator" class="text-xs mono font-bold text-amber-400 px-2">Modul: 1/10</span>
+          <button onclick="pgNext()" class="px-3 py-1.5 rounded-lg bg-amber-900/40 border border-amber-600 text-xs mono text-amber-200 font-bold hover:bg-amber-800/60">
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- PG 1. MODUL: HEX MATEK -->
+      <div id="pg-pane-1" class="pg-pane space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-7 hub-panel p-4 rounded-2xl space-y-3">
+            <div class="flex justify-between items-center text-xs mono text-amber-300">
+              <span>Kattints 2 hexára a távolságméréshez:</span>
+              <span id="pgHexDist" class="text-emerald-400 font-bold">Távolság: 0 hex</span>
+            </div>
+            <div class="h-80 bg-[#141810] rounded-xl border border-amber-900/60 overflow-hidden">
+              <canvas id="pgHexCanvas" class="w-full h-full cursor-pointer"></canvas>
+            </div>
+          </div>
+          <div class="lg:col-span-5 space-y-3">
+            <div class="hub-panel p-4 rounded-xl text-xs mono space-y-2">
+              <h3 class="font-bold text-amber-300 uppercase">3D Kocka-vetítés (Cube Coordinates)</h3>
+              <p class="text-slate-300 leading-relaxed">
+                Minden hexát 3 virtuális tengelyre $(x, y, z)$ vetítünk, ahol $x + y + z = 0$. A távolság: $\max(|dx|, |dy|, |dz|)$.
+              </p>
+            </div>
+            <details class="hub-panel p-4 rounded-xl group" open>
+              <summary class="flex justify-between items-center text-xs mono text-amber-300 font-bold">
+                <span>hexDistance() Algoritmus</span>
+                <span class="toggle-icon text-amber-400"><i class="fa-solid fa-chevron-down"></i></span>
+              </summary>
+              <div class="code-box p-3 rounded-lg text-xs mono text-cyan-300 mt-3 overflow-x-auto">
+<pre>function hexDistance(c1, r1, c2, r2) {
+  const toCube = (c, r) => {
+    const x = c - (r - (r & 1)) / 2;
+    const z = r;
+    const y = -x - z;
+    return { x, y, z };
+  };
+  const a = toCube(c1, r1), b = toCube(c2, r2);
+  return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y), Math.abs(a.z - b.z));
+}</pre>
+              </div>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <!-- PG 2. MODUL: KAMERA & CULLING -->
+      <div id="pg-pane-2" class="pg-pane hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-7 hub-panel p-4 rounded-2xl space-y-3">
+            <div class="flex justify-between items-center text-xs mono text-amber-300">
+              <span>Húzd az egeret (Pan), görgess (Zoom):</span>
+              <span id="pgCamInfo" class="text-emerald-400 font-bold">Zoom: 1.0x</span>
+            </div>
+            <div class="h-80 bg-[#10140e] rounded-xl border border-amber-900/60 overflow-hidden">
+              <canvas id="pgCamCanvas" class="w-full h-full cursor-grab active:cursor-grabbing"></canvas>
+            </div>
+          </div>
+          <div class="lg:col-span-5 space-y-3">
+            <div class="hub-panel p-4 rounded-xl text-xs mono space-y-2">
+              <h3 class="font-bold text-amber-300 uppercase">Viewport Culling</h3>
+              <p class="text-slate-300 leading-relaxed">
+                Csak a képernyő téglalapján belüli hexák kerülnek rajzolásra a 60 FPS optimalizáció érdekében.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PG 3. MODUL: EGYSÉG SPRITE-OK -->
+      <div id="pg-pane-3" class="pg-pane hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-6 hub-panel p-4 rounded-2xl space-y-3 text-center">
+            <div class="text-xs mono text-amber-300 font-bold uppercase">Vektor Sprite Inspector:</div>
+            <div class="h-44 bg-[#1f2418] rounded-xl border border-amber-900/60 flex items-center justify-center">
+              <canvas id="pgSpriteCanvas" width="160" height="160"></canvas>
+            </div>
+            <div class="grid grid-cols-4 gap-2">
+              <button onclick="drawPgSprite('tank')" class="p-2 rounded bg-stone-900 hover:bg-stone-800 text-[11px] mono text-amber-200 border border-stone-700">Tank</button>
+              <button onclick="drawPgSprite('artillery')" class="p-2 rounded bg-stone-900 hover:bg-stone-800 text-[11px] mono text-amber-200 border border-stone-700">Löveg</button>
+              <button onclick="drawPgSprite('recon')" class="p-2 rounded bg-stone-900 hover:bg-stone-800 text-[11px] mono text-amber-200 border border-stone-700">Puma</button>
+              <button onclick="drawPgSprite('infantry')" class="p-2 rounded bg-stone-900 hover:bg-stone-800 text-[11px] mono text-amber-200 border border-stone-700">Gyalog</button>
+            </div>
+          </div>
+          <div class="lg:col-span-6 code-box p-4 rounded-2xl text-xs mono text-slate-300 overflow-x-auto">
+<pre>{
+  id: 1, name: "Tiger I s.Pz.Abt 503",
+  col: 4, row: 2, type: 'tank',
+  hp: 12, maxHp: 12, atk: 15, def: 18,
+  range: 1, move: 2, ammo: 5, maxAmmo: 5,
+  ent: 0, icon: 'fa-shield-halved',
+  side: 'player'
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- PG 4. - 10. MODULOK DINAMIKUS TARTALMA -->
+      <div id="pg-pane-rest" class="pg-pane hidden hub-panel p-6 rounded-2xl space-y-4">
+        <h3 id="pgRestTitle" class="text-base font-bold text-amber-300 mono"></h3>
+        <p id="pgRestDesc" class="text-xs text-slate-300 leading-relaxed mono"></p>
+        <div class="code-box p-4 rounded-xl text-xs mono text-cyan-300 overflow-x-auto">
+          <pre id="pgRestCode"></pre>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ==================== 2. LAB: BALLISZTIKA & RECOIL ==================== -->
+    <section id="lab-ballistics" class="main-pane hidden space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-3">
+          <span class="w-8 h-8 rounded bg-rose-500/20 border border-rose-400 text-rose-400 flex items-center justify-center font-bold mono">02</span>
+          <h2 class="text-xl font-bold text-slate-100 mono">Ballisztikai, Recoil és Torkolattűz Laboratórium</h2>
+        </div>
+        <button onclick="fireLabCannon()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-500 hover:to-rose-500 text-white text-xs mono font-black uppercase shadow-lg active:scale-95 transition">
+          <i class="fa-solid fa-crosshairs mr-1.5"></i> 8.8cm KwK 36 Lövés!
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-7 hub-panel p-4 rounded-2xl flex flex-col justify-between space-y-3">
+          <div class="h-80 bg-[#161a12] rounded-xl border border-slate-800 overflow-hidden relative">
+            <canvas id="labBallisticsCanvas" class="w-full h-full"></canvas>
+          </div>
+        </div>
+        <div class="lg:col-span-5 space-y-3">
+          <div class="hub-panel p-4 rounded-xl space-y-2 text-xs mono">
+            <h3 class="font-bold text-rose-400 uppercase">Valós Idejű Fázisok:</h3>
+            <ul class="space-y-1 text-slate-300 list-disc list-inside">
+              <li>1. Torkolattűz részecskék + cső hátrasiklás (-8px)</li>
+              <li>2. Ballisztikai röppálya ($v_x, v_y$ sebességvektor)</li>
+              <li>3. Páncél-becsapódás & repeszszórás</li>
+            </ul>
+          </div>
+          <div class="code-box p-4 rounded-xl text-xs mono text-amber-300 overflow-x-auto">
+<pre>attacker.recoil = 10;
+shell.x += shell.vx; shell.y += shell.vy;
+attacker.recoil *= 0.82; // Csillapítás</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 3. LAB: DIABLO II ARPG MOTOR ==================== -->
+    <section id="lab-diablo" class="main-pane hidden space-y-6">
+      <div class="flex items-center justify-between border-b border-red-950 pb-3">
+        <div class="flex items-center gap-3">
+          <span class="w-8 h-8 rounded bg-red-950 border border-red-700 text-red-400 flex items-center justify-center font-bold mono">03</span>
+          <h2 class="text-xl font-bold text-amber-400 cinzel">Diablo II Izometrikus Csatatér & 25 FPS Breakpoint Engine</h2>
+        </div>
+        <span class="text-xs mono text-stone-400">Kattints a vászonra a varázsláshoz!</span>
+      </div>
+
+      <div class="hub-panel p-5 rounded-2xl space-y-4 border-red-950">
+        <div class="relative h-[380px] bg-[#0a0505] rounded-xl border border-red-950 overflow-hidden">
+          <canvas id="labDiabloCanvas" class="w-full h-full cursor-crosshair"></canvas>
+          <div class="absolute top-2 left-2 px-3 py-1 rounded bg-black/80 text-xs mono text-red-400 border border-red-900/60">
+            BOSS: Diablo (Lord of Terror)
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-4 pt-2">
+          <!-- Life Orb -->
+          <div class="flex items-center gap-3">
+            <div class="w-14 h-14 rounded-full border-2 border-red-800 bg-[#1f0505] orb-glow overflow-hidden flex items-end justify-center relative">
+              <div id="dLifeFill" class="w-full bg-gradient-to-t from-red-900 to-red-500" style="height: 85%;"></div>
+              <span id="dLifeTxt" class="absolute inset-0 flex items-center justify-center text-[9px] font-bold mono text-white">1420 HP</span>
+            </div>
+            <span class="text-xs mono text-red-400 font-bold">LIFE ORB</span>
+          </div>
+
+          <!-- Spells -->
+          <div class="flex gap-2">
+            <button onclick="setDiabloSpell('orb')" id="dBtnOrb" class="px-3.5 py-1.5 rounded-lg bg-red-950 border border-red-700 text-xs mono font-bold text-cyan-300 ring-2 ring-amber-400">
+              <i class="fa-solid fa-snowflake mr-1"></i> Frozen Orb
+            </button>
+            <button onclick="setDiabloSpell('fire')" id="dBtnFire" class="px-3.5 py-1.5 rounded-lg bg-red-950 border border-red-700 text-xs mono font-bold text-orange-400">
+              <i class="fa-solid fa-fire mr-1"></i> Fire Ball
+            </button>
+          </div>
+
+          <!-- Mana Orb -->
+          <div class="flex items-center gap-3">
+            <span class="text-xs mono text-blue-400 font-bold">MANA ORB</span>
+            <div class="w-14 h-14 rounded-full border-2 border-blue-800 bg-[#05081f] mana-glow overflow-hidden flex items-end justify-center relative">
+              <div id="dManaFill" class="w-full bg-gradient-to-t from-blue-900 to-blue-400" style="height: 90%;"></div>
+              <span id="dManaTxt" class="absolute inset-0 flex items-center justify-center text-[9px] font-bold mono text-white">850 MP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 4. LAB: STEGANO MASTER HD ==================== -->
+    <section id="lab-stegano" class="main-pane hidden space-y-6">
+      <div class="flex items-center justify-between border-b border-sky-950 pb-3">
+        <div class="flex items-center gap-3">
+          <span class="w-8 h-8 rounded bg-sky-950 border border-sky-700 text-cyan-400 flex items-center justify-center font-bold mono">04</span>
+          <h2 class="text-xl font-bold text-cyan-300 mono">Stegano Master HD (LSB Adatrejtés & Analízis)</h2>
+        </div>
+      </div>
+
+      <div class="hub-panel p-6 rounded-2xl space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-6 space-y-3">
+            <label class="text-xs mono text-slate-400">Titkosítandó Szöveges Payload:</label>
+            <textarea id="hubStegInput" class="w-full h-24 bg-black/70 border border-sky-900/60 rounded-xl p-3 text-xs mono text-cyan-300 resize-none">DEV-LAB: Secret Steganography Key #2026-X</textarea>
+            <div class="flex gap-2">
+              <button onclick="hubEmbedLSB()" class="flex-1 py-2 rounded-xl bg-gradient-to-r from-sky-600 to-cyan-600 text-white text-xs mono font-bold uppercase">
+                <i class="fa-solid fa-lock mr-1"></i> LSB Beírás
+              </button>
+              <button onclick="hubExtractLSB()" class="flex-1 py-2 rounded-xl bg-stone-900 border border-sky-700 text-sky-300 text-xs mono font-bold uppercase">
+                <i class="fa-solid fa-unlock mr-1"></i> Visszafejtés
+              </button>
+            </div>
+            <div class="p-3 bg-black/80 rounded-xl border border-sky-950 text-xs mono text-emerald-400 font-bold" id="hubStegOutput">
+              Kattints a "Visszafejtés" gombra...
+            </div>
+          </div>
+          <div class="lg:col-span-6 flex flex-col justify-between space-y-3">
+            <div class="h-40 bg-[#03060a] rounded-xl border border-sky-900/60 overflow-hidden">
+              <canvas id="hubStegCanvas" width="380" height="150" class="w-full h-full object-cover"></canvas>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-center text-xs mono">
+              <div class="bg-black/60 p-2 rounded-lg border border-sky-950">
+                <div class="text-[10px] text-slate-500">MÓDOSÍTOTT BITEK</div>
+                <div id="hubStegBits" class="font-bold text-cyan-300">0 bit</div>
+              </div>
+              <div class="bg-black/60 p-2 rounded-lg border border-sky-950">
+                <div class="text-[10px] text-slate-500">ENTRÓPIA-KOCKÁZAT</div>
+                <div id="hubStegRisk" class="font-bold text-emerald-400">&lt; 0.01%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- LÁBLÉC -->
+  <footer class="border-t border-slate-800/80 bg-black py-8 text-center text-xs mono text-slate-600">
+    Explorable Explanations & Engine DevLab Portfolio &bull; 100% Client-Side Pure JavaScript &bull; GitHub Pages Ready
+  </footer>
+
+  <!-- FŐ VEZÉRLŐ ÉS MOTOR SCRIPTEK -->
+  <script>
+    // FŐ LAB VÁLTÁS
+    function switchMainLab(labId) {
+      document.querySelectorAll('.main-pane').forEach(p => p.classList.add('hidden'));
+      document.querySelectorAll('.hub-tab').forEach(b => {
+        b.classList.remove('active');
+        b.classList.add('text-slate-400');
+      });
+
+      const activePane = document.getElementById(`lab-${labId}`);
+      if (activePane) activePane.classList.remove('hidden');
+
+      const activeBtn = document.getElementById(`tabBtn-${labId}`);
+      if (activeBtn) {
+        activeBtn.classList.add('active');
+        activeBtn.classList.remove('text-slate-400');
+      }
+
+      if (labId === 'panzer') { resizePgHex(); resizePgCam(); drawPgSprite('tank'); }
+      if (labId === 'ballistics') resizeBallistics();
+      if (labId === 'diablo') resizeDiablo();
+      if (labId === 'stegano') initStegImage();
+    }
+
+    // ==================== 1. PANZER GENERAL 10 MODUL VEZÉRLŐ ====================
+    const pgModules = [
+      "1. Hex Matek", "2. Kamera & Render", "3. Egységek", "4. Ballisztika",
+      "5. Harci Motor", "6. Ellenséges AI", "7. Városfoglalás", "8. Kampány",
+      "9. Save/Load", "10. Győzelem"
+    ];
+    let currentPgTab = 1;
+
+    function buildPgNav() {
+      const container = document.getElementById('pgNavContainer');
+      container.innerHTML = '';
+      pgModules.forEach((name, i) => {
+        const btn = document.createElement('button');
+        const idx = i + 1;
+        btn.className = `px-2.5 py-1 rounded-lg text-xs mono font-bold shrink-0 transition ${idx === currentPgTab ? 'bg-amber-800/60 border border-amber-500 text-amber-200' : 'bg-stone-900 border border-stone-800 text-slate-400'}`;
+        btn.innerText = name;
+        btn.onclick = () => switchPgTab(idx);
+        container.appendChild(btn);
+      });
+    }
+
+    const pgRestData = {
+      4: { title: "4. Modul: Ballisztikai Trajektória & Recoil", desc: "Lövedék mozgás vektorok (vx, vy) és csillapított hátrasiklás.", code: "shell.x += shell.vx; tank.recoil *= 0.82;" },
+      5: { title: "5. Modul: Harci Determinisztikus Képlet", desc: "Sebzés = (ATK - DEF/2) * (HP/MaxHP) - Entrenchment + Roll(1..4) - 2", code: "let raw = (atk - def/2) * (hp/12) + roll() - 2; let dmg = Math.max(1, raw - ent);" },
+      6: { title: "6. Modul: Ellenséges AI Döntési Fa", desc: "Távolságminimalizálás a legközelebbi játékos egység felé, városátfoglalás és tűzcsapás.", code: "const bestHex = reachables.reduce((min, h) => dist(h, target) < min.d ? {h, d: dist(h, target)} : min);" },
+      7: { title: "7. Modul: Városfoglalás & PP Gazdaság", desc: "Hexa egyezés esetén bázis tulajdonjog átfordulása és körönkénti PP jóváírás.", code: "if (city && city.owner !== unit.side) { city.owner = unit.side; playerPP += city.income; }" },
+      8: { title: "8. Modul: Kampány & Veterán Szintek", desc: "Minden sikeres ütközet EXP-t ad. 100 EXP után veterán csillag (+1 ATK, +1 DEF).", code: "if (unit.exp >= 100) { unit.stars++; unit.atk++; unit.def++; unit.exp -= 100; }" },
+      9: { title: "9. Modul: LocalStorage Állapotmentés", desc: "Egységek, bázisok és PP szerializációja a böngésző memóriájába.", code: "localStorage.setItem('savegame', JSON.stringify({ currentTurn, playerPP, units, cities }));" },
+      10: { title: "10. Modul: Háromfokozatú Győzelmi Rendszer", desc: "Döntő Győzelem (minden bázis elesett), Taktikai Győzelem és Hadvezéri Vereség.", code: "if (eCities.length === 0 || eUnits.length === 0) triggerVictory();" }
+    };
+
+    function switchPgTab(idx) {
+      currentPgTab = idx;
+      document.getElementById('pgIndicator').innerText = `Modul: ${idx}/10`;
+      buildPgNav();
+
+      ['1', '2', '3', 'rest'].forEach(id => document.getElementById(`pg-pane-${id}`).classList.add('hidden'));
+
+      if (idx === 1) { document.getElementById('pg-pane-1').classList.remove('hidden'); resizePgHex(); }
+      else if (idx === 2) { document.getElementById('pg-pane-2').classList.remove('hidden'); resizePgCam(); }
+      else if (idx === 3) { document.getElementById('pg-pane-3').classList.remove('hidden'); drawPgSprite('tank'); }
+      else {
+        const rest = document.getElementById('pg-pane-rest');
+        rest.classList.remove('hidden');
+        document.getElementById('pgRestTitle').innerText = pgRestData[idx].title;
+        document.getElementById('pgRestDesc').innerText = pgRestData[idx].desc;
+        document.getElementById('pgRestCode').innerText = pgRestData[idx].code;
+      }
+    }
+    function pgNext() { if (currentPgTab < 10) switchPgTab(currentPgTab + 1); }
+    function pgPrev() { if (currentPgTab > 1) switchPgTab(currentPgTab - 1); }
+
+    // PG 1. HEX CANVAS
+    const pgHexCanvas = document.getElementById('pgHexCanvas');
+    const pgHexCtx = pgHexCanvas.getContext('2d');
+    let pgHex1 = { col: 2, row: 2 }, pgHex2 = { col: 5, row: 3 };
+
+    function resizePgHex() {
+      if (!pgHexCanvas || !pgHexCanvas.parentElement) return;
+      pgHexCanvas.width = pgHexCanvas.parentElement.clientWidth;
+      pgHexCanvas.height = pgHexCanvas.parentElement.clientHeight;
+      drawPgHex();
+    }
+    function drawPgHex() {
+      pgHexCtx.clearRect(0, 0, pgHexCanvas.width, pgHexCanvas.height);
+      const R = 26, W = Math.sqrt(3) * R, H = 2 * R * 0.75;
+      for (let r = 0; r < 7; r++) {
+        for (let c = 0; c < 9; c++) {
+          const x = 45 + c * W + (r % 2 === 1 ? W / 2 : 0);
+          const y = 35 + r * H;
+          const is1 = pgHex1 && pgHex1.col === c && pgHex1.row === r;
+          const is2 = pgHex2 && pgHex2.col === c && pgHex2.row === r;
+
+          pgHexCtx.beginPath();
+          for (let i = 0; i < 6; i++) {
+            const angle = (Math.PI / 180) * (60 * i - 30);
+            const hx = x + R * Math.cos(angle), hy = y + R * Math.sin(angle);
+            if (i === 0) pgHexCtx.moveTo(hx, hy); else pgHexCtx.lineTo(hx, hy);
+          }
+          pgHexCtx.closePath();
+          pgHexCtx.fillStyle = is1 ? '#f59e0b' : (is2 ? '#06b6d4' : '#23291d');
+          pgHexCtx.fill();
+          pgHexCtx.strokeStyle = 'rgba(180, 160, 110, 0.3)';
+          pgHexCtx.stroke();
+        }
+      }
+      if (pgHex1 && pgHex2) {
+        const toCube = (c, r) => ({ x: c - (r - (r & 1)) / 2, z: r, y: -(c - (r - (r & 1)) / 2) - r });
+        const a = toCube(pgHex1.col, pgHex1.row), b = toCube(pgHex2.col, pgHex2.row);
+        const d = Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y), Math.abs(a.z - b.z));
+        document.getElementById('pgHexDist').innerText = `Távolság: ${d} hex`;
+      }
+    }
+    pgHexCanvas.addEventListener('click', (e) => {
+      const rect = pgHexCanvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      const R = 26, W = Math.sqrt(3) * R, H = 2 * R * 0.75;
+      for (let r = 0; r < 7; r++) {
+        for (let c = 0; c < 9; c++) {
+          const x = 45 + c * W + (r % 2 === 1 ? W / 2 : 0);
+          const y = 35 + r * H;
+          if (Math.hypot(mx - x, my - y) < R) {
+            pgHex1 = pgHex2; pgHex2 = { col: c, row: r };
+            drawPgHex(); return;
+          }
+        }
+      }
+    });
+
+    // PG 2. KAMERA
+    const pgCamCanvas = document.getElementById('pgCamCanvas');
+    const pgCamCtx = pgCamCanvas.getContext('2d');
+    let pgCam = { x: 40, y: 20, zoom: 1.0 }, isDragging = false, dragStart = { x: 0, y: 0 };
+    function resizePgCam() {
+      if (!pgCamCanvas || !pgCamCanvas.parentElement) return;
+      pgCamCanvas.width = pgCamCanvas.parentElement.clientWidth;
+      pgCamCanvas.height = pgCamCanvas.parentElement.clientHeight;
+      drawPgCam();
+    }
+    function drawPgCam() {
+      pgCamCtx.clearRect(0, 0, pgCamCanvas.width, pgCamCanvas.height);
+      pgCamCtx.save();
+      pgCamCtx.translate(pgCam.x, pgCam.y);
+      pgCamCtx.scale(pgCam.zoom, pgCam.zoom);
+      pgCamCtx.fillStyle = '#22281a';
+      pgCamCtx.fillRect(0, 0, 700, 450);
+      pgCamCtx.strokeStyle = '#c49a45';
+      pgCamCtx.strokeRect(0, 0, 700, 450);
+      pgCamCtx.restore();
+      document.getElementById('pgCamInfo').innerText = `Zoom: ${pgCam.zoom.toFixed(2)}x`;
+    }
+    pgCamCanvas.addEventListener('mousedown', (e) => { isDragging = true; dragStart = { x: e.clientX - pgCam.x, y: e.clientY - pgCam.y }; });
+    window.addEventListener('mousemove', (e) => { if (isDragging) { pgCam.x = e.clientX - dragStart.x; pgCam.y = e.clientY - dragStart.y; drawPgCam(); } });
+    window.addEventListener('mouseup', () => isDragging = false);
+    pgCamCanvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      pgCam.zoom = Math.max(0.6, Math.min(2.2, pgCam.zoom * (e.deltaY < 0 ? 1.1 : 0.9)));
+      drawPgCam();
+    });
+
+    // PG 3. SPRITE
+    const pgSCanvas = document.getElementById('pgSpriteCanvas');
+    const pgSCtx = pgSCanvas.getContext('2d');
+    function drawPgSprite(t) {
+      pgSCtx.clearRect(0, 0, pgSCanvas.width, pgSCanvas.height);
+      pgSCtx.save(); pgSCtx.translate(80, 80);
+      pgSCtx.beginPath(); pgSCtx.arc(0, 0, 45, 0, Math.PI * 2);
+      pgSCtx.fillStyle = '#2b2319'; pgSCtx.fill();
+      pgSCtx.strokeStyle = '#f59e0b'; pgSCtx.lineWidth = 2; pgSCtx.stroke();
+      if (t === 'tank') {
+        pgSCtx.fillStyle = '#1c1f19'; pgSCtx.fillRect(-26, -18, 52, 8); pgSCtx.fillRect(-26, 10, 52, 8);
+        pgSCtx.fillStyle = '#5b604d'; pgSCtx.fillRect(-22, -12, 44, 24);
+        pgSCtx.beginPath(); pgSCtx.arc(0, 0, 10, 0, Math.PI * 2); pgSCtx.fillStyle = '#33372c'; pgSCtx.fill();
+        pgSCtx.strokeStyle = '#8c9282'; pgSCtx.lineWidth = 4; pgSCtx.beginPath(); pgSCtx.moveTo(0, 0); pgSCtx.lineTo(28, 0); pgSCtx.stroke();
+      } else {
+        pgSCtx.fillStyle = '#717a63'; pgSCtx.fillRect(-10, -10, 20, 20);
+      }
+      pgSCtx.restore();
+    }
+
+    // ==================== 2. BALLISZTIKA MOTOR ====================
+    const bCanvas = document.getElementById('labBallisticsCanvas');
+    const bCtx = bCanvas.getContext('2d');
+    let bTank = { x: 70, y: 150, recoil: 0 }, bEnemy = { x: 380, y: 150, hit: 0 }, bShells = [], bParts = [];
+
+    function resizeBallistics() {
+      if (!bCanvas || !bCanvas.parentElement) return;
+      bCanvas.width = bCanvas.parentElement.clientWidth;
+      bCanvas.height = bCanvas.parentElement.clientHeight;
+    }
+    function fireLabCannon() {
+      bTank.recoil = 12;
+      for (let i = 0; i < 15; i++) bParts.push({ x: bTank.x + 25, y: bTank.y, vx: Math.random() * 4 + 1, vy: (Math.random() - 0.5) * 4, life: 18, color: '#f59e0b' });
+      bShells.push({ x: bTank.x + 25, y: bTank.y, vx: 9, targetX: bEnemy.x });
+    }
+    function loopBallistics() {
+      if (bCtx && bCanvas) {
+        bCtx.clearRect(0, 0, bCanvas.width, bCanvas.height);
+        bTank.recoil *= 0.82;
+        // Tank
+        bCtx.save(); bCtx.translate(bTank.x, bTank.y);
+        bCtx.fillStyle = '#5b604d'; bCtx.fillRect(-16, -10, 32, 20);
+        bCtx.strokeStyle = '#8c9282'; bCtx.lineWidth = 3.5; bCtx.beginPath(); bCtx.moveTo(0, 0); bCtx.lineTo(24 - bTank.recoil, 0); bCtx.stroke();
+        bCtx.restore();
+        // Target
+        bCtx.save(); bCtx.translate(bEnemy.x, bEnemy.y);
+        bCtx.fillStyle = bEnemy.hit > 0 ? '#ef4444' : '#3a4f38'; if (bEnemy.hit > 0) bEnemy.hit--;
+        bCtx.fillRect(-16, -10, 32, 20); bCtx.restore();
+        // Shells
+        for (let i = bShells.length - 1; i >= 0; i--) {
+          const s = bShells[i]; s.x += s.vx;
+          bCtx.fillStyle = '#fef08a'; bCtx.beginPath(); bCtx.arc(s.x, s.y, 3.5, 0, Math.PI * 2); bCtx.fill();
+          if (s.x >= s.targetX) {
+            bEnemy.hit = 8;
+            for (let k = 0; k < 15; k++) bParts.push({ x: bEnemy.x, y: bEnemy.y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6, life: 20, color: '#f97316' });
+            bShells.splice(i, 1);
+          }
+        }
+        for (let i = bParts.length - 1; i >= 0; i--) {
+          const p = bParts[i]; p.x += p.vx; p.y += p.vy; p.life--;
+          bCtx.fillStyle = p.color; bCtx.fillRect(p.x, p.y, 2.5, 2.5);
+          if (p.life <= 0) bParts.splice(i, 1);
+        }
+      }
+      requestAnimationFrame(loopBallistics);
+    }
+
+    // ==================== 3. DIABLO MOTOR ====================
+    const dCanvas = document.getElementById('labDiabloCanvas');
+    const dCtx = dCanvas.getContext('2d');
+    let dSpell = 'orb', dPlayer = { x: 140, y: 190, hp: 1420, maxHp: 1650, mana: 850, maxMana: 920 };
+    let dBoss = { x: 480, y: 190, hp: 45000, maxHp: 45000, hit: 0 };
+    let dProj = [], dParts = [], dTexts = [];
+
+    function resizeDiablo() {
+      if (!dCanvas || !dCanvas.parentElement) return;
+      dCanvas.width = dCanvas.parentElement.clientWidth;
+      dCanvas.height = dCanvas.parentElement.clientHeight;
+    }
+    function setDiabloSpell(t) {
+      dSpell = t;
+      document.getElementById('dBtnOrb').className = `px-3.5 py-1.5 rounded-lg bg-red-950 border border-red-700 text-xs mono font-bold ${t==='orb'?'text-cyan-300 ring-2 ring-amber-400':'text-stone-400'}`;
+      document.getElementById('dBtnFire').className = `px-3.5 py-1.5 rounded-lg bg-red-950 border border-red-700 text-xs mono font-bold ${t==='fire'?'text-orange-400 ring-2 ring-amber-400':'text-stone-400'}`;
+    }
+    dCanvas.addEventListener('mousedown', (e) => {
+      const rect = dCanvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      const angle = Math.atan2(my - dPlayer.y, mx - dPlayer.x);
+      if (dSpell === 'orb' && dPlayer.mana >= 30) {
+        dPlayer.mana -= 30;
+        dProj.push({ type: 'orb', x: dPlayer.x, y: dPlayer.y, vx: Math.cos(angle)*4.5, vy: Math.sin(angle)*4.5, life: 70, spin: 0 });
+      } else if (dSpell === 'fire' && dPlayer.mana >= 15) {
+        dPlayer.mana -= 15;
+        dProj.push({ type: 'fire', x: dPlayer.x, y: dPlayer.y, vx: Math.cos(angle)*8, vy: Math.sin(angle)*8 });
+      }
+    });
+
+    function loopDiablo() {
+      if (dCtx && dCanvas) {
+        dCtx.clearRect(0, 0, dCanvas.width, dCanvas.height);
+        // Diablo Boss
+        dCtx.save(); dCtx.translate(dBoss.x, dBoss.y);
+        dCtx.fillStyle = dBoss.hit > 0 ? '#ff6b6b' : '#7f1d1d'; if (dBoss.hit > 0) dBoss.hit--;
+        dCtx.beginPath(); dCtx.arc(0, 0, 36, 0, Math.PI * 2); dCtx.fill();
+        dCtx.strokeStyle = '#f59e0b'; dCtx.lineWidth = 3; dCtx.stroke();
+        dCtx.restore();
+
+        // Player
+        dCtx.save(); dCtx.translate(dPlayer.x, dPlayer.y);
+        dCtx.fillStyle = '#1e3a8a'; dCtx.beginPath(); dCtx.arc(0, 0, 16, 0, Math.PI * 2); dCtx.fill();
+        dCtx.restore();
+
+        // Projectiles
+        for (let i = dProj.length - 1; i >= 0; i--) {
+          const p = dProj[i]; p.x += p.vx; p.y += p.vy;
+          if (p.type === 'orb') {
+            p.spin += 0.2; p.life--;
+            dCtx.fillStyle = '#bae6fd'; dCtx.beginPath(); dCtx.arc(p.x, p.y, 8, 0, Math.PI * 2); dCtx.fill();
+            if (Math.hypot(p.x - dBoss.x, p.y - dBoss.y) < 46) {
+              dBoss.hit = 5;
+              dTexts.push({ x: dBoss.x, y: dBoss.y - 20, text: "320", color: '#38bdf8', life: 30 });
+            }
+            if (p.life <= 0) dProj.splice(i, 1);
+          } else {
+            dCtx.fillStyle = '#f97316'; dCtx.beginPath(); dCtx.arc(p.x, p.y, 10, 0, Math.PI * 2); dCtx.fill();
+            if (Math.hypot(p.x - dBoss.x, p.y - dBoss.y) < 46) {
+              dBoss.hit = 8;
+              dTexts.push({ x: dBoss.x, y: dBoss.y - 20, text: "1,850 CRIT", color: '#f59e0b', life: 35 });
+              dProj.splice(i, 1);
+            }
+          }
+        }
+
+        // Damage text
+        for (let i = dTexts.length - 1; i >= 0; i--) {
+          const t = dTexts[i]; t.y -= 0.8; t.life--;
+          dCtx.fillStyle = t.color; dCtx.font = 'bold 11px "JetBrains Mono"';
+          dCtx.fillText(t.text, t.x, t.y);
+          if (t.life <= 0) dTexts.splice(i, 1);
+        }
+        dPlayer.mana = Math.min(dPlayer.maxMana, dPlayer.mana + 0.2);
+        document.getElementById('dManaFill').style.height = `${(dPlayer.mana/dPlayer.maxMana)*100}%`;
+      }
+      requestAnimationFrame(loopDiablo);
+    }
+
+    // ==================== 4. STEGANO ====================
+    const sCanvas = document.getElementById('hubStegCanvas');
+    const sCtx = sCanvas.getContext('2d');
+    function initStegImage() {
+      const g = sCtx.createLinearGradient(0, 0, sCanvas.width, sCanvas.height);
+      g.addColorStop(0, '#0f2b48'); g.addColorStop(1, '#064e3b');
+      sCtx.fillStyle = g; sCtx.fillRect(0, 0, sCanvas.width, sCanvas.height);
+      sCtx.fillStyle = '#38bdf8'; sCtx.font = 'bold 14px "JetBrains Mono"';
+      sCtx.fillText("LSB TEST IMAGE", 20, 30);
+    }
+    function hubEmbedLSB() {
+      const txt = document.getElementById('hubStegInput').value;
+      const img = sCtx.getImageData(0, 0, sCanvas.width, sCanvas.height);
+      let bin = txt.length.toString(2).padStart(16, '0');
+      for (let i = 0; i < txt.length; i++) bin += txt.charCodeAt(i).toString(2).padStart(8, '0');
+      for (let i = 0; i < bin.length && i * 4 < img.data.length; i++) {
+        img.data[i * 4] = (img.data[i * 4] & 0xFE) | parseInt(bin[i]);
+      }
+      sCtx.putImageData(img, 0, 0);
+      document.getElementById('hubStegBits').innerText = `${bin.length} bit`;
+      document.getElementById('hubStegOutput').innerText = "Payload sikeresen beágyazva az LSB rétegbe!";
+    }
+    function hubExtractLSB() {
+      const img = sCtx.getImageData(0, 0, sCanvas.width, sCanvas.height);
+      let lenBin = '';
+      for (let i = 0; i < 16; i++) lenBin += (img.data[i * 4] & 1).toString();
+      const len = parseInt(lenBin, 2);
+      if (isNaN(len) || len <= 0 || len > 200) { document.getElementById('hubStegOutput').innerText = "Nincs érvényes payload!"; return; }
+      let out = '';
+      for (let c = 0; c < len; c++) {
+        let bStr = '';
+        for (let b = 0; b < 8; b++) bStr += (img.data[(16 + c * 8 + b) * 4] & 1).toString();
+        out += String.fromCharCode(parseInt(bStr, 2));
+      }
+      document.getElementById('hubStegOutput').innerText = out;
+    }
+
+    // INDÍTÁS
+    buildPgNav();
+    switchPgTab(1);
+    switchMainLab('panzer');
+    requestAnimationFrame(loopBallistics);
+    requestAnimationFrame(loopDiablo);
+  </script>
+</body>
+</html>
