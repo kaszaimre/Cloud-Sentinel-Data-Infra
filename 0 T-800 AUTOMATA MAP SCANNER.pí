@@ -1,0 +1,86 @@
+import os
+import time
+
+print("=" * 65)
+print("🤖 T-800 AUTOMATA MAP SCANNER - IMAGE TO HEX VECTORIZER")
+print("=" * 65)
+
+def vectorize_image_to_hex_matrix(image_path, hex_radius):
+    """
+    BORSODI COMMAND v10.0 - Képből hatszögrácsos vektortérkép generáló.
+    A színkódok (RGB) alapján automatikusan lövi be a tereptípusokat.
+    """
+    try:
+        from PIL import Image
+        img = Image.open(image_path).convert('RGB')
+        width, height = img.size
+        print(f"[+] JELENLEGI KÉP: {width}x{height} px")
+        
+        # Matematikai állandók a hatszögrács letapogatásához
+        # A hexák közötti távolságok vízszintesen és függőlegesen
+        col_width = hex_radius * 1.732 # sqrt(3)
+        row_height = hex_radius * 1.5
+        
+        cols = int(width // col_width)
+        rows = int(height // row_height)
+        print(f"[+] SZKENNELÉSI TÉRKÉP: {rows} sor x {cols} oszlop")
+        print("-" * 65)
+        
+        vector_map = {}
+        
+        for r in range(rows):
+            # Minden második sort eltolunk (Hatszögrács offset logika)
+            offset_x = (col_width / 2) if (r % 2 == 1) else 0
+            
+            for c in range(cols):
+                # Kiszámoljuk a Hex középpontjának pixel koordinátáit a képen
+                pixel_x = int(c * col_width + offset_x + (col_width / 2))
+                pixel_y = int(r * row_height + (hex_radius))
+                
+                # Biztonsági határ ellenőrzés
+                if pixel_x >= width or pixel_y >= height:
+                    continue
+                    
+                # Kiolvassuk a pontos RGB színkódot az adott pixelből
+                r_color, g_color, b_color = img.getpixel((pixel_x, pixel_y))
+                
+                # 🎯 T-800 SZÍNKERESŐ ALGORITMUS (Terep döntési mátrix)
+                terrain_type = "CLEAR" # Alapértelmezett zöld füves mező
+                
+                if b_color > 150 and g_color < 150 and r_color < 150:
+                    terrain_type = "WATER"    # Domináns kék = Folyó / Tenger
+                elif r_color > 130 and g_color > 130 and b_color > 130:
+                    terrain_type = "CITY"     # Domináns szürke/fehér = Város
+                elif g_color > 100 and r_color < 100 and b_color < 100:
+                    if g_color < 140:
+                        terrain_type = "FOREST" # Sötétebb zöld = Erdő
+                elif r_color > 120 and g_color > 90 and b_color < 80:
+                    terrain_type = "MOUNTAIN" # Barna / Sárgásbarna = Hegyvidék
+                
+                # Elmentjük a hexát a vektoros koordináta adatbázisba
+                vector_map[f"{r},{c}"] = {
+                    "hex_coord": (r, c),
+                    "type": terrain_type,
+                    "color": (r_color, g_color, b_color)
+                }
+                
+                # Csak a nem üres, észlelt stratégiai pontokat írjuk ki a konzolra
+                if terrain_type != "CLEAR" and c % 5 == 0:
+                    print(f"[+] HEX ({r:02d},{c:02d}) -> Pixel: ({pixel_x:>4d},{pixel_y:>4d}) | TEREPTÍPUS: {terrain_type:<8} (RGB: {r_color},{g_color},{b_color})")
+        
+        print("-" * 65)
+        print(f"[+] MŰVELETI SIKER: A térkép sikeresen vektorizálva!")
+        print(f"[+] ÖSSZESEN: {len(vector_map)} db egyedi Hex cella regisztrálva a memóriában.")
+        return vector_map
+        
+    except ImportError:
+        print("[-] HIBA: Szükséges a Pillow könyvtár (pip install Pillow)")
+        return None
+    except Exception as e:
+        print(f"[-] AUTOMATA SZKENNELÉSI HIBA: {e}")
+        return None
+
+# Futtatási teszt inicializálása (Példa értékekkel)
+# source_map_image = "keleti_front.png"
+# hex_size_pixels = 32 # Egy darab hexádrács sugara pixelben a beolvasáshoz
+# live_vector_map = vectorize_image_to_hex_matrix(source_map_image, hex_size_pixels)
