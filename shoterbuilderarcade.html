@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terminator 2: Arcade Mission Studio - Weapon Calibration Edition</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #020617;
+      color: #fff;
+      font-family: 'Courier New', Courier, monospace, sans-serif;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    #studioSidebar {
+      width: 370px;
+      background: #0f172a;
+      border-right: 2px solid #334155;
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+      gap: 8px;
+      overflow-y: auto;
+      z-index: 100;
+    }
+    .studio-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #ef4444;
+      border-bottom: 1px dashed #ef4444;
+      padding-bottom: 4px;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .control-group { display: flex; flex-direction: column; gap: 3px; }
+    label { font-size: 10px; color: #94a3b8; font-weight: bold; }
+    select, input {
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      padding: 5px;
+      font-family: inherit;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+    input[type="file"] { background: #0b0f19; padding: 3px; cursor: pointer; }
+    .row-inputs { display: flex; gap: 6px; }
+    .row-inputs > div { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+
+    .btn {
+      background: #dc2626;
+      color: #fff;
+      border: none;
+      padding: 7px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+    .btn:hover { background: #b91c1c; }
+    .btn-blue { background: #0284c7; }
+    .btn-blue:hover { background: #0369a1; }
+    .btn-green { background: #16a34a; }
+    .btn-green:hover { background: #15803d; }
+    .btn-purple { background: #8b5cf6; }
+    .btn-purple:hover { background: #7c3aed; }
+
+    #workspace {
+      flex-grow: 1;
+      position: relative;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #gameContainer {
+      position: relative;
+      width: 960px;
+      height: 560px;
+      background: #050005;
+      border: 3px solid #dc2626;
+      border-radius: 6px;
+      box-shadow: 0 0 35px rgba(220, 38, 38, 0.4), inset 0 0 20px rgba(0,0,0,0.9);
+      cursor: crosshair;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .arcade-top-hud {
+      height: 38px;
+      flex-shrink: 0;
+      background: #000066;
+      border-bottom: 2px solid #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      font-weight: 900;
+      font-size: 12px;
+      color: #fff;
+      z-index: 20;
+    }
+    .score-val { color: #facc15; }
+
+    #arcadeCanvas {
+      flex: 1;
+      width: 100%;
+      background: #000;
+      display: block;
+    }
+
+    #editorSliderContainer {
+      background: #111827;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-top: 1px solid #334155;
+      z-index: 25;
+    }
+    #editorScrollSlider { flex: 1; cursor: ew-resize; }
+
+    .arcade-bottom-hud {
+      height: 44px;
+      flex-shrink: 0;
+      background: #09090b;
+      border-top: 2px solid #27272a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 20;
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .gauge-container { display: flex; align-items: center; gap: 8px; }
+    .gauge-label { color: #38bdf8; letter-spacing: 1px; }
+    .gauge-bar-outer {
+      width: 120px; height: 14px; background: #18181b; border: 1px solid #3f3f46; border-radius: 2px; overflow: hidden; position: relative;
+    }
+    .gauge-bar-inner { height: 100%; background: linear-gradient(90deg, #22c55e, #eab308, #ef4444); width: 100%; }
+    .gunpower-bar-inner { height: 100%; background: linear-gradient(90deg, #38bdf8, #0284c7, #2563eb); width: 100%; }
+
+    .entity-list {
+      flex-grow: 1;
+      background: #0b0f19;
+      border: 1px solid #334155;
+      border-radius: 4px;
+      padding: 4px;
+      max-height: 80px;
+      overflow-y: auto;
+      font-size: 10px;
+    }
+    .entity-row {
+      display: flex;
+      justify-content: space-between;
+      background: #1e293b;
+      padding: 3px 5px;
+      margin-bottom: 2px;
+      border-left: 3px solid #38bdf8;
+    }
+    .crt-overlay {
+      position: absolute;
+      top: 38px; left: 0; width: 100%; height: calc(100% - 82px);
+      pointer-events: none;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+      background-size: 100% 4px;
+      z-index: 30;
+      opacity: 0.5;
+    }
+    #crosshair {
+      position: absolute; width: 48px; height: 48px; pointer-events: none; transform: translate(-50%, -50%); z-index: 40;
+    }
+    #arnoldQuoteBanner {
+      position: absolute; top: 50px; left: 50%; transform: translateX(-50%); background: #000; border: 2px solid #ef4444; color: #fef08a; padding: 6px 20px; font-size: 16px; font-weight: 900; letter-spacing: 2px; border-radius: 6px; display: none; align-items: center; gap: 10px; z-index: 45; text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- STUDIO SIDEBAR -->
+  <div id="studioSidebar">
+    <div class="studio-title">
+      <span>🎯 T2 Master Studio v16</span>
+      <span id="txtMapCounter" style="font-size: 11px; color: #38bdf8;">Map 1 / 1</span>
+    </div>
+
+    <div style="display:flex; gap:4px;">
+      <button class="btn btn-purple" style="flex:1;" onclick="prevMap()">◀ Előző</button>
+      <button class="btn btn-purple" style="flex:1;" onclick="addNewMap()">➕ Új Map</button>
+      <button class="btn btn-purple" style="flex:1;" onclick="nextMap()">Következő ▶</button>
+    </div>
+
+    <div class="control-group">
+      <label>Pálya Neve:</label>
+      <input type="text" id="inpMapName" value="Stage 1: Los Angeles Ruins" oninput="updateCurrentMapName()">
+    </div>
+
+    <div class="control-group">
+      <label>Működési Mód:</label>
+      <button class="btn btn-blue" id="btnModeToggle" onclick="toggleStudioMode()">MÓD: 1. SZERKESZTŐ (BUILDER)</button>
+    </div>
+
+    <div class="control-group">
+      <label>Távoli Háttér (Parallax 0.3x):</label>
+      <input type="file" id="bgLayer1Loader" accept="image/*" onchange="loadParallaxLayer(1, event)">
+    </div>
+
+    <div class="control-group">
+      <label>Középtér / Előtér (Parallax 1.0x):</label>
+      <input type="file" id="bgLayer2Loader" accept="image/*" onchange="loadParallaxLayer(2, event)">
+    </div>
+
+    <div class="control-group">
+      <label>Egyedi Boss/Karakter Kép (PNG):</label>
+      <input type="file" id="customSpriteLoader" accept="image/*" onchange="loadCustomSprite(event)">
+    </div>
+
+    <div class="control-group">
+      <label>Lerakandó Egység / Elem:</label>
+      <select id="selActorType">
+        <option value="T800">🤖 Chrome T-800 Endoskeleton</option>
+        <option value="BOSS">⚠️ KÖZÉPSŐ FŐBOSS (Középen állítja a scrollt)</option>
+        <option value="MAP_END_BOSS">💀 PÁLYA VÉGE FŐBOSS (Map End Boss - Next Stage)</option>
+        <option value="HK_TANK">Földi: HK-Tank Juggernaut (Nagy)</option>
+        <option value="HK_AERIAL">Légi: HK Drone</option>
+        <option value="DESTRUCTIBLE_COVER">🧱 Szétlőhető Kockafal / Fedezék</option>
+        <option value="BARREL">Robbanó Hordó [BOOM]</option>
+      </select>
+    </div>
+
+    <div class="row-inputs">
+      <div class="control-group">
+        <label>Méret (Scale %):</label>
+        <input type="number" id="inpScale" value="100" min="20" max="400" step="10">
+      </div>
+      <div class="control-group">
+        <label>Életerő (HP):</label>
+        <input type="number" id="inpHp" value="1000" min="50" max="10000" step="50">
+      </div>
+    </div>
+
+    <div class="row-inputs">
+      <div class="control-group">
+        <label>Tűzerő / Sebzés:</label>
+        <input type="number" id="inpFirepower" value="45" min="10" max="500" step="5">
+      </div>
+      <div class="control-group">
+        <label>Regeneráció (Hűtés):</label>
+        <input type="number" id="inpRegen" value="35" min="5" max="150" step="5">
+      </div>
+    </div>
+
+    <!-- CÉLKERESZT KALIBRÁCIÓS CSÚSZKÁK (X és Y Offset) -->
+    <div class="row-inputs">
+      <div class="control-group">
+        <label>Célkereszt Offset X:</label>
+        <input type="number" id="inpOffsetX" value="0" min="-100" max="100" step="1">
+      </div>
+      <div class="control-group">
+        <label>Célkereszt Offset Y:</label>
+        <input type="number" id="inpOffsetY" value="0" min="-100" max="100" step="1">
+      </div>
+    </div>
+
+    <div class="row-inputs">
+      <div class="control-group">
+        <label>Lövés Szikra/Robbanás:</label>
+        <input type="number" id="inpExplosionScale" value="10" min="2" max="40" step="2">
+      </div>
+      <div class="control-group">
+        <label>Célkereszt Ugrálás (Recoil):</label>
+        <input type="number" id="inpRecoil" value="16" min="0" max="50" step="2">
+      </div>
+    </div>
+
+    <div class="row-inputs">
+      <div class="control-group">
+        <label>Pálya Hossza (Pixel):</label>
+        <input type="number" id="inpWorldWidth" value="6240" min="960" max="100000" step="240" onchange="updateWorldWidth()">
+      </div>
+      <div class="control-group">
+        <label>Scroll Sebesség:</label>
+        <input type="number" id="inpScrollSpeed" value="1.5" min="0.1" max="5" step="0.5" onchange="updateScrollSpeed()">
+      </div>
+    </div>
+
+    <div style="display:flex; gap:6px;">
+      <button class="btn" style="flex:1;" onclick="clearCurrentMap()">Map Törlése</button>
+      <button class="btn btn-green" style="flex:1;" onclick="exportAllMapsJSON()">💾 Kampány Mentés</button>
+    </div>
+
+    <div class="control-group" style="flex-grow:1; display:flex; flex-direction:column;">
+      <label>Aktuális Pálya Elemek:</label>
+      <div class="entity-list" id="entityListContainer"></div>
+    </div>
+  </div>
+
+  <!-- WORKSPACE -->
+  <div id="workspace">
+    <div id="gameContainer">
+      <div class="arcade-top-hud">
+        <div style="display:flex; gap:12px;">
+          <span>1P SCORE: <span id="txtScore" class="score-val">00000000</span></span>
+          <span>MAP POS: <span id="txtWorldPos">0</span>px / <span id="txtWorldMax">6240</span>px</span>
+        </div>
+        <div>
+          <span>STAGE: <span id="txtMapTitle" style="color: #4ade80;">Stage 1: Los Angeles Ruins</span></span>
+        </div>
+      </div>
+
+      <canvas id="arcadeCanvas" width="960" height="434"></canvas>
+      <div class="crt-overlay"></div>
+      <canvas id="crosshair" width="48" height="48"></canvas>
+
+      <div id="arnoldQuoteBanner">
+        <span style="color: #ef4444;">🕶️ ARNOLD:</span>
+        <span id="arnoldQuoteText">"I'LL BE BACK."</span>
+      </div>
+
+      <!-- Editor csúszka -->
+      <div id="editorSliderContainer">
+        <span style="font-size:10px; color:#94a3b8;">CSÚSZKA [◄ / ► Nyilak]:</span>
+        <input type="range" id="editorScrollSlider" min="0" max="6240" value="0" oninput="onSliderMove(this.value)">
+        <span id="txtSliderVal" style="font-size:10px; color:#38bdf8; width:55px;">0px</span>
+      </div>
+
+      <div class="arcade-bottom-hud">
+        <div class="gauge-container">
+          <span class="gauge-label">ENERGY:</span>
+          <div class="gauge-bar-outer"><div id="energyBar" class="gauge-bar-inner" style="width:100%;"></div></div>
+        </div>
+        <div class="gauge-container">
+          <span class="gauge-label">GUNPOWER:</span>
+          <div class="gauge-bar-outer"><div id="gunpowerBar" class="gunpower-bar-inner" style="width:100%;"></div></div>
+        </div>
+        <div style="background:#450a0a; border:1px solid #dc2626; color:#f87171; padding:2px 8px; border-radius:4px; font-size:11px;">
+          🚀 MISSILES: <span id="txtMissiles">05</span> (JOBB KLIKK / SPACE)
+        </div>
+        <div style="color: #facc15; font-size: 11px;" id="txtGameModeStatus">MÓD: SZERKESZTŐ</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('arcadeCanvas');
+    const ctx = canvas.getContext('2d');
+    const crosshairCanvas = document.getElementById('crosshair');
+    const chCtx = crosshairCanvas.getContext('2d');
+
+    let maps = [
+      {
+        name: "Stage 1: Los Angeles Ruins",
+        worldWidth: 6240,
+        scrollSpeed: 1.5,
+        actors: []
+      }
+    ];
+    let currentMapIndex = 0;
+
+    let isEditorActive = true;
+    let parallaxLayer1 = null;
+    let parallaxLayer2 = null;
+    let customBossImage = null;
+
+    let mouseX = 480, mouseY = 220;
+    let targetMouseX = 480, targetMouseY = 220;
+    let isMouseDown = false;
+    let lastShootTime = 0;
+    let score = 0, energy = 100, gunPower = 100, missiles = 5;
+    let worldScrollX = 0;
+    let droppedCrates = [];
+    let particles = [];
+
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playPlasmaShoot(pitchMultiplier = 1.0) {
+      if (!audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(940 * pitchMultiplier, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(120 * pitchMultiplier, audioCtx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+      } catch(e){}
+    }
+
+    function playMissileExplosion() {
+      if (!audioCtx) return;
+      try {
+        const bufferSize = audioCtx.sampleRate * 0.45;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(500, audioCtx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.45);
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.45);
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        noise.start();
+      } catch(e){}
+    }
+
+    function triggerArnoldQuote(quoteText) {
+      const banner = document.getElementById('arnoldQuoteBanner');
+      const textEl = document.getElementById('arnoldQuoteText');
+      if (banner && textEl) {
+        textEl.textContent = '"' + quoteText + '"';
+        banner.style.display = 'flex';
+        setTimeout(() => { banner.style.display = 'none'; }, 2200);
+      }
+      if ('speechSynthesis' in window) {
+        try {
+          window.speechSynthesis.cancel();
+          const utter = new SpeechSynthesisUtterance(quoteText);
+          utter.pitch = 0.45; utter.rate = 0.95; utter.volume = 1.0;
+          window.speechSynthesis.speak(utter);
+        } catch(e){}
+      }
+    }
+
+    function createImpactExplosion(x, y) {
+      playPlasmaShoot(0.85);
+      const count = parseInt(document.getElementById('inpExplosionScale').value) || 10;
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 15 + Math.random() * 90;
+        particles.push({
+          x, y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          color: Math.random() < 0.5 ? '#facc15' : (Math.random() < 0.8 ? '#f97316' : '#ef4444'),
+          radius: 3 + Math.random() * 6,
+          life: 0.6,
+          decay: 0.05 + Math.random() * 0.04
+        });
+      }
+    }
+
+    function createBigExplosion(x, y, count = 20) {
+      playMissileExplosion();
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 25 + Math.random() * 140;
+        particles.push({
+          x, y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          color: Math.random() < 0.4 ? '#ef4444' : (Math.random() < 0.7 ? '#f97316' : '#facc15'),
+          radius: 6 + Math.random() * 14,
+          life: 1.0,
+          decay: 0.03 + Math.random() * 0.03
+        });
+      }
+    }
+
+    function getCurrentMap() { return maps[currentMapIndex]; }
+
+    function addNewMap() {
+      const newMapNum = maps.length + 1;
+      maps.push({
+        name: `Stage ${newMapNum}: Battlezone`,
+        worldWidth: 6240,
+        scrollSpeed: 1.5,
+        actors: []
+      });
+      currentMapIndex = maps.length - 1;
+      loadMapToUI();
+    }
+
+    function prevMap() { if (currentMapIndex > 0) { currentMapIndex--; loadMapToUI(); } }
+    function nextMap() { if (currentMapIndex < maps.length - 1) { currentMapIndex++; loadMapToUI(); } }
+
+    function loadMapToUI() {
+      const m = getCurrentMap();
+      document.getElementById('inpMapName').value = m.name;
+      document.getElementById('inpWorldWidth').value = m.worldWidth;
+      document.getElementById('inpScrollSpeed').value = m.scrollSpeed;
+      document.getElementById('txtMapCounter').textContent = `Map ${currentMapIndex + 1} / ${maps.length}`;
+      document.getElementById('txtMapTitle').textContent = m.name;
+      document.getElementById('txtWorldMax').textContent = m.worldWidth;
+      
+      const slider = document.getElementById('editorScrollSlider');
+      slider.max = Math.max(0, m.worldWidth - canvas.width);
+      slider.value = Math.min(worldScrollX, slider.max);
+      worldScrollX = parseInt(slider.value);
+      document.getElementById('txtSliderVal').textContent = worldScrollX + 'px';
+      updateActorListUI();
+    }
+
+    function updateCurrentMapName() {
+      const m = getCurrentMap();
+      m.name = document.getElementById('inpMapName').value;
+      document.getElementById('txtMapTitle').textContent = m.name;
+    }
+
+    function updateWorldWidth() {
+      const m = getCurrentMap();
+      m.worldWidth = parseInt(document.getElementById('inpWorldWidth').value) || 960;
+      document.getElementById('txtWorldMax').textContent = m.worldWidth;
+      const slider = document.getElementById('editorScrollSlider');
+      slider.max = Math.max(0, m.worldWidth - canvas.width);
+    }
+
+    function updateScrollSpeed() {
+      const m = getCurrentMap();
+      m.scrollSpeed = parseFloat(document.getElementById('inpScrollSpeed').value) || 1.5;
+    }
+
+    function toggleStudioMode() {
+      isEditorActive = !isEditorActive;
+      const btn = document.getElementById('btnModeToggle');
+      const sliderContainer = document.getElementById('editorSliderContainer');
+      const status = document.getElementById('txtGameModeStatus');
+
+      if (isEditorActive) {
+        btn.textContent = "MÓD: 1. SZERKESZTŐ (BUILDER)";
+        btn.className = "btn btn-blue";
+        sliderContainer.style.display = 'flex';
+        status.textContent = "MÓD: SZERKESZTŐ";
+        loadMapToUI();
+      } else {
+        initAudio();
+        btn.textContent = "MÓD: 2. JÁTÉK (RUN - VISSZA)";
+        btn.className = "btn btn-green";
+        sliderContainer.style.display = 'none';
+        status.textContent = "MÓD: HARC (COMBAT)";
+        maps.forEach(mp => mp.actors.forEach(a => { a.alive = true; a.currentHp = a.maxHp; }));
+        score = 0; energy = 100; gunPower = 100; missiles = 5;
+        document.getElementById('txtMissiles').textContent = '05';
+        worldScrollX = 0;
+        currentMapIndex = 0;
+        triggerArnoldQuote("I'LL BE BACK.");
+      }
+    }
+
+    function onSliderMove(val) {
+      worldScrollX = parseInt(val);
+      document.getElementById('txtSliderVal').textContent = worldScrollX + 'px';
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (isEditorActive) {
+        const m = getCurrentMap();
+        const slider = document.getElementById('editorScrollSlider');
+        const maxScroll = Math.max(0, m.worldWidth - canvas.width);
+        if (e.code === 'ArrowRight') {
+          worldScrollX = Math.min(maxScroll, worldScrollX + 150);
+          slider.value = worldScrollX;
+          document.getElementById('txtSliderVal').textContent = worldScrollX + 'px';
+        } else if (e.code === 'ArrowLeft') {
+          worldScrollX = Math.max(0, worldScrollX - 150);
+          slider.value = worldScrollX;
+          document.getElementById('txtSliderVal').textContent = worldScrollX + 'px';
+        }
+      } else {
+        if (e.code === 'Space') {
+          e.preventDefault();
+          fireMissile();
+        }
+      }
+    });
+
+    const gameContainer = document.getElementById('gameContainer');
+    gameContainer.addEventListener('wheel', (e) => {
+      if (isEditorActive) {
+        e.preventDefault();
+        const m = getCurrentMap();
+        const slider = document.getElementById('editorScrollSlider');
+        const maxScroll = Math.max(0, m.worldWidth - canvas.width);
+        worldScrollX = Math.max(0, Math.min(maxScroll, worldScrollX + (e.deltaY > 0 ? 120 : -120)));
+        slider.value = worldScrollX;
+        document.getElementById('txtSliderVal').textContent = worldScrollX + 'px';
+      }
+    }, { passive: false });
+
+    function loadParallaxLayer(layerNum, event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          if (layerNum === 1) parallaxLayer1 = img;
+          if (layerNum === 2) parallaxLayer2 = img;
+          alert(`Parallax Réteg ${layerNum} betöltve!`);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function loadCustomSprite(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          customBossImage = img;
+          document.getElementById('selActorType').value = 'BOSS';
+          alert("Egyedi Boss kép betöltve!");
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearCurrentMap() {
+      getCurrentMap().actors = [];
+      updateActorListUI();
+    }
+
+    gameContainer.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      targetMouseX = e.clientX - rect.left;
+      targetMouseY = e.clientY - rect.top;
+    });
+
+    gameContainer.addEventListener('mousedown', (e) => {
+      if (isEditorActive) {
+        const rect = canvas.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const clickY = e.clientY - rect.top;
+        const m = getCurrentMap();
+
+        const type = document.getElementById('selActorType').value;
+        const scale = parseInt(document.getElementById('inpScale').value) / 100;
+        const hp = parseInt(document.getElementById('inpHp').value);
+
+        m.actors.push({
+          id: Date.now(),
+          worldX: clickX + worldScrollX,
+          y: clickY,
+          type: type,
+          scale: scale,
+          maxHp: hp,
+          currentHp: hp,
+          alive: true
+        });
+        updateActorListUI();
+      } else {
+        if (e.button === 0) {
+          isMouseDown = true;
+          fireMinigun();
+        } else if (e.button === 2) {
+          e.preventDefault();
+          fireMissile();
+        }
+      }
+    });
+
+    window.addEventListener('mouseup', (e) => { if (e.button === 0) isMouseDown = false; });
+    gameContainer.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    function drawCrosshair() {
+      chCtx.clearRect(0, 0, 48, 48);
+      chCtx.strokeStyle = isMouseDown ? '#ef4444' : '#38bdf8';
+      chCtx.lineWidth = 2;
+      chCtx.beginPath();
+      chCtx.arc(24, 24, 16, 0, Math.PI * 2);
+      chCtx.stroke();
+      chCtx.beginPath();
+      chCtx.moveTo(24, 2); chCtx.lineTo(24, 10);
+      chCtx.moveTo(24, 38); chCtx.lineTo(24, 46);
+      chCtx.moveTo(2, 24); chCtx.lineTo(10, 24);
+      chCtx.moveTo(38, 24); chCtx.lineTo(46, 24);
+      chCtx.stroke();
+
+      // Precíz fehér pont a célkereszt közepén
+      chCtx.fillStyle = '#ffffff';
+      chCtx.beginPath();
+      chCtx.arc(24, 24, 2.5, 0, Math.PI * 2);
+      chCtx.fill();
+    }
+
+    function fireMinigun() {
+      if (isEditorActive) return;
+      const now = performance.now();
+      if (now - lastShootTime < 70) return;
+      if (gunPower <= 2) return;
+
+      lastShootTime = now;
+      gunPower = Math.max(0, gunPower - 4.0);
+      document.getElementById('gunpowerBar').style.width = gunPower + '%';
+
+      const recoilAmount = parseFloat(document.getElementById('inpRecoil').value) || 16;
+      mouseX += (Math.random() - 0.5) * recoilAmount;
+      mouseY += (Math.random() - 0.5) * recoilAmount;
+
+      createImpactExplosion(mouseX, mouseY);
+
+      const firepower = parseFloat(document.getElementById('inpFirepower').value) || 45;
+
+      const m = getCurrentMap();
+      m.actors.forEach(ent => {
+        const screenX = ent.worldX - worldScrollX;
+        if (ent.alive && Math.hypot(screenX - mouseX, ent.y - mouseY) < 60 * (ent.scale || 1)) {
+          ent.currentHp -= firepower;
+          score += 200;
+          document.getElementById('txtScore').textContent = String(score).padStart(8, '0');
+          createBigExplosion(mouseX, mouseY, 8);
+
+          if (ent.currentHp <= 0) {
+            ent.alive = false;
+            score += (ent.type === 'BOSS' || ent.type === 'MAP_END_BOSS') ? 15000 : 750;
+            document.getElementById('txtScore').textContent = String(score).padStart(8, '0');
+            createBigExplosion(ent.worldX - worldScrollX, ent.y, 25);
+            if (Math.random() < 0.6) spawnUpgradeCrate(ent.worldX, ent.y);
+
+            if (ent.type === 'MAP_END_BOSS') {
+              triggerArnoldQuote("TERMINATED.");
+              setTimeout(() => {
+                if (currentMapIndex < maps.length - 1) {
+                  currentMapIndex++;
+                  worldScrollX = 0;
+                  document.getElementById('txtMapTitle').textContent = getCurrentMap().name;
+                  loadMapToUI();
+                  triggerArnoldQuote("EXCELLENT!");
+                } else {
+                  alert("KAMPÁNY SIKERESEN TELJESÍTVE! MINDEN PÁLYA KINYÍRVA!");
+                }
+              }, 2000);
+            }
+          }
+        }
+      });
+    }
+
+    function fireMissile() {
+      if (isEditorActive || missiles <= 0) return;
+      missiles--;
+      document.getElementById('txtMissiles').textContent = missiles < 10 ? '0' + missiles : missiles;
+      playMissileExplosion();
+      triggerArnoldQuote("HASTA LA VISTA, BABY.");
+      createBigExplosion(mouseX, mouseY, 35);
+
+      const m = getCurrentMap();
+      m.actors.forEach(ent => {
+        const screenX = ent.worldX - worldScrollX;
+        if (ent.alive && screenX >= -80 && screenX <= canvas.width + 80) {
+          ent.currentHp -= 350;
+          createBigExplosion(screenX, ent.y, 20);
+          if (ent.currentHp <= 0) {
+            ent.alive = false;
+            score += 3000;
+            if (ent.type === 'MAP_END_BOSS') {
+              setTimeout(() => {
+                if (currentMapIndex < maps.length - 1) {
+                  currentMapIndex++;
+                  worldScrollX = 0;
+                  loadMapToUI();
+                  triggerArnoldQuote("EXCELLENT!");
+                } else {
+                  alert("KAMPÁNY SIKERESEN TELJESÍTVE!");
+                }
+              }, 2000);
+            }
+          }
+        }
+      });
+      document.getElementById('txtScore').textContent = String(score).padStart(8, '0');
+    }
+
+    function spawnUpgradeCrate(wx, y) {
+      const types = ['SHIELD', 'HEALTH', 'MISSILE_PACK'];
+      const type = types[Math.floor(Math.random() * types.length)];
+      droppedCrates.push({ worldX: wx, y: y, type: type, life: 12.0 });
+    }
+
+    function updateAndDrawCrates() {
+      for (let i = droppedCrates.length - 1; i >= 0; i--) {
+        const c = droppedCrates[i];
+        c.life -= 0.016;
+        if (c.life <= 0) { droppedCrates.splice(i, 1); continue; }
+
+        const screenX = c.worldX - worldScrollX;
+        if (screenX < -50 || screenX > canvas.width + 50) continue;
+
+        ctx.save();
+        ctx.translate(screenX, c.y);
+        ctx.fillStyle = c.type === 'SHIELD' ? '#38bdf8' : (c.type === 'HEALTH' ? '#22c55e' : '#facc15');
+        ctx.fillRect(-16, -16, 32, 32);
+        ctx.fillStyle = '#000';
+        ctx.font = 'bold 12px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(c.type === 'SHIELD' ? '🛡️' : (c.type === 'HEALTH' ? '❤️' : '⚡'), 0, 4);
+        ctx.restore();
+
+        if (Math.hypot(screenX - mouseX, c.y - mouseY) < 32 && isMouseDown) {
+          if (c.type === 'SHIELD') { triggerArnoldQuote('NO PROBLEMO.'); }
+          else if (c.type === 'HEALTH') { energy = Math.min(100, energy + 45); document.getElementById('energyBar').style.width = energy + '%'; triggerArnoldQuote("I'LL BE BACK."); }
+          else { missiles = Math.min(9, missiles + 3); document.getElementById('txtMissiles').textContent = '0' + missiles; triggerArnoldQuote('EXCELLENT!'); }
+          droppedCrates.splice(i, 1);
+        }
+      }
+    }
+
+    function updateActorListUI() {
+      const container = document.getElementById('entityListContainer');
+      container.innerHTML = '';
+      getCurrentMap().actors.forEach((act, idx) => {
+        container.innerHTML += `
+          <div class="entity-row">
+            <span>#${idx+1} ${act.type} (HP:${act.maxHp})</span>
+            <span>X:${Math.round(act.worldX)} Y:${Math.round(act.y)}</span>
+          </div>
+        `;
+      });
+    }
+
+    function exportAllMapsJSON() {
+      const campaignData = { maps: maps };
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(campaignData, null, 2));
+      const dl = document.createElement('a');
+      dl.setAttribute("href", dataStr);
+      dl.setAttribute("download", "t2_campaign_mission.json");
+      dl.click();
+    }
+
+    // Fő grafikai és játékhurok
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      mouseX += (targetMouseX - mouseX) * 0.35;
+      mouseY += (targetMouseY - mouseY) * 0.35;
+
+      // Kalibrációs Offset beolvasása a jobb illeszkedésért
+      const offsetX = parseFloat(document.getElementById('inpOffsetX').value) || 0;
+      const offsetY = parseFloat(document.getElementById('inpOffsetY').value) || 0;
+
+      crosshairCanvas.style.left = (mouseX + gameContainer.clientLeft + offsetX) + 'px';
+      crosshairCanvas.style.top = (mouseY + gameContainer.clientTop + offsetY) + 'px';
+
+      const m = getCurrentMap();
+      const scrollSpeed = m.scrollSpeed || 1.5;
+
+      if (!isEditorActive) {
+        if (isMouseDown) {
+          fireMinigun();
+        }
+
+        let freezeCamera = false;
+        m.actors.forEach(ent => {
+          if (ent.alive && (ent.type === 'BOSS' || ent.type === 'MAP_END_BOSS')) {
+            const screenX = ent.worldX - worldScrollX;
+            if (screenX >= -20 && screenX <= canvas.width * 0.52) {
+              freezeCamera = true;
+            }
+          }
+        });
+
+        if (!freezeCamera) {
+          worldScrollX += scrollSpeed * 2.5;
+        }
+
+        if (worldScrollX >= m.worldWidth - canvas.width) {
+          if (currentMapIndex < maps.length - 1) {
+            currentMapIndex++;
+            worldScrollX = 0;
+            document.getElementById('txtMapTitle').textContent = getCurrentMap().name;
+          } else {
+            worldScrollX = m.worldWidth - canvas.width;
+          }
+        }
+
+        if (!isMouseDown) {
+          const regenSpeed = parseFloat(document.getElementById('inpRegen').value) || 35;
+          gunPower = Math.min(100, gunPower + regenSpeed * 0.016);
+          document.getElementById('gunpowerBar').style.width = gunPower + '%';
+        }
+      }
+
+      document.getElementById('txtWorldPos').textContent = Math.round(worldScrollX);
+
+      // Parallax Háttér
+      if (parallaxLayer1) {
+        const p1X = -(worldScrollX * 0.3) % canvas.width;
+        ctx.drawImage(parallaxLayer1, p1X, 0, canvas.width, canvas.height);
+        ctx.drawImage(parallaxLayer1, p1X + canvas.width, 0, canvas.width, canvas.height);
+      } else {
+        ctx.fillStyle = '#1e1b4b';
+        ctx.fillRect(0, 0, canvas.width, canvas.height * 0.62);
+      }
+
+      if (parallaxLayer2) {
+        const p2X = -worldScrollX % canvas.width;
+        ctx.drawImage(parallaxLayer2, p2X, 0, canvas.width, canvas.height);
+        ctx.drawImage(parallaxLayer2, p2X + canvas.width, 0, canvas.width, canvas.height);
+      } else {
+        ctx.fillStyle = '#450a0a';
+        ctx.fillRect(0, canvas.height * 0.62, canvas.width, canvas.height * 0.38);
+      }
+
+      if (isEditorActive) {
+        const endLineScreenX = m.worldWidth - worldScrollX;
+        if (endLineScreenX >= -100 && endLineScreenX <= canvas.width + 100) {
+          ctx.strokeStyle = '#ef4444';
+          ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.moveTo(endLineScreenX, 0); ctx.lineTo(endLineScreenX, canvas.height); ctx.stroke();
+          ctx.fillStyle = '#ef4444';
+          ctx.font = 'bold 12px monospace';
+          ctx.fillText("PÁLYA VÉGE", endLineScreenX - 70, 20);
+        }
+      }
+
+      updateAndDrawCrates();
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.life -= p.decay;
+        p.x += p.vx * 0.016;
+        p.y += p.vy * 0.016;
+        if (p.life <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius * p.life, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      m.actors.forEach(ent => {
+        const screenX = ent.worldX - worldScrollX;
+        if (!isEditorActive && !ent.alive) return;
+        if (screenX < -250 || screenX > canvas.width + 250) return;
+
+        ctx.save();
+        ctx.translate(screenX, ent.y);
+        const sc = ent.scale || 1;
+        ctx.scale(sc, sc);
+
+        if (ent.type === 'MAP_END_BOSS' || ent.type === 'BOSS') {
+          if (customBossImage) {
+            ctx.drawImage(customBossImage, -90, -100, 180, 200);
+          } else {
+            ctx.fillStyle = ent.type === 'MAP_END_BOSS' ? '#450a0a' : '#7f1d1d';
+            ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 4;
+            ctx.fillRect(-90, -80, 180, 160); ctx.strokeRect(-90, -80, 180, 160);
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath(); ctx.arc(-35, -35, 12, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(35, -35, 12, 0, Math.PI*2); ctx.fill();
+          }
+          ctx.fillStyle = '#facc15'; ctx.font = 'bold 14px monospace'; ctx.textAlign = 'center';
+          const label = ent.type === 'MAP_END_BOSS' ? `💀 MAP END BOSS [HP:${ent.currentHp}]` : `⚠️ BOSS [HP:${ent.currentHp}]`;
+          ctx.fillText(label, 0, -95);
+        } else if (ent.type === 'T800') {
+          ctx.fillStyle = '#94a3b8'; ctx.fillRect(-14, -26, 28, 52);
+          ctx.fillStyle = '#ef4444'; ctx.fillRect(-6, -20, 4, 4); ctx.fillRect(2, -20, 4, 4);
+        } else if (ent.type === 'HK_TANK') {
+          ctx.fillStyle = '#334155'; ctx.fillRect(-70, 12, 140, 30);
+          ctx.fillStyle = '#1e293b'; ctx.fillRect(-50, -20, 100, 35);
+          ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.arc(0, -5, 11, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#facc15'; ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center';
+          ctx.fillText(`TANK [HP:${ent.currentHp}]`, 0, -32);
+        } else if (ent.type === 'HK_AERIAL') {
+          ctx.fillStyle = '#64748b'; ctx.beginPath(); ctx.ellipse(0, 0, 35, 14, 0, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = '#38bdf8'; ctx.fillRect(-10, 8, 20, 5);
+        } else if (ent.type === 'DESTRUCTIBLE_COVER') {
+          const hpPercent = ent.currentHp / ent.maxHp;
+          ctx.fillStyle = hpPercent > 0.5 ? '#475569' : '#b45309';
+          ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+          ctx.fillRect(-30, -35, 60, 70);
+          ctx.strokeRect(-30, -35, 60, 70);
+          ctx.fillStyle = '#facc15'; ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center';
+          ctx.fillText(`WALL HP:${ent.currentHp}`, 0, 42);
+        } else if (ent.type === 'BARREL') {
+          ctx.fillStyle = '#dc2626'; ctx.fillRect(-14, -20, 28, 40);
+          ctx.fillStyle = '#fef08a'; ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center';
+          ctx.fillText('BOOM', 0, 3);
+        }
+
+        if (isEditorActive) {
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 2 / sc;
+          ctx.strokeRect(-50 / sc, -110 / sc, 100 / sc, 220 / sc);
+        }
+
+        ctx.restore();
+      });
+
+      drawCrosshair();
+      requestAnimationFrame(gameLoop);
+    }
+
+    loadMapToUI();
+    gameLoop();
+  </script>
+</body>
+</html>
