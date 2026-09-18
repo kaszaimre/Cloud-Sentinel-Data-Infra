@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kasza 3D Studio - Zoom Controls</title>
+    <style>
+        /* --- CORE THEME (Blender Dark) --- */
+        :root {
+            --bg-main: #282828; --bg-panel: #1e1e1e; --bg-header: #303030; --bg-input: #141414;
+            --accent: #4772b3; --accent-hover: #5a8bd4; --text-main: #cccccc; --text-dark: #888888; 
+            --border: #3d3d3d; --select: #ed7014;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; background-color: var(--bg-main); color: var(--text-main); font-family: -apple-system, sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; font-size: 12px; user-select: none; }
+        
+        /* --- TOP MENU --- */
+        .topbar { background: #232323; height: 28px; display: flex; align-items: center; padding: 0 10px; border-bottom: 1px solid #111; z-index: 100; }
+        .dropdown { position: relative; display: inline-block; }
+        .dropbtn { background: transparent; color: var(--text-main); padding: 4px 10px; font-size: 12px; border: none; cursor: pointer; border-radius: 3px; }
+        .dropdown:hover .dropbtn, .dropbtn:hover { background: #3e3e3e; color: #fff; }
+        .dropdown-content { display: none; position: absolute; background-color: #2b2b2b; min-width: 200px; box-shadow: 0px 8px 16px rgba(0,0,0,0.5); border: 1px solid #111; border-radius: 3px; z-index: 101; top: 100%; left: 0; padding: 4px 0;}
+        .dropdown-content a { color: var(--text-main); padding: 6px 16px; text-decoration: none; display: flex; justify-content: space-between; cursor: pointer; }
+        .dropdown-content a span { color: #777; font-size: 10px; } 
+        .dropdown-content a:hover { background-color: var(--accent); color: white; }
+        .dropdown:hover .dropdown-content { display: block; }
+        .menu-sep { height: 1px; background: #444; margin: 4px 0; }
+
+        /* --- WORKSPACE --- */
+        .workspace { display: flex; flex: 1; overflow: hidden; }
+
+        /* --- TOOLBAR --- */
+        .toolbar { width: 45px; background: #232323; display: flex; flex-direction: column; align-items: center; padding-top: 5px; border-right: 1px solid #111; gap: 4px;}
+        .tool-btn { width: 35px; height: 35px; border-radius: 4px; border: none; background: transparent; color: var(--text-main); font-size: 16px; cursor: pointer; transition: 0.1s; }
+        .tool-btn:hover { background: #3e3e3e; }
+        .tool-btn.active { background: var(--accent); color: #fff; }
+
+        /* --- VIEWPORT --- */
+        .viewport-container { flex: 1; position: relative; background: #333333; overflow: hidden; outline: none; min-width: 0; min-height: 0; }
+        canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; cursor: default; z-index: 0; }
+        .viewport-overlay, .viewport-modes, .viewport-nav, .gizmo { z-index: 2; }
+        .viewport-overlay { position: absolute; top: 10px; left: 10px; font-weight: bold; color: #ffffffa0; pointer-events: none; text-shadow: 1px 1px 2px #000; line-height: 1.4;}
+        .selection-rectangle { position:absolute; display:none; pointer-events:none; z-index:3; border:1px solid #78a8e8; background:rgba(71,114,179,.18); }
+        .viewport-modes { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; }
+        .mode-btn { background: #222; border: 1px solid #444; color: #aaa; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;}
+        .mode-btn.active { background: var(--accent); color: #fff; border-color: var(--accent-hover);}
+
+        /* ÚJ: VIEWPORT NAVIGÁCIÓS GOMBOK (Nagyítók) */
+        .viewport-nav { position: absolute; bottom: 15px; right: 15px; display: flex; flex-direction: column; gap: 8px; }
+        .nav-btn { background: rgba(34, 34, 34, 0.8); border: 1px solid #555; color: #eee; width: 36px; height: 36px; border-radius: 6px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.3);}
+        .nav-btn:hover { background: var(--accent); border-color: #fff; transform: scale(1.05);}
+        .nav-btn:active { transform: scale(0.95); }
+
+        /* --- PANELS (Outliner & Properties) --- */
+        .right-sidebar { width: 300px; background: var(--bg-panel); border-left: 1px solid #111; display: flex; flex-direction: column; }
+        
+        .outliner { height: 40%; border-bottom: 2px solid #111; display: flex; flex-direction: column; background: #232323;}
+        .panel-header { background: var(--bg-header); padding: 4px 8px; font-weight: bold; font-size: 11px; color: #ccc; border-bottom: 1px solid #111; display:flex; justify-content: space-between;}
+        .outliner-content { flex: 1; overflow-y: auto; padding: 4px; }
+        .outliner-item { padding: 4px; cursor: pointer; display: flex; align-items: center; border-radius: 3px; color: #ccc; }
+        .outliner-item:hover { background: #333; }
+        .outliner-item.active { background: var(--accent); color: #fff; }
+        
+        .properties { flex: 1; overflow-y: auto; display: flex; flex-direction: column;}
+        .prop-tabs { display: flex; background: var(--bg-header); border-bottom: 1px solid #111; }
+        .prop-tab { flex: 1; padding: 6px 0; text-align: center; cursor: pointer; font-size: 11px; font-weight: bold; color: #888; border-bottom: 2px solid transparent; }
+        .prop-tab.active { color: #fff; border-bottom-color: var(--accent); background: var(--bg-panel); }
+        .panel-body { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+        
+        /* Inputs */
+        .prop-row { display: flex; flex-direction: column; gap: 2px; }
+        .prop-row label { color: var(--text-dark); font-size: 10px; font-weight: bold; }
+        .vector-group { display: flex; gap: 2px; }
+        .vector-input { display: flex; flex: 1; background: var(--bg-input); border: 1px solid var(--border); border-radius: 3px; align-items: center; }
+        .vector-input span { padding: 3px 5px; font-size: 9px; font-weight: bold; }
+        .vector-input span.x { background: #cf4f4f; color: #fff; }
+        .vector-input span.y { background: #8cb82b; color: #fff; }
+        .vector-input span.z { background: #4772b3; color: #fff; }
+        .vector-input input { flex: 1; width: 100%; background: transparent; border: none; color: #fff; padding: 3px; font-family: monospace; outline: none; font-size: 11px; text-align: center; }
+        .select-box, .color-picker { background: var(--bg-input); color: #fff; border: 1px solid var(--border); border-radius: 3px; padding: 4px; width: 100%; font-size: 11px; }
+        .color-picker { height: 24px; cursor: pointer; padding: 0; }
+        
+        /* --- STATUS BAR --- */
+        .statusbar { background: #1a1a1a; height: 22px; display: flex; align-items: center; padding: 0 10px; font-size: 10px; color: #888; border-top: 1px solid #111; justify-content: space-between;}
+        
+        /* --- F3 COMMAND SEARCH --- */
+        #f3-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: flex-start; padding-top: 100px;}
+        .f3-box { background: #282828; width: 400px; border-radius: 6px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); border: 1px solid #444; display: flex; flex-direction: column; overflow: hidden;}
+        .f3-input { background: #141414; color: #fff; border: none; padding: 12px 15px; font-size: 14px; outline: none; border-bottom: 1px solid #444;}
+        .f3-list { max-height: 300px; overflow-y: auto; }
+        .f3-item { padding: 10px 15px; color: #ccc; cursor: pointer; display: flex; justify-content: space-between; }
+                .f3-item.selected, .f3-item:hover { background: var(--accent); color: #fff; }
+
+        /* --- PRO MODE --- */
+        .pro-badge { color:#8cb82b; font-size:10px; font-weight:bold; letter-spacing:.5px; }
+        .pro-tools { display:flex; gap:4px; padding:5px 8px; background:#191919; border-bottom:1px solid #111; }
+        .pro-tools button { flex:1; background:#292929; color:#bbb; border:1px solid #444; border-radius:3px; padding:4px 2px; cursor:pointer; font-size:10px; }
+        .pro-tools button.active, .pro-tools button:hover { background:var(--accent); color:#fff; }
+        .transform-help { padding: 5px 8px; color: #888; background: #191919; border-bottom: 1px solid #111; line-height: 1.35; }
+        .transform-help b { color: #bbb; }
+        .pro-section { border:1px solid var(--border); border-radius:3px; overflow:hidden; background:#252525; }
+        .pro-section-title { padding:5px 7px; background:#303030; color:#ddd; font-weight:bold; cursor:pointer; }
+        .pro-section-body { padding:7px; display:flex; flex-direction:column; gap:6px; }
+        .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:4px; }
+        .stat-grid label { color:#888; font-size:10px; }
+        .stat-grid input { width:100%; background:#141414; color:#fff; border:1px solid #3d3d3d; padding:4px; border-radius:2px; }
+        .snap-row { display:flex; align-items:center; gap:5px; color:#aaa; font-size:10px; }
+        .gizmo { position:absolute; left:0; top:0; pointer-events:none; z-index:4; display:none; width:1px; height:1px; }
+        .gizmo.on { display:block; }
+        .gizmo span { position:absolute; width:78px; height:4px; transform-origin:left center; box-shadow:0 0 5px currentColor; border-radius:3px; pointer-events:auto; cursor:grab; }
+        .gizmo span:active { cursor:grabbing; }
+        .gizmo .gx { color:#cf4f4f; transform:rotate(0deg); }
+        .gizmo .gy { color:#8cb82b; transform:rotate(-90deg); }
+        .gizmo .gz { color:#4772b3; transform:rotate(45deg); }
+        .gizmo span b { position:absolute; right:-14px; top:-9px; font-size:12px; text-shadow:1px 1px 2px #000; }
+        .gizmo-hint { position:absolute; left:8px; bottom:-28px; color:#aaa; white-space:nowrap; font-size:10px; }
+        .rotation-gizmo { position:absolute; display:none; transform:translate(-50%, -50%); z-index:5; pointer-events:none; }
+        .rotation-gizmo.on { display:block; }
+        .rotation-ring { width:112px; height:112px; border:2px dashed rgba(255,255,255,.55); border-radius:50%; box-shadow:0 0 10px rgba(0,0,0,.7); position:relative; pointer-events:none; }
+        .rotation-ring button { position:absolute; width:30px; height:30px; border-radius:50%; border:2px solid currentColor; background:#222e; color:#fff; font-weight:bold; cursor:pointer; pointer-events:auto; box-shadow:0 2px 6px #000; }
+        .rotation-ring button:hover { transform:scale(1.15); background:var(--accent); color:#fff; }
+        .rotation-ring .rot-x { color:#cf4f4f; left:41px; top:-16px; }
+        .rotation-ring .rot-y { color:#8cb82b; right:-16px; top:41px; }
+        .rotation-ring .rot-z { color:#4772b3; left:41px; bottom:-16px; }
+        .rotation-ring .rot-minus { left:-16px; top:41px; color:#ddd; font-size:14px; }
+        .rotation-ring .rot-label { position:absolute; left:35px; top:43px; color:#ddd; font-size:10px; pointer-events:none; }
+        .rotate-controls { display:none; padding:6px 8px; background:#191919; border-bottom:1px solid #111; gap:4px; align-items:center; flex-wrap:wrap; }
+        .rotate-controls.on { display:flex; }
+        .rotate-controls button { background:#292929; color:#ccc; border:1px solid #555; border-radius:3px; padding:4px 7px; cursor:pointer; font-size:10px; }
+        .rotate-controls button:hover { background:var(--accent); color:#fff; }
+        .rotate-controls small { color:#888; width:100%; }
+        .edit-controls { display:none; padding:6px 8px; background:#191919; border-bottom:1px solid #111; gap:5px; align-items:center; flex-wrap:wrap; }
+        .edit-controls.on { display:flex; }
+        .edit-controls small { color:#888; width:100%; }
+        .edit-controls input { width:58px; background:#141414; color:#fff; border:1px solid #555; border-radius:3px; padding:4px; }
+        .edit-controls button { background:#292929; color:#ccc; border:1px solid #555; border-radius:3px; padding:4px 7px; cursor:pointer; font-size:10px; }
+        .edit-controls button:hover { background:var(--accent); color:#fff; }
+        .light-controls { display:flex; gap:5px; align-items:center; padding:5px 8px; background:#191919; border-bottom:1px solid #111; color:#aaa; font-size:10px; }
+        .light-controls input[type="range"] { width:65px; accent-color:#edc04a; }
+    </style>
+</head>
+<body>
+
+    <!-- 2D KÉP → 3D VOXEL FELTÖLTŐ -->
+    <input type="file" id="scanner-upload" accept="image/*" multiple style="display:none" onchange="Cmd.handleImageScan(event)">
+
+    <!-- TOP MENU -->
+    <div class="topbar">
+        <div class="dropdown"><button class="dropbtn">File</button>
+            <div class="dropdown-content">
+                <a onclick="Cmd.newScene()">New Scene</a>
+                <div class="menu-sep"></div>
+                <a onclick="Cmd.exportJSON()">Export JSON</a>
+                <a onclick="Cmd.importJSON()">Import JSON</a>
+            </div>
+        </div>
+        <div class="dropdown"><button class="dropbtn">Edit</button>
+            <div class="dropdown-content">
+                <a onclick="Cmd.undo()">Undo <span>Ctrl+Z</span></a>
+                <a onclick="Cmd.redo()">Redo <span>Ctrl+Shift+Z</span></a>
+                <div class="menu-sep"></div>
+                <a onclick="Cmd.delete()">Delete <span>Del</span></a>
+                <a onclick="Cmd.selectAll()">Select All <span>A</span></a>
+                <a onclick="Cmd.deselectAll()">Deselect All <span>Alt+A</span></a>
+                <a onclick="Cmd.duplicate()">Duplicate <span>Shift+D</span></a>
+            </div>
+        </div>
+        <div class="dropdown"><button class="dropbtn">Object</button>
+            <div class="dropdown-content">
+                <a onclick="Cmd.group()">Group <span>Ctrl+G</span></a>
+                <a onclick="Cmd.ungroup()">Ungroup <span>Ctrl+Shift+G</span></a>
+                <div class="menu-sep"></div>
+                <a onclick="UI.setStatusMsg('Csoporton belüli elem kijelöléséhez használj Alt-kattintást.')">Alt: Select Child</a>
+            </div>
+        </div>
+        <div class="dropdown"><button class="dropbtn">Add</button>
+            <div class="dropdown-content">
+                <a onclick="Cmd.addMesh('Cube')">Mesh: Cube</a>
+                <a onclick="Cmd.addMesh('Cylinder')">Mesh: Cylinder</a>
+                                <a onclick="Cmd.addMesh('Sphere')">Mesh: Sphere</a>
+                <div class="menu-sep"></div>
+                <a onclick="document.getElementById('scanner-upload').click()" style="color:#ed7014;font-weight:bold;">📷 2D → 3D Converter</a>
+                <div class="menu-sep"></div>
+                <a onclick="Cmd.addPart('Hull')">Tank: Hull</a>
+                <a onclick="Cmd.addPart('Turret')">Tank: Turret</a>
+                <a onclick="Cmd.addPart('Barrel')">Tank: Barrel</a>
+                <a onclick="Cmd.addPart('Hatch')" style="color:#edc04a;">Tank: Hatch / Búvónyílás</a>
+                <a onclick="Cmd.addPart('Track')">Tank: Track</a>
+                <a onclick="Cmd.addPart('Wheel')">Tank: Wheel</a>
+                <a onclick="Cmd.addWheel()" style="color:#edc04a;">Add Wheel (Track)</a>
+                <a onclick="Cmd.addWheelPair()" style="color:#edc04a;">Add Wheel Pair</a>
+                <a onclick="Cmd.addWheelSet()" style="color:#edc04a;">Add Track Wheel Set</a>
+                <a onclick="Cmd.addPart('Antenna')">Tank: Antenna</a>
+                <div class="menu-sep"></div>
+                <a onclick="Cmd.addTankSetup()" style="color:#8cb82b;">Add Tank Setup (Demo)</a>
+            </div>
+        </div>
+        <div class="dropdown"><button class="dropbtn">Models</button>
+            <div class="dropdown-content">
+                <a onclick="Cmd.loadModelPreset('tank1')" style="color:#8cb82b;font-weight:bold;">Tank 1 - alapmodell</a>
+                <a onclick="Cmd.loadModelPreset('tank2')" style="color:#edc04a;font-weight:bold;">Tank 2 - búvónyílás + kerekek</a>
+                <a onclick="Cmd.loadModelPreset('tank3')" style="color:#cf8f4f;font-weight:bold;">Tank 3 - nehéz páncélos</a>
+                <div class="menu-sep"></div>
+                <a onclick="Cmd.saveCurrentModel()" style="color:#8cb82b;">💾 Jelenlegi modell mentése</a>
+                <a onclick="Cmd.loadSavedModel()">📂 Saját modell betöltése</a>
+                <a onclick="Cmd.deleteSavedModel()" style="color:#cf4f4f;">🗑 Saját modell törlése</a>
+                <a onclick="Cmd.loadModelPreset('t800')" style="color:#8cb82b;font-weight:bold;">T-800 robot</a>
+            </div>
+        </div>
+        <div class="dropdown"><button class="dropbtn">Robot</button>
+            <div class="dropdown-content">
+                <a onclick="Cmd.addRobotPart('Head')">Robot: Head</a>
+                <a onclick="Cmd.addRobotPart('Torso')">Robot: Torso</a>
+                <a onclick="Cmd.addRobotPart('Arm')">Robot: Arm</a>
+                <a onclick="Cmd.addRobotPart('Leg')">Robot: Leg</a>
+                <a onclick="Cmd.addRobotPart('Joint')">Robot: Joint</a>
+                <div class="menu-sep"></div>
+                <a onclick="Cmd.addT800Setup()" style="color:#8cb82b;">Quick T-800 Frame</a>
+            </div>
+        </div>
+        <div class="dropdown"><button class="dropbtn">View</button>
+            <div class="dropdown-content">
+                <a onclick="Cmd.setView('front')">Front <span>Num 1</span></a>
+                <a onclick="Cmd.setView('right')">Right <span>Num 3</span></a>
+                <a onclick="Cmd.setView('top')">Top <span>Num 7</span></a>
+                <div class="menu-sep"></div>
+                <a onclick="Cmd.setView('reset')">Reset Camera <span>Num 0</span></a>
+            </div>
+        </div>
+        <div style="margin-left:auto; display:flex; gap:10px; align-items:center;"><span style="color:#777;">F3: Command Search</span></div>
+    </div>
+
+    <!-- WORKSPACE -->
+    <div class="workspace">
+        <div class="toolbar">
+            <button class="tool-btn active" id="tool-select" title="Select" onclick="Cmd.select(null)">🖱️</button>
+            <button class="tool-btn" id="tool-move-left" title="Move (G)" onclick="Cmd.simulateShortcut('G')">⬌</button>
+            <button class="tool-btn" id="tool-rotate-left" title="Rotate (R)" onclick="Cmd.simulateShortcut('R')">↻</button>
+            <button class="tool-btn" id="tool-scale-left" title="Scale (S)" onclick="Cmd.simulateShortcut('S')">⤡</button>
+            <button class="tool-btn" title="Add wheel" onclick="Cmd.addWheel()">⚙️</button>
+        </div>
+
+        <div class="viewport-container" tabindex="0" id="viewport-wrapper">
+            <div class="viewport-overlay" id="vp-info">User Perspective<br>(1) Collection</div>
+            <div class="selection-rectangle" id="selection-rectangle"></div>
+                            <div class="viewport-modes">
+                    <button class="mode-btn" id="mode-obj" onclick="Cmd.setMode('OBJECT')">OBJECT MODE</button>
+                <button class="mode-btn" id="mode-edit" onclick="Cmd.setMode('EDIT')">EDIT MODE (Tab)</button>
+                <button class="mode-btn" id="camera-projection" onclick="Cmd.toggleProjection()">PERSPECTIVE</button>
+                <div style="width:10px;"></div>
+                <button class="mode-btn" id="shade-wire" onclick="Cmd.setShading('WIRE')">Wire</button>
+                <button class="mode-btn active" id="shade-solid" onclick="Cmd.setShading('SOLID')">Solid</button>
+            </div>
+            
+                        <div class="gizmo" id="gizmo"><span class="gx" data-axis="x"><b>X</b></span><span class="gy" data-axis="y"><b>Y</b></span><span class="gz" data-axis="z"><b>Z</b></span><small class="gizmo-hint">Tengely mozgatás: húzd a színes nyilat</small></div>
+            <div class="rotation-gizmo" id="rotation-gizmo">
+                <div class="rotation-ring">
+                    <button class="rot-x" onclick="Cmd.rotateStep('X', 15)" title="Forgatás X tengelyen">X</button>
+                    <button class="rot-y" onclick="Cmd.rotateStep('Y', 15)" title="Forgatás Y tengelyen">Y</button>
+                    <button class="rot-z" onclick="Cmd.rotateStep('Z', 15)" title="Forgatás Z tengelyen">Z</button>
+                    <button class="rot-minus" onclick="Cmd.rotateStep(State.rotateAxis || 'Y', -15)" title="Ellenkező irány">−</button>
+                    <span class="rot-label">R</span>
+                </div>
+            </div>
+
+            <!-- ÚJ: UI GOMBOK A NAGYÍTÁSHOZ (ZOOM) -->
+            <div class="viewport-nav">
+                <button class="nav-btn" onclick="Cmd.zoomIn()" title="Nagyítás (Zoom In)">🔍➕</button>
+                <button class="nav-btn" onclick="Cmd.zoomOut()" title="Kicsinyítés (Zoom Out)">🔍➖</button>
+                <button class="nav-btn" onclick="Cmd.setView('reset')" title="Kamera Középre (Reset View)">🔄</button>
+            </div>
+
+            <canvas id="viewport"></canvas>
+        </div>
+
+        <!-- RIGHT PANELS -->
+        <div class="right-sidebar">
+            <div class="outliner">
+                <div class="panel-header"><span>Outliner</span><span>🔍</span></div>
+                <div class="outliner-content" id="outliner-list"></div>
+            </div>
+
+                        <div class="properties">
+                <div class="pro-tools">
+                    <button id="tool-move" class="active" onclick="Cmd.setTool('MOVE')" title="Move (G)">Move</button>
+                    <button id="tool-rotate" onclick="Cmd.setTool('ROTATE')" title="Rotate (R)">Rotate</button>
+                    <button id="tool-scale" onclick="Cmd.setTool('SCALE')" title="Scale (S)">Scale</button>
+                    <button id="snap-toggle" onclick="Cmd.toggleSnap()" title="Toggle grid snapping">Grid: Off</button>
+                    <button id="object-snap-toggle" onclick="Cmd.toggleObjectSnap()" title="Snap parts to nearby object edges">Object: Off</button>
+                    <button id="contact-snap-toggle" onclick="Cmd.toggleContactSnap()" title="Keep parts from intersecting">Contact: Off</button>
+                </div>
+                <div class="transform-help"><b>G</b> Move · <b>R</b> Rotate · <b>S</b> Scale · Rotate után <b>X/Y/Z</b>: tengely · Shift: függőleges mód · Snap: grid/15°</div>
+                <div class="rotate-controls" id="rotate-controls">
+                    <small>Forgatásvezérlő · kattints a tengelyre, majd az irányra</small>
+                    <button onclick="Cmd.rotateStep('X', -15)">X −15°</button><button onclick="Cmd.rotateStep('X', 15)">X +15°</button>
+                    <button onclick="Cmd.rotateStep('Y', -15)">Y −15°</button><button onclick="Cmd.rotateStep('Y', 15)">Y +15°</button>
+                    <button onclick="Cmd.rotateStep('Z', -15)">Z −15°</button><button onclick="Cmd.rotateStep('Z', 15)">Z +15°</button>
+                </div>
+                <div class="edit-controls" id="edit-controls">
+                    <small>EDIT MODE · kattints egy lapra, majd húzd ki</small>
+                    <input id="extrude-distance" type="number" value="10" step="1" title="Extrude távolság">
+                    <button onclick="Cmd.extrudeFace()">Extrude Face</button>
+                    <button onclick="Cmd.clearFaceSelection()">Clear Face</button>
+                </div>
+                <div class="light-controls">
+                    <span>💡 Light</span><input id="light-angle" type="range" min="0" max="360" value="225" oninput="Cmd.updateLight()" title="Fény iránya">
+                    <input id="light-strength" type="range" min="0" max="100" value="65" oninput="Cmd.updateLight()" title="Fényerő">
+                </div>
+                <div class="prop-tabs">
+                    <div class="prop-tab active" onclick="UI.switchPropTab('item')">🟧 Item</div>
+                    <div class="prop-tab" onclick="UI.switchPropTab('mod')">🔧 Modifiers</div>
+                                        <div class="prop-tab" onclick="UI.switchPropTab('mat')">🎨 Material</div>
+                    <div class="prop-tab" onclick="UI.switchPropTab('tank')">🛡 Tank</div>
+                </div>
+                
+                <div class="panel-body" id="prop-item">
+                    <div class="prop-row"><label>Parent</label><select id="inp-parent" class="select-box" onchange="UI.onPropChange()"></select></div>
+                    <div class="prop-row"><label>Location</label><div class="vector-group"><div class="vector-input"><span class="x">X</span><input type="number" id="loc-x" onchange="UI.onPropChange()"></div><div class="vector-input"><span class="y">Y</span><input type="number" id="loc-y" onchange="UI.onPropChange()"></div><div class="vector-input"><span class="z">Z</span><input type="number" id="loc-z" onchange="UI.onPropChange()"></div></div></div>
+                    <div class="prop-row"><label>Rotation</label><div class="vector-group"><div class="vector-input"><span class="x">X</span><input type="number" id="rot-x" onchange="UI.onPropChange()"></div><div class="vector-input"><span class="y">Y</span><input type="number" id="rot-y" onchange="UI.onPropChange()"></div><div class="vector-input"><span class="z">Z</span><input type="number" id="rot-z" onchange="UI.onPropChange()"></div></div></div>
+                                        <div class="prop-row"><label>Scale</label><div class="vector-group"><div class="vector-input"><span class="x">X</span><input type="number" id="sca-x" onchange="UI.onPropChange()"></div><div class="vector-input"><span class="y">Y</span><input type="number" id="sca-y" onchange="UI.onPropChange()"></div><div class="vector-input"><span class="z">Z</span><input type="number" id="sca-z" onchange="UI.onPropChange()"></div></div></div>
+                    <button class="mode-btn" onclick="Cmd.applyTransform()">Apply Transform</button>
+                </div>
+
+                <div class="panel-body" id="prop-tank" style="display:none;">
+                    <div class="pro-section"><div class="pro-section-title">Tank Statistics <span class="pro-badge">PRO</span></div><div class="pro-section-body stat-grid">
+                        <label>Armor<input type="number" id="tank-armor" value="100" onchange="UI.onTankChange()"></label>
+                        <label>Hull HP<input type="number" id="tank-hp" value="1000" onchange="UI.onTankChange()"></label>
+                        <label>Max Speed<input type="number" id="tank-speed" value="10" onchange="UI.onTankChange()"></label>
+                        <label>Weapon Damage<input type="number" id="tank-damage" value="100" onchange="UI.onTankChange()"></label>
+                        <label>Reload (sec)<input type="number" id="tank-reload" value="3" onchange="UI.onTankChange()"></label>
+                        <label>Weight<input type="number" id="tank-weight" value="50" onchange="UI.onTankChange()"></label>
+                    </div></div>
+                </div>
+
+                <div class="panel-body" id="prop-mod" style="display:none;">
+                    <div style="background:#2a2a2a; padding:8px; border:1px solid #3d3d3d; border-radius:3px;">
+                        <label style="color:#eee; font-weight:bold; font-size:11px;">🪞 Mirror Modifier</label>
+                        <div style="margin-top:5px;"><input type="checkbox" id="inp-mirror" onchange="UI.onPropChange()"> Axis X</div>
+                    </div>
+                </div>
+
+                <div class="panel-body" id="prop-mat" style="display:none;">
+                    <div class="prop-row"><label>Base Color</label><input type="color" id="mat-color" class="color-picker" oninput="UI.onMaterialChange()" onchange="UI.onMaterialChange()"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STATUS BAR -->
+    <div class="statusbar">
+        <span id="sb-info">Objects: 0 | Vertices: 0 | Faces: 0</span>
+        <span id="sb-mode">OBJECT MODE</span>
+        <span id="sb-msg">Ready</span>
+    </div>
+
+    <!-- F3 MODAL -->
+    <div id="f3-modal">
+        <div class="f3-box">
+            <input type="text" class="f3-input" id="f3-search" placeholder="Command Search..." autocomplete="off">
+            <div class="f3-list" id="f3-results"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. UTILS & MATH ---
+        const Math3D = {
+            deg2rad: (deg) => deg * Math.PI / 180,
+            transformPoint: (p, loc, rot, sca, flipX=false) => {
+                let x = p[0] * sca.x, y = p[1] * sca.y, z = p[2] * sca.z;
+                let rx = Math3D.deg2rad(rot.x), ry = Math3D.deg2rad(rot.y), rz = Math3D.deg2rad(rot.z);
+                if (flipX) { x = -x; ry = -ry; rz = -rz; }
+                let nx = x*Math.cos(rz) - y*Math.sin(rz), ny = x*Math.sin(rz) + y*Math.cos(rz); x = nx; y = ny;
+                let ny2 = y*Math.cos(rx) - z*Math.sin(rx), nz2 = y*Math.sin(rx) + z*Math.cos(rx); y = ny2; z = nz2;
+                let nx2 = x*Math.cos(ry) - z*Math.sin(ry), nz3 = x*Math.sin(ry) + z*Math.cos(ry); x = nx2; z = nz3;
+                return [x + loc.x, y + loc.y, z + loc.z];
+            },
+            shadeColor: (c, p) => {
+                let n = parseInt(c.slice(1),16), a = Math.round(2.55*p), R = (n>>16)+a, G = (n>>8&0x00FF)+a, B = (n&0x0000FF)+a;
+                return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)).toString(16).slice(1);
+            },
+            pointInPoly: (pt, vs) => {
+                let x = pt[0], y = pt[1], inside = false;
+                for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+                    let xi = vs[i].x, yi = vs[i].y, xj = vs[j].x, yj = vs[j].y;
+                    if (((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) inside = !inside;
+                }
+                return inside;
+            }
+        };
+
+        // --- 2. DATA MODEL ---
+        class Mesh {
+            constructor(type) {
+                this.vertices = []; this.faces = [];
+                if (type === 'Cube' || type === 'Sphere') {
+                    this.vertices = [ [-0.5,-0.5,0.5], [0.5,-0.5,0.5], [0.5,0.5,0.5], [-0.5,0.5,0.5], [-0.5,-0.5,-0.5], [0.5,-0.5,-0.5], [0.5,0.5,-0.5], [-0.5,0.5,-0.5] ];
+                    this.faces = [ { v: [0,1,2,3], s: 0 }, { v: [5,4,7,6], s: -30 }, { v: [4,0,3,7], s: -15 }, { v: [1,5,6,2], s: -15 }, { v: [3,2,6,7], s: 25 }, { v: [4,5,1,0], s: -45 } ];
+                } else if (type === 'Cylinder') {
+                    let segs = 24, top = [], bot = [];
+                    for (let i=0; i<segs; i++) {
+                        let a = (i/segs)*Math.PI*2;
+                        this.vertices.push([Math.cos(a)*0.5, -0.5, Math.sin(a)*0.5]); this.vertices.push([Math.cos(a)*0.5, 0.5, Math.sin(a)*0.5]);
+                        top.push(i*2); bot.push(i*2+1);
+                        this.faces.push({ v: [i*2, i*2+1, ((i+1)%segs)*2+1, ((i+1)%segs)*2], s: Math.cos(a)*25-10 });
+                    }
+                    this.faces.push({ v: top.reverse(), s: 25 }); this.faces.push({ v: bot, s: -45 });
+                }
+            }
+        }
+
+        class SceneObject {
+            constructor(name, type) {
+                this.id = 'obj_' + Date.now() + Math.floor(Math.random()*1000);
+                this.name = name; this.parentId = 'none';
+                this.groupId = null;
+                this.loc = {x:0, y:0, z:0}; this.rot = {x:0, y:0, z:0}; this.sca = {x:20, y:20, z:20}; 
+                this.color = '#888888'; this.mirrorX = false;
+                this.mesh = new Mesh(type);
+            }
+        }
+
+        // --- 3. GLOBAL STATE & HISTORY ---
+        const State = {
+                        scene: [], selectedIds: [], activeId: null, mode: 'OBJECT', shading: 'SOLID', hoverId: null,
+            tool: 'MOVE', rotateAxis: null, snap: false, objectSnap: false, contactSnap: false,
+            faceSelection: null,
+            light: { angle: 225, strength: 0.65 },
+            cam: { rx: 0.5, ry: -0.5, zoom: 500, panX: 0, panY: 0, projection: 'PERSPECTIVE' },
+            history: [], historyIdx: -1,
+            
+            pushHistory: function() {
+                this.history.length = this.historyIdx + 1;
+                this.history.push(JSON.parse(JSON.stringify(this.scene)));
+                this.historyIdx++;
+                UI.setStatusMsg("State saved.");
+            },
+            undo: function() {
+                if (this.historyIdx > 0) {
+                    this.historyIdx--; this.scene = JSON.parse(JSON.stringify(this.history[this.historyIdx]));
+                    this.validateSelection(); UI.setStatusMsg("Undo");
+                }
+            },
+            redo: function() {
+                if (this.historyIdx < this.history.length - 1) {
+                    this.historyIdx++; this.scene = JSON.parse(JSON.stringify(this.history[this.historyIdx]));
+                    this.validateSelection(); UI.setStatusMsg("Redo");
+                }
+            },
+            validateSelection: function() {
+                this.selectedIds = this.selectedIds.filter(id => this.scene.some(o => o.id === id));
+                if (!this.scene.some(o => o.id === this.activeId)) this.activeId = this.selectedIds.length > 0 ? this.selectedIds[0] : null;
+                UI.refreshAll();
+            }
+        };
+
+        // --- 4. ENGINE & RENDERER ---
+        const Engine = {
+            canvas: document.getElementById('viewport'),
+            ctx: document.getElementById('viewport').getContext('2d'),
+            renderedPolygons: [], 
+
+            resize: function() {
+                const parent = this.canvas.parentElement;
+                const rect = parent.getBoundingClientRect();
+                const width = Math.max(1, Math.round(rect.width));
+                const height = Math.max(1, Math.round(rect.height));
+
+                // A CSS-es és a belső canvas-méret mindig legyen azonos,
+                // különben a browser széthúzza a renderelt képet.
+                if (this.canvas.width !== width || this.canvas.height !== height) {
+                    this.canvas.width = width;
+                    this.canvas.height = height;
+                }
+                this.draw();
+            },
+
+            project: function(x, y, z) {
+                // Régi/importált jelenetekből ne maradhasson érvénytelen kameraérték.
+                if (!Number.isFinite(State.cam.rx)) State.cam.rx = 0.5;
+                if (!Number.isFinite(State.cam.ry)) State.cam.ry = -0.5;
+                if (!Number.isFinite(State.cam.zoom)) State.cam.zoom = 800;
+                if (!Number.isFinite(State.cam.panX)) State.cam.panX = 0;
+                if (!Number.isFinite(State.cam.panY)) State.cam.panY = 0;
+                let cx = State.cam.rx, cy = State.cam.ry;
+                let x1 = x * Math.cos(cy) - z * Math.sin(cy), z1 = x * Math.sin(cy) + z * Math.cos(cy), y1 = y;
+                let y2 = y1 * Math.cos(cx) - z1 * Math.sin(cx), z2 = y1 * Math.sin(cx) + z1 * Math.cos(cx), x2 = x1;
+                // A zoom kamera-távolságként működik: kisebb érték = közelebbi kamera.
+                const cameraDistance = Math.max(120, State.cam.zoom + z2);
+                let f = State.cam.projection === 'ORTHO' ? 0.72 : 700 / cameraDistance;
+                return { x: x2 * f + (this.canvas.width / 2) + State.cam.panX, y: y2 * f + (this.canvas.height / 2) + State.cam.panY, rawZ: z2 };
+            },
+
+            getObjWorldPolys: function(obj, isMirrored=false) {
+                let polys = [];
+                let worldVerts = obj.mesh.vertices.map(v => {
+                    let pt = Math3D.transformPoint(v, obj.loc, obj.rot, obj.sca, isMirrored);
+                    let parent = State.scene.find(o => o.id === obj.parentId);
+                    while (parent) { pt = Math3D.transformPoint(pt, parent.loc, parent.rot, {x:1,y:1,z:1}); parent = State.scene.find(o => o.id === parent.parentId); } 
+                    return [pt[0], -pt[1], pt[2]]; 
+                });
+
+                obj.mesh.faces.forEach(f => {
+                    let pVerts = f.v.map(i => this.project(...worldVerts[i]));
+                    let avgZ = pVerts.reduce((sum, p) => sum + p.rawZ, 0) / f.v.length;
+                    let col = State.shading === 'SOLID' ? Math3D.shadeColor(obj.color, f.s) : 'transparent';
+                    let out = State.shading === 'SOLID' ? '#111' : obj.color;
+                    polys.push({ objId: obj.id, faceIndex: obj.mesh.faces.indexOf(f), isMirror: isMirrored, points: pVerts, color: col, outline: out, z: avgZ });
+                });
+                return polys;
+            },
+
+            getObjectBounds: function(obj) {
+                if (!obj || !obj.mesh || !obj.mesh.vertices.length) return null;
+                // Ugyanazt a parent-láncot használjuk, mint a kirajzolásnál.
+                // Így a fal mérete és helye mindig a ténylegesen látható objektumé.
+                const points = obj.mesh.vertices.map(v => {
+                    let p = Math3D.transformPoint(v, obj.loc, obj.rot, obj.sca);
+                    let parent = State.scene.find(o => o.id === obj.parentId);
+                    while (parent) {
+                        p = Math3D.transformPoint(p, parent.loc, parent.rot, {x:1, y:1, z:1});
+                        parent = State.scene.find(o => o.id === parent.parentId);
+                    }
+                    return {x:p[0], y:p[1], z:p[2]};
+                });
+                return {
+                    min: {
+                        x: Math.min(...points.map(p => p.x)),
+                        y: Math.min(...points.map(p => p.y)),
+                        z: Math.min(...points.map(p => p.z))
+                    },
+                    max: {
+                        x: Math.max(...points.map(p => p.x)),
+                        y: Math.max(...points.map(p => p.y)),
+                        z: Math.max(...points.map(p => p.z))
+                    }
+                };
+            },
+
+            drawGrid: function() {
+                this.ctx.lineWidth = 1; this.ctx.strokeStyle = '#3a3a3a';
+                for(let i = -500; i <= 500; i += 50) {
+                    let p1 = this.project(i, 0, -500), p2 = this.project(i, 0, 500); this.ctx.beginPath(); this.ctx.moveTo(p1.x, p1.y); this.ctx.lineTo(p2.x, p2.y); this.ctx.stroke();
+                    let p3 = this.project(-500, 0, i), p4 = this.project(500, 0, i); this.ctx.beginPath(); this.ctx.moveTo(p3.x, p3.y); this.ctx.lineTo(p4.x, p4.y); this.ctx.stroke();
+                }
+                let xA = this.project(-500,0,0), xB = this.project(500,0,0); this.ctx.strokeStyle='#cf4f4f'; this.ctx.beginPath(); this.ctx.moveTo(xA.x, xA.y); this.ctx.lineTo(xB.x, xB.y); this.ctx.stroke();
+                let zA = this.project(0,0,-500), zB = this.project(0,0,500); this.ctx.strokeStyle='#8cb82b'; this.ctx.beginPath(); this.ctx.moveTo(zA.x, zA.y); this.ctx.lineTo(zB.x, zB.y); this.ctx.stroke();
+            },
+
+            draw: function() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.drawGrid();
+
+                let allPolygons = [];
+                State.scene.forEach(obj => {
+                    allPolygons.push(...this.getObjWorldPolys(obj, false));
+                    if (obj.mirrorX) allPolygons.push(...this.getObjWorldPolys(obj, true));
+                });
+                
+                allPolygons.sort((a, b) => b.z - a.z);
+
+                allPolygons.forEach(poly => {
+                    this.ctx.beginPath(); this.ctx.moveTo(poly.points[0].x, poly.points[0].y);
+                    for(let i=1; i<poly.points.length; i++) this.ctx.lineTo(poly.points[i].x, poly.points[i].y);
+                    this.ctx.closePath();
+                    
+                    let isActive = (poly.objId === State.activeId);
+                    let isSelected = State.selectedIds.includes(poly.objId);
+                    let isHovered = (poly.objId === State.hoverId);
+
+                    if (State.shading === 'SOLID') {
+                        const angle = (State.light.angle || 225) * Math.PI / 180;
+                        const lightBoost = (State.light.strength || 0.65) * (0.35 + 0.65 * Math.max(0, Math.cos(angle - (poly.faceIndex || 0) * 0.7)));
+                        this.ctx.fillStyle = Math3D.shadeColor(poly.color, (lightBoost - 0.5) * 35);
+                        this.ctx.fill();
+                    }
+                    if (State.mode === 'EDIT' && poly.objId === State.activeId && poly.faceIndex === State.faceSelection && !poly.isMirror) {
+                        this.ctx.strokeStyle = '#ffd21f'; this.ctx.lineWidth = 4;
+                    } else if (isActive) { this.ctx.strokeStyle = '#ed7014'; this.ctx.lineWidth = 2; }
+                    else if (isHovered) { this.ctx.strokeStyle = '#ffffff'; this.ctx.lineWidth = 2; }
+                    else if (isSelected) { this.ctx.strokeStyle = '#4772b3'; this.ctx.lineWidth = 2; }
+                    else { this.ctx.strokeStyle = poly.outline; this.ctx.lineWidth = State.shading === 'SOLID' ? 1 : 1.5; }
+                    
+                    this.ctx.stroke();
+                });
+
+                this.renderedPolygons = allPolygons;
+
+                if (State.activeId) UI.updateGizmo();
+
+                if (State.mode === 'EDIT' && State.activeId) {
+                    let obj = State.scene.find(o => o.id === State.activeId);
+                    if(obj) {
+                        obj.mesh.vertices.forEach(v => {
+                            let pt = Math3D.transformPoint(v, obj.loc, obj.rot, obj.sca);
+                            let p2d = this.project(pt[0], -pt[1], pt[2]);
+                            this.ctx.fillStyle = '#fff'; this.ctx.beginPath(); this.ctx.arc(p2d.x, p2d.y, 3, 0, Math.PI*2); this.ctx.fill();
+                        });
+                    }
+                }
+
+                // A rajzolás eseményvezérelt. Nem indítunk végtelen requestAnimationFrame ciklust,
+                // mert az előnézeti környezet ezt végtelen ciklusnak érzékeli.
+            }
+        };
+
+        // --- 5. UI CONTROLLER ---
+        const UI = {
+            init: function() { document.getElementById('viewport-wrapper').focus(); this.switchPropTab('item'); },
+            refreshAll: function() {
+                this.updateOutliner();
+                this.updateProperties();
+                this.updateStatusBar();
+                this.updateGizmo();
+                Engine.draw();
+            },
+
+            updateGizmo: function() {
+                const gizmo = document.getElementById('gizmo');
+                const obj = State.scene.find(o => o.id === State.activeId);
+                const rotationGizmo = document.getElementById('rotation-gizmo');
+                if (!obj) { gizmo.classList.remove('on'); rotationGizmo.classList.remove('on'); return; }
+                const p = Engine.project(obj.loc.x, -obj.loc.y, obj.loc.z);
+                gizmo.style.left = `${p.x}px`;
+                gizmo.style.top = `${p.y}px`;
+                rotationGizmo.style.left = `${p.x}px`;
+                rotationGizmo.style.top = `${p.y}px`;
+                gizmo.classList.toggle('on', State.tool === 'MOVE');
+                rotationGizmo.classList.toggle('on', State.tool === 'ROTATE');
+            },
+
+            updateOutliner: function() {
+                const icons = { Cube: '📦', Cylinder: '🛢️', Sphere: '⚽', Wheel: '⚙️', Robot: '🤖', T800: '🦾' };
+                document.getElementById('outliner-list').innerHTML = State.scene.map(obj => {
+                    let pre = obj.parentId !== 'none' ? '&nbsp;&nbsp;↳ ' : '';
+                    let activeCls = obj.id === State.activeId ? 'active' : (State.selectedIds.includes(obj.id) ? 'selected' : '');
+                                                const iconKey = obj.category === 'ROBOT_PART' ? (obj.name.startsWith('T800') ? 'T800' : 'Robot') : obj.name.split('_')[0];
+                    const groupMark = obj.groupId ? ' 🔗' : '';
+                    return `<div class="outliner-item ${activeCls}" onclick="Cmd.select('${obj.id}', event.ctrlKey, event.altKey)">${pre}<span style="margin-right:8px;">${icons[iconKey]||'📦'}</span>${obj.name}${groupMark}</div>`;
+                }).join('');
+            },
+
+                        switchPropTab: function(tab) {
+                ['item','mod','mat','tank'].forEach(t => {
+                    document.getElementById(`prop-${t}`).style.display = (t===tab) ? 'flex' : 'none';
+                    document.querySelector(`.prop-tab[onclick*="${t}"]`).classList.toggle('active', t===tab);
+                });
+            },
+
+            updateProperties: function() {
+                let obj = State.scene.find(o => o.id === State.activeId);
+                let pSel = document.getElementById('inp-parent');
+                if (!obj) {
+                    ['loc','rot','sca'].forEach(p => { ['x','y','z'].forEach(a => document.getElementById(`${p}-${a}`).value = ''); });
+                    pSel.innerHTML = ''; pSel.disabled = true; return;
+                }
+                pSel.disabled = false;
+                pSel.innerHTML = `<option value="none">-- World --</option>` + State.scene.map(o => o.id !== obj.id ? `<option value="${o.id}">${o.name}</option>` : '').join('');
+                pSel.value = obj.parentId;
+
+                document.getElementById('inp-mirror').checked = obj.mirrorX;
+                document.getElementById('mat-color').value = obj.color;
+
+                                ['loc','rot','sca'].forEach(p => { ['x','y','z'].forEach((a,i) => document.getElementById(`${p}-${a}`).value = Math.round(Object.values(obj[p])[i]*10)/10); });
+                ['armor','hp','speed','damage','reload','weight'].forEach(k => { let el=document.getElementById('tank-'+k); if(el) el.value = obj.tankStats && obj.tankStats[k] !== undefined ? obj.tankStats[k] : el.value; });
+            },
+
+            onMaterialChange: function() {
+                const obj = State.scene.find(o => o.id === State.activeId);
+                const color = document.getElementById('mat-color').value;
+                if (!obj || !color) return;
+
+                // A root üres mesh, ezért a színt a hozzá tartozó teljes hierarchiára adjuk.
+                const ids = new Set([obj.id]);
+                let changed = true;
+                while (changed) {
+                    changed = false;
+                    State.scene.forEach(child => {
+                        if (ids.has(child.parentId) && !ids.has(child.id)) {
+                            ids.add(child.id);
+                            changed = true;
+                        }
+                    });
+                }
+                State.scene.forEach(item => {
+                    if (ids.has(item.id)) item.color = color;
+                });
+                Engine.draw();
+                UI.setStatusMsg('Material color updated.');
+                clearTimeout(this.materialHistoryTimer);
+                this.materialHistoryTimer = setTimeout(() => State.pushHistory(), 250);
+            },
+
+            onTankChange: function() {
+                let obj = State.scene.find(o => o.id === State.activeId); if (!obj) return;
+                obj.tankStats = obj.tankStats || {};
+                ['armor','hp','speed','damage','reload','weight'].forEach(k => { obj.tankStats[k] = parseFloat(document.getElementById('tank-'+k).value) || 0; });
+                State.pushHistory(); UI.setStatusMsg('Tank statistics updated.');
+            },
+
+            onPropChange: function() {
+                let obj = State.scene.find(o => o.id === State.activeId);
+                if (!obj) return;
+                obj.parentId = document.getElementById('inp-parent').value;
+                obj.mirrorX = document.getElementById('inp-mirror').checked;
+                obj.color = document.getElementById('mat-color').value;
+
+                ['loc','rot','sca'].forEach(p => {
+                    obj[p].x = parseFloat(document.getElementById(`${p}-x`).value) || (p==='sca'?1:0);
+                    obj[p].y = parseFloat(document.getElementById(`${p}-y`).value) || (p==='sca'?1:0);
+                    obj[p].z = parseFloat(document.getElementById(`${p}-z`).value) || (p==='sca'?1:0);
+                });
+                State.pushHistory(); 
+            },
+
+            updateStatusBar: function() {
+                let v=0, f=0; State.scene.forEach(o => { v+=o.mesh.vertices.length; f+=o.mesh.faces.length; });
+                document.getElementById('sb-info').innerText = `Objects: ${State.scene.length} | Vertices: ${v} | Faces: ${f}`;
+                document.getElementById('sb-mode').innerText = State.mode + " MODE";
+            },
+
+            setStatusMsg: function(msg) {
+                document.getElementById('sb-msg').innerText = msg;
+                setTimeout(() => { document.getElementById('sb-msg').innerText = 'Ready'; }, 2000);
+            }
+        };
+
+        // --- 6. COMMANDS & ACTIONS ---
+        const Cmd = {
+            newScene: function() { State.scene = []; State.selectedIds = []; State.activeId = null; State.pushHistory(); UI.refreshAll(); },
+            
+                        addMesh: function(type) {
+                let obj = new SceneObject(`${type}_${State.scene.length}`, type);
+                State.scene.push(obj); this.select(obj.id); State.pushHistory();
+            },
+
+            // 2D képekből szerkeszthető, színes 3D voxel-modell készül.
+            // Több kép esetén a képek mélységi rétegekként kerülnek egymás mögé.
+            handleImageScan: function(event) {
+                const files = [...(event.target.files || [])].slice(0, 8);
+                event.target.value = '';
+                if (!files.length) return;
+
+                const maxSize = 32;
+                const voxelSize = 4;
+                const readImage = file => new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        const image = new Image();
+                        image.onload = () => resolve(image);
+                        image.onerror = reject;
+                        image.src = reader.result;
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+
+                UI.setStatusMsg('2D → 3D kép feldolgozása...');
+                Promise.all(files.map(readImage)).then(images => {
+                    const base = new SceneObject('VoxelScan_' + State.scene.length, 'Cube');
+                    base.category = 'SCAN';
+                    base.sca = {x: 1, y: 1, z: 1};
+                    base.mesh.vertices = []; base.mesh.faces = [];
+                    State.scene.push(base);
+
+                    images.forEach((image, layer) => {
+                        const ratio = Math.min(maxSize / image.width, maxSize / image.height, 1);
+                        const width = Math.max(1, Math.round(image.width * ratio));
+                        const height = Math.max(1, Math.round(image.height * ratio));
+                        const buffer = document.createElement('canvas');
+                        buffer.width = width; buffer.height = height;
+                        const context = buffer.getContext('2d', {willReadFrequently: true});
+                        context.drawImage(image, 0, 0, width, height);
+                        const pixels = context.getImageData(0, 0, width, height).data;
+                        const startX = -(width - 1) * voxelSize / 2;
+                        const startY = (height - 1) * voxelSize / 2;
+                        const layerZ = (layer - (images.length - 1) / 2) * voxelSize;
+
+                        for (let y = 0; y < height; y++) {
+                            for (let x = 0; x < width; x++) {
+                                const index = (y * width + x) * 4;
+                                const alpha = pixels[index + 3];
+                                const brightness = (pixels[index] + pixels[index + 1] + pixels[index + 2]) / 3;
+                                if (alpha < 40 || brightness < 12) continue;
+
+                                const voxel = new SceneObject('Voxel_' + State.scene.length, 'Cube');
+                                voxel.parentId = base.id;
+                                voxel.category = 'SCAN_VOXEL';
+                                voxel.sca = {x: voxelSize * .95, y: voxelSize * .95, z: voxelSize * .95};
+                                voxel.loc = {x: startX + x * voxelSize, y: startY - y * voxelSize, z: layerZ};
+                                voxel.color = '#' + [pixels[index], pixels[index + 1], pixels[index + 2]]
+                                    .map(value => value.toString(16).padStart(2, '0')).join('');
+                                State.scene.push(voxel);
+                            }
+                        }
+                    });
+
+                    this.select(base.id);
+                    State.pushHistory();
+                    UI.refreshAll();
+                    UI.setStatusMsg(`2D → 3D kész: ${images.length} réteg.`);
+                }).catch(() => UI.setStatusMsg('A kép feldolgozása nem sikerült.'));
+            },
+
+            group: function() {
+                const ids = State.selectedIds.length ? [...State.selectedIds] : (State.activeId ? [State.activeId] : []);
+                if (ids.length < 2) {
+                    UI.setStatusMsg('A csoportosításhoz legalább két elem kell.');
+                    return;
+                }
+                const groupId = 'group_' + Date.now();
+                const groupNumber = State.scene.filter(o => o.groupId).length + 1;
+                State.scene.forEach(obj => {
+                    if (ids.includes(obj.id)) obj.groupId = groupId;
+                });
+                this.select(ids[0]);
+                State.pushHistory();
+                UI.setStatusMsg('Group ' + groupNumber + ' létrehozva. Alt-kattintással válassz egy elemet.');
+            },
+
+            ungroup: function() {
+                const ids = State.selectedIds.length ? State.selectedIds : (State.activeId ? [State.activeId] : []);
+                const groups = new Set(State.scene.filter(o => ids.includes(o.id) && o.groupId).map(o => o.groupId));
+                if (!groups.size) {
+                    UI.setStatusMsg('Nincs kijelölt csoport.');
+                    return;
+                }
+                State.scene.forEach(obj => {
+                    if (groups.has(obj.groupId)) obj.groupId = null;
+                });
+                State.pushHistory();
+                UI.refreshAll();
+                UI.setStatusMsg('Csoport megszüntetve.');
+            },
+
+            addWheel: function(side = 1, index = 0) {
+                const wheelCount = State.scene.filter(o => o.category === 'WHEEL').length;
+                const obj = new SceneObject('Wheel_' + (wheelCount + 1), 'Cylinder');
+                obj.category = 'WHEEL';
+                obj.color = '#303030';
+                obj.sca = {x: 16, y: 16, z: 8};
+                // A cylinder is created along Y; rotate it so the wheel axle points across the tank (X).
+                obj.rot.z = 90;
+                obj.loc = {x: side * 38, y: -8, z: -35 + index * 17};
+                obj.mirrorX = false;
+                State.scene.push(obj);
+                this.select(obj.id);
+                State.pushHistory();
+                UI.setStatusMsg('Wheel added to the track.');
+            },
+
+            addWheelPair: function() {
+                const index = Math.floor(State.scene.filter(o => o.category === 'WHEEL').length / 2);
+                this.addWheel(-1, index);
+                this.addWheel(1, index);
+                UI.setStatusMsg('Wheel pair added.');
+            },
+
+            addWheelSet: function() {
+                const start = Math.floor(State.scene.filter(o => o.category === 'WHEEL').length / 2);
+                for (let i = 0; i < 5; i++) {
+                    this.addWheel(-1, start + i);
+                    this.addWheel(1, start + i);
+                }
+                UI.setStatusMsg('Track wheel set added.');
+            },
+
+            addRobotPart: function(type) {
+                const sizes = {
+                    Head: {x:18,y:22,z:18, loc:{x:0,y:62,z:0}, color:'#9aa0a5'},
+                    Torso: {x:32,y:45,z:18, loc:{x:0,y:25,z:0}, color:'#59616a'},
+                    Arm: {x:9,y:36,z:9, loc:{x:42,y:25,z:0}, color:'#747b82'},
+                    Leg: {x:11,y:45,z:11, loc:{x:16,y:-30,z:0}, color:'#4b535b'},
+                    Joint: {x:12,y:12,z:12, loc:{x:0,y:0,z:0}, color:'#b6bdc2'}
+                };
+                const spec = sizes[type];
+                if (!spec) return;
+                const meshType = type === 'Joint' ? 'Sphere' : 'Cube';
+                const obj = new SceneObject('Robot_' + type + '_' + State.scene.length, meshType);
+                obj.category = 'ROBOT_PART'; obj.sca = {x:spec.x, y:spec.y, z:spec.z}; obj.loc = {...spec.loc}; obj.color = spec.color;
+                State.scene.push(obj); this.select(obj.id); State.pushHistory();
+                UI.setStatusMsg('Robot ' + type + ' added.');
+            },
+
+            addT800Setup: function() {
+                const parts = [
+                    ['Torso', 'Cube', {x:32,y:45,z:18}, {x:0,y:25,z:0}, '#59616a'],
+                    ['Head', 'Sphere', {x:18,y:22,z:18}, {x:0,y:62,z:0}, '#9aa0a5'],
+                    ['Arm_L', 'Cube', {x:9,y:36,z:9}, {x:-42,y:25,z:0}, '#747b82'],
+                    ['Arm_R', 'Cube', {x:9,y:36,z:9}, {x:42,y:25,z:0}, '#747b82'],
+                    ['Leg_L', 'Cube', {x:11,y:45,z:11}, {x:-16,y:-30,z:0}, '#4b535b'],
+                    ['Leg_R', 'Cube', {x:11,y:45,z:11}, {x:16,y:-30,z:0}, '#4b535b'],
+                    ['Neck', 'Cylinder', {x:9,y:8,z:9}, {x:0,y:48,z:0}, '#b6bdc2']
+                ];
+                let firstId = null;
+                parts.forEach(([name, meshType, sca, loc, color]) => {
+                    const obj = new SceneObject('T800_' + name, meshType);
+                    obj.category = 'ROBOT_PART'; obj.sca = sca; obj.loc = loc; obj.color = color;
+                    State.scene.push(obj); if (!firstId) firstId = obj.id;
+                });
+                this.select(firstId); State.pushHistory();
+                UI.setStatusMsg('T-800 frame added. Add arms/legs and shape the endoskeleton.');
+            },
+
+            addPart: function(type) {
+                let meshType = type === 'Wheel' || type === 'Barrel' ? 'Cylinder' : 'Cube';
+                let obj = new SceneObject(type + '_' + State.scene.length, meshType);
+                obj.category = 'TANK_PART'; obj.tankStats = {armor:100,hp:1000,speed:10,damage:100,reload:3,weight:50};
+                if (type === 'Hull') obj.sca = {x:60,y:20,z:90};
+                if (type === 'Turret') { obj.sca={x:40,y:15,z:50}; obj.loc.y=17; }
+                if (type === 'Barrel') { obj.sca={x:8,y:65,z:8}; obj.loc.z=58; obj.rot.x=90; obj.color='#25282b'; }
+                if (type === 'Hatch') { obj.sca={x:22,y:6,z:22}; obj.loc.y=28; obj.color='#303830'; obj.category='TANK_HATCH'; }
+                if (type === 'Track') { obj.sca={x:15,y:25,z:100}; obj.loc.x=40; obj.mirrorX=true; }
+                if (type === 'Wheel') { obj.sca={x:10,y:10,z:10}; obj.loc.y=-22; }
+                State.scene.push(obj); this.select(obj.id); State.pushHistory();
+            },
+
+            setTool: function(tool) {
+                State.tool = tool;
+                State.rotateAxis = tool === 'ROTATE' ? (State.rotateAxis || 'Y') : null;
+                ['move','rotate','scale'].forEach(t => {
+                    const active = t.toUpperCase() === tool;
+                    document.getElementById('tool-'+t).classList.toggle('active', active);
+                    document.getElementById('tool-'+t+'-left').classList.toggle('active', active);
+                });
+                document.getElementById('tool-select').classList.remove('active');
+                document.getElementById('gizmo').classList.toggle('on', !!State.activeId && tool === 'MOVE');
+                document.getElementById('rotation-gizmo').classList.toggle('on', !!State.activeId && tool === 'ROTATE');
+                document.getElementById('rotate-controls').classList.toggle('on', tool === 'ROTATE');
+                UI.updateGizmo();
+                UI.setStatusMsg(tool + ' tool active.');
+            },
+            rotateStep: function(axis, amount) {
+                const ids = this.getMoveIds();
+                if (!ids.length) { UI.setStatusMsg('Jelölj ki egy objektumot.'); return; }
+                State.tool = 'ROTATE';
+                State.rotateAxis = axis;
+                State.scene.filter(obj => ids.includes(obj.id)).forEach(obj => {
+                    obj.rot[axis.toLowerCase()] += amount;
+                    if (State.snap) obj.rot[axis.toLowerCase()] = Math.round(obj.rot[axis.toLowerCase()] / 15) * 15;
+                });
+                UI.refreshAll();
+                UI.setStatusMsg(`${axis} tengely: ${amount > 0 ? '+' : ''}${amount}°`);
+                State.pushHistory();
+            },
+            toggleSnap: function() {
+                State.snap = !State.snap;
+                document.getElementById('snap-toggle').innerText = 'Grid: ' + (State.snap ? 'On' : 'Off');
+            },
+            toggleObjectSnap: function() {
+                State.objectSnap = !State.objectSnap;
+                document.getElementById('object-snap-toggle').innerText = 'Object: ' + (State.objectSnap ? 'On' : 'Off');
+                UI.setStatusMsg(State.objectSnap ? 'Object snapping enabled. Grid can stay Off.' : 'Object snapping disabled.');
+            },
+            toggleContactSnap: function() {
+                State.contactSnap = !State.contactSnap;
+                document.getElementById('contact-snap-toggle').innerText = 'Contact: ' + (State.contactSnap ? 'On' : 'Off');
+                UI.setStatusMsg(State.contactSnap ? 'Contact wall enabled.' : 'Contact wall disabled.');
+            },
+            simulateShortcut: function(key) {
+                let tool = {G:'MOVE', R:'ROTATE', S:'SCALE'}[key];
+                if (tool) this.setTool(tool);
+            },
+            setRotateAxis: function(axis) {
+                if (State.tool !== 'ROTATE') this.setTool('ROTATE');
+                State.rotateAxis = axis;
+                UI.setStatusMsg('Rotate axis: ' + axis);
+            },
+
+            getMoveIds: function() {
+                const ids = new Set(State.selectedIds.length ? State.selectedIds : (State.activeId ? [State.activeId] : []));
+                let changed = true;
+                while (changed) {
+                    changed = false;
+                    State.scene.forEach(obj => {
+                        const parent = State.scene.find(item => item.id === obj.parentId);
+                        const groupSelected = obj.groupId && [...ids].some(id => {
+                            const selected = State.scene.find(item => item.id === id);
+                            return selected && selected.groupId === obj.groupId;
+                        });
+                        const parentSelected = parent && ids.has(parent.id);
+                        if ((groupSelected || parentSelected) && !ids.has(obj.id)) {
+                            ids.add(obj.id);
+                            changed = true;
+                        }
+                    });
+                }
+                return [...ids];
+            },
+
+            // Egy összetett tanknál csak a legfelső elemeket mozgatjuk.
+            // Így a parent a gyerekeket magával viszi, de a gyerek nem mozdul el
+            // még egyszer külön is, ezért az alkatrészek nem csúsznak egymásba.
+            getMoveRoots: function() {
+                const ids = new Set(this.getMoveIds());
+                return [...ids].filter(id => {
+                    const obj = State.scene.find(item => item.id === id);
+                    return obj && !ids.has(obj.parentId);
+                });
+            },
+
+            nudge: function(dx, dy, dz, large = false) {
+                const active = State.scene.find(o => o.id === State.activeId);
+                if (!active) return;
+                const step = large ? 5 : 1;
+                const members = this.getMoveRoots();
+                const collisionObject = State.scene.find(o => o.id === members[0]) || active;
+                const previous = {...collisionObject.loc};
+                State.scene.filter(o => members.includes(o.id)).forEach(obj => {
+                    obj.loc.x += dx * step;
+                    obj.loc.y += dy * step;
+                    obj.loc.z += dz * step;
+                });
+                this.constrainContact(collisionObject, previous);
+                if (State.snap) {
+                    State.scene.filter(o => members.includes(o.id)).forEach(obj => {
+                        obj.loc.x = Math.round(obj.loc.x / 5) * 5;
+                        obj.loc.y = Math.round(obj.loc.y / 5) * 5;
+                        obj.loc.z = Math.round(obj.loc.z / 5) * 5;
+                    });
+                }
+                UI.refreshAll();
+                UI.setStatusMsg(`Moved ${step} unit${step > 1 ? 's' : ''}.`);
+            },
+
+            constrainContact: function(obj, previous) {
+                if ((!State.contactSnap && !State.objectSnap) || !previous) return;
+
+                // Mindkét objektum teljes térbeli doboz. A Contact nem engedi,
+                // hogy a mozgatott doboz átlépje a fal külső síkját.
+                const before = Engine.getObjectBounds({...obj, loc: previous});
+                let current = Engine.getObjectBounds(obj);
+                if (!before || !current) return;
+                const magnetDistance = 10;
+                const axes = ['x', 'y', 'z'];
+
+                const overlapsOnOtherAxes = (a, b, axis) =>
+                    axes.filter(key => key !== axis).every(key =>
+                        a.min[key] < b.max[key] && a.max[key] > b.min[key]
+                    );
+
+                axes.forEach(axis => {
+                    const movement = current.min[axis] - before.min[axis];
+                    if (Math.abs(movement) < 0.0001) return;
+
+                    State.scene.forEach(other => {
+                        if (other.id === obj.id || other.parentId === obj.id || obj.parentId === other.id) return;
+                        const wall = Engine.getObjectBounds(other);
+                        if (!overlapsOnOtherAxes(current, wall, axis)) return;
+
+                        let correction = 0;
+                        if (movement > 0) {
+                            const gap = wall.min[axis] - current.max[axis];
+                            const crossed = before.max[axis] <= wall.min[axis] && current.max[axis] >= wall.min[axis];
+                            if (State.contactSnap && crossed) correction = gap;
+                            else if (State.objectSnap && gap >= 0 && gap <= magnetDistance) correction = gap;
+                        } else {
+                            const gap = current.min[axis] - wall.max[axis];
+                            const crossed = before.min[axis] >= wall.max[axis] && current.min[axis] <= wall.max[axis];
+                            if (State.contactSnap && crossed) correction = -gap;
+                            else if (State.objectSnap && gap >= 0 && gap <= magnetDistance) correction = -gap;
+                        }
+
+                        if (correction) {
+                            obj.loc[axis] += correction;
+                            current = Engine.getObjectBounds(obj);
+                        }
+                    });
+                });
+            },
+
+            // Beépített, fájlmentés nélkül használható tankmodell-könyvtár.
+            loadModelPreset: function(name) {
+                State.scene = [];
+                State.selectedIds = [];
+                State.activeId = null;
+                if (name === 't800') {
+                    this.addT800Setup();
+                    UI.setStatusMsg('T-800 betöltve a modellkönyvtárból.');
+                    return;
+                }
+
+                const heavy = name === 'tank3';
+                const root = new SceneObject(name === 'tank2' ? 'Tank2_Root' : heavy ? 'Tank3_Root' : 'Tank1_Root', 'Cube');
+                root.category = 'TANK_ROOT';
+                root.sca = {x: 1, y: 1, z: 1};
+                root.mesh.vertices = []; root.mesh.faces = [];
+
+                const h = new SceneObject(name === 'tank2' ? 'Tank2_Hull' : heavy ? 'Tank3_Hull' : 'Tank1_Hull', 'Cube');
+                h.parentId = root.id;
+                h.category = 'TANK_ROOT';
+                h.sca = heavy ? {x:72, y:25, z:105} : {x:60, y:20, z:90};
+                h.color = heavy ? '#4b4540' : '#4a5a4a';
+                h.tankStats = {armor:100, hp:1000, speed:10, damage:100, reload:3, weight:50};
+
+                const t = new SceneObject(name === 'tank2' ? 'Tank2_Turret' : 'Tank1_Turret', 'Cube');
+                t.category = 'TANK_PART'; t.parentId = h.id;
+                t.sca = heavy ? {x:48, y:18, z:58} : {x:40, y:15, z:50};
+                t.loc = {x:0, y: heavy ? 21 : 17, z:0}; t.color = heavy ? '#3d4148' : '#3a404a';
+
+                const b = new SceneObject(name === 'tank2' ? 'Tank2_Barrel' : 'Tank1_Barrel', 'Cylinder');
+                b.category = 'TANK_PART'; b.parentId = t.id;
+                b.sca = {x:8, y:60, z:8}; b.rot = {x:90, y:0, z:0};
+                b.loc = {x:0, y:0, z:55}; b.color = '#25282b';
+
+                const leftTrack = new SceneObject(name === 'tank2' ? 'Tank2_Track_L' : 'Tank1_Track_L', 'Cube');
+                leftTrack.category = 'TANK_PART'; leftTrack.parentId = h.id;
+                leftTrack.sca = {x:15, y:25, z:100}; leftTrack.loc = {x:-40, y:-5, z:0}; leftTrack.color = '#222222';
+
+                const rightTrack = new SceneObject(name === 'tank2' ? 'Tank2_Track_R' : 'Tank1_Track_R', 'Cube');
+                rightTrack.category = 'TANK_PART'; rightTrack.parentId = h.id;
+                rightTrack.sca = {x:15, y:25, z:100}; rightTrack.loc = {x:40, y:-5, z:0}; rightTrack.color = '#222222';
+
+                const parts = [root, h, t, b, leftTrack, rightTrack];
+                if (name === 'tank2' || heavy) {
+                    const hatch = new SceneObject((heavy ? 'Tank3' : 'Tank2') + '_Hatch', 'Cube');
+                    hatch.category = 'TANK_HATCH'; hatch.parentId = t.id;
+                    hatch.sca = {x:22, y:6, z:22}; hatch.loc = {x:0, y:14, z:0};
+                    hatch.rot = {x:0, y:18, z:0}; hatch.color = '#303830';
+                    parts.push(hatch);
+
+                    for (let i = 0; i < (heavy ? 6 : 5); i++) {
+                        [-1, 1].forEach(side => {
+                            const wheel = new SceneObject(`Tank2_Wheel_${side < 0 ? 'L' : 'R'}${i + 1}`, 'Cylinder');
+                            wheel.category = 'WHEEL'; wheel.parentId = h.id;
+                            wheel.sca = {x:16, y:16, z:8}; wheel.rot = {x:0, y:0, z:90};
+                            wheel.loc = {x:side * 38, y:-12, z:-35 + i * 17}; wheel.color = '#303030';
+                            parts.push(wheel);
+                        });
+                    }
+                }
+
+                State.scene.push(...parts);
+                this.select(root.id);
+                State.pushHistory();
+                UI.refreshAll();
+                UI.setStatusMsg((name === 'tank2' ? 'Tank 2' : heavy ? 'Tank 3' : 'Tank 1') + ' betöltve a modellkönyvtárból.');
+            },
+
+            addTankSetup: function() {
+                this.loadModelPreset('tank1');
+            },
+
+            saveCurrentModel: function() {
+                if (!State.scene.length) { UI.setStatusMsg('Nincs menthető modell.'); return; }
+                const name = prompt('Modell neve:', 'Saját tank ' + new Date().toLocaleTimeString());
+                if (!name) return;
+                const models = JSON.parse(localStorage.getItem('kasza3d-models') || '{}');
+                models[name] = JSON.parse(JSON.stringify(State.scene));
+                localStorage.setItem('kasza3d-models', JSON.stringify(models));
+                UI.setStatusMsg('Modell elmentve: ' + name);
+            },
+
+            loadSavedModel: function() {
+                const models = JSON.parse(localStorage.getItem('kasza3d-models') || '{}');
+                const names = Object.keys(models);
+                if (!names.length) { UI.setStatusMsg('Még nincs saját mentett modell.'); return; }
+                const name = prompt('Betöltendő modell neve:\n' + names.join('\n'), names[0]);
+                if (!name || !models[name]) { UI.setStatusMsg('A modell nem található.'); return; }
+                State.scene = JSON.parse(JSON.stringify(models[name]));
+                State.selectedIds = []; State.activeId = null;
+                State.pushHistory(); UI.refreshAll();
+                UI.setStatusMsg('Saját modell betöltve: ' + name);
+            },
+
+            deleteSavedModel: function() {
+                const models = JSON.parse(localStorage.getItem('kasza3d-models') || '{}');
+                const names = Object.keys(models);
+                if (!names.length) { UI.setStatusMsg('Nincs törölhető saját modell.'); return; }
+                const name = prompt('Törlendő modell neve:\n' + names.join('\n'), names[0]);
+                if (!name || !models[name]) return;
+                delete models[name]; localStorage.setItem('kasza3d-models', JSON.stringify(models));
+                UI.setStatusMsg('Modell törölve: ' + name);
+            },
+
+            selectAll: function() {
+                State.selectedIds = State.scene.map(obj => obj.id);
+                State.activeId = State.scene.length ? State.scene[State.scene.length - 1].id : null;
+                UI.refreshAll();
+                UI.setStatusMsg('All objects selected.');
+            },
+
+            deselectAll: function() {
+                State.selectedIds = [];
+                State.activeId = null;
+                UI.refreshAll();
+                UI.setStatusMsg('Selection cleared.');
+            },
+
+            selectBox: function(left, top, right, bottom, keep=false, baseIds=[]) {
+                const hits = new Set();
+                Engine.renderedPolygons.forEach(poly => {
+                    if (poly.points.some(point => point.x >= left && point.x <= right && point.y >= top && point.y <= bottom) ||
+                        Math3D.pointInPoly([left, top], poly.points) || Math3D.pointInPoly([right, bottom], poly.points)) {
+                        hits.add(poly.objId);
+                    }
+                });
+                const ids = [...hits];
+                State.selectedIds = keep ? [...baseIds] : [];
+                ids.forEach(id => {
+                    if (!State.selectedIds.includes(id)) State.selectedIds.push(id);
+                });
+                State.activeId = ids.length ? ids[ids.length - 1] : (State.selectedIds[State.selectedIds.length - 1] || null);
+                UI.refreshAll();
+            },
+
+            select: function(id, keep=false, selectChild=false) {
+                if (!id) { State.selectedIds=[]; State.activeId=null; }
+                else {
+                    const obj = State.scene.find(o => o.id === id);
+                    const groupMembers = obj && obj.groupId && !selectChild
+                        ? State.scene.filter(o => o.groupId === obj.groupId).map(o => o.id)
+                        : [id];
+                    if(!keep) State.selectedIds = groupMembers;
+                    else groupMembers.forEach(memberId => {
+                        if(!State.selectedIds.includes(memberId)) State.selectedIds.push(memberId);
+                    });
+                    State.activeId = id;
+                }
+                document.getElementById('gizmo').classList.toggle('on', !!State.activeId && State.tool === 'MOVE');
+                document.getElementById('rotation-gizmo').classList.toggle('on', !!State.activeId && State.tool === 'ROTATE');
+                UI.refreshAll();
+            },
+
+            delete: function() { State.scene = State.scene.filter(o => !State.selectedIds.includes(o.id)); this.select(null); State.pushHistory(); },
+
+            duplicate: function() {
+                if (!State.activeId) return;
+                let act = State.scene.find(o=>o.id===State.activeId);
+                let clone = JSON.parse(JSON.stringify(act));
+                clone.id = 'obj_' + Date.now(); clone.name += "_copy"; clone.loc.x += 10;
+                State.scene.push(clone); this.select(clone.id); State.pushHistory();
+            },
+
+            toggleProjection: function() {
+                State.cam.projection = State.cam.projection === 'ORTHO' ? 'PERSPECTIVE' : 'ORTHO';
+                const button = document.getElementById('camera-projection');
+                button.innerText = State.cam.projection === 'ORTHO' ? 'ORTHOGRAPHIC' : 'PERSPECTIVE';
+                UI.setStatusMsg(State.cam.projection === 'ORTHO' ? 'Orthographic camera enabled.' : 'Perspective camera enabled.');
+            },
+
+            setMode: function(mode) {
+                State.mode = mode;
+                if (mode !== 'EDIT') State.faceSelection = null;
+                document.getElementById('mode-obj').classList.toggle('active', mode==='OBJECT'); document.getElementById('mode-edit').classList.toggle('active', mode==='EDIT');
+                document.getElementById('edit-controls').classList.toggle('on', mode === 'EDIT');
+                UI.updateStatusBar(); Engine.draw();
+            },
+            clearFaceSelection: function() { State.faceSelection = null; Engine.draw(); UI.setStatusMsg('Lap kijelölés törölve.'); },
+            updateLight: function() {
+                State.light.angle = Number(document.getElementById('light-angle').value);
+                State.light.strength = Number(document.getElementById('light-strength').value) / 100;
+                Engine.draw();
+            },
+            extrudeFace: function() {
+                const obj = State.scene.find(o => o.id === State.activeId);
+                const index = State.faceSelection;
+                if (!obj || index === null || index === undefined || !obj.mesh.faces[index]) {
+                    UI.setStatusMsg('EDIT módban jelölj ki egy lapot.'); return;
+                }
+                const face = obj.mesh.faces[index];
+                const verts = face.v.map(i => obj.mesh.vertices[i]);
+                if (verts.length < 3) return;
+                const a = verts[1].map((v,i) => v - verts[0][i]);
+                const b = verts[2].map((v,i) => v - verts[0][i]);
+                let n = [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
+                const len = Math.hypot(...n) || 1; n = n.map(v => v / len);
+                const distance = Number(document.getElementById('extrude-distance').value) || 10;
+                const newIndices = face.v.map(i => { const v = obj.mesh.vertices[i]; obj.mesh.vertices.push([v[0]+n[0]*distance, v[1]+n[1]*distance, v[2]+n[2]*distance]); return obj.mesh.vertices.length - 1; });
+                const old = face.v.slice();
+                face.v = newIndices.slice();
+                for (let i=0; i<old.length; i++) obj.mesh.faces.push({v:[old[i], old[(i+1)%old.length], newIndices[(i+1)%old.length], newIndices[i]], s: face.s || 0});
+                obj.mesh.faces[index].s = face.s || 0;
+                State.faceSelection = index; State.pushHistory(); UI.refreshAll(); UI.setStatusMsg('Face extruded.');
+            },
+
+            setShading: function(shade) {
+                State.shading = shade;
+                document.getElementById('shade-solid').classList.toggle('active', shade==='SOLID'); document.getElementById('shade-wire').classList.toggle('active', shade==='WIRE');
+            },
+
+            setView: function(view) {
+                // A nézetváltás mindig visszarajzolja a vásznat, és lenullázza az elcsúszott kamerát.
+                State.cam.panX = 0;
+                State.cam.panY = 0;
+                State.cam.zoom = 500;
+                if(view === 'front') { State.cam.rx = 0; State.cam.ry = 0; }
+                else if(view === 'right') { State.cam.rx = 0; State.cam.ry = -Math.PI / 2; }
+                else if(view === 'top') { State.cam.rx = Math.PI / 2; State.cam.ry = 0; }
+                else { State.cam.rx = 0.5; State.cam.ry = -0.5; }
+                Engine.draw();
+            },
+            
+            // ÚJ: Nagyító UI Gombok (Zoom)
+            zoomIn: function() {
+                // Közelítés: a kamera távolsága csökken.
+                State.cam.zoom = Math.max(200, State.cam.zoom * 0.8);
+            },
+            zoomOut: function() {
+                // Távolítás: a kamera távolsága nő.
+                State.cam.zoom = Math.min(3000, State.cam.zoom * 1.25);
+            },
+
+            undo: function() { State.undo(); },
+            redo: function() { State.redo(); },
+                        applyTransform: function() {
+                let obj = State.scene.find(o => o.id === State.activeId); if (!obj) return;
+                const origin = {x:0, y:0, z:0};
+                obj.mesh.vertices = obj.mesh.vertices.map(v => Math3D.transformPoint(v, origin, obj.rot, obj.sca));
+                obj.rot = {x:0, y:0, z:0};
+                obj.sca = {x:1, y:1, z:1};
+                State.pushHistory(); UI.refreshAll(); UI.setStatusMsg('Rotation and scale applied.');
+            },
+            exportJSON: function() {
+                let data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({scene:State.scene, camera:State.cam}, null, 2));
+                let a = document.createElement('a'); a.href = data; a.download = "tank-scene.json"; a.click();
+            },
+            importJSON: function() {
+                let input = document.createElement('input'); input.type = 'file'; input.accept = '.json,application/json';
+                input.onchange = e => { let file=e.target.files[0]; if(!file) return; let reader=new FileReader();
+                    reader.onload = ev => { try { let data=JSON.parse(ev.target.result); State.scene=data.scene || data; if(data.camera) State.cam=data.camera; State.selectedIds=[]; State.activeId=null; State.pushHistory(); UI.refreshAll(); UI.setStatusMsg('Scene imported.'); } catch(err) { UI.setStatusMsg('Invalid JSON file.'); } };
+                    reader.readAsText(file);
+                }; input.click();
+            }
+        };
+
+        // --- 7. F3 COMMAND SEARCH ---
+        const F3 = {
+            modal: document.getElementById('f3-modal'), input: document.getElementById('f3-search'), list: document.getElementById('f3-results'),
+            commands: [
+                { k: "Add Cube", act: () => Cmd.addMesh('Cube') }, { k: "Add Cylinder", act: () => Cmd.addMesh('Cylinder') }, { k: "Add Sphere", act: () => Cmd.addMesh('Sphere') },
+                { k: "Delete", act: () => Cmd.delete() }, { k: "Duplicate", act: () => Cmd.duplicate() },
+                { k: "Select All", act: () => Cmd.selectAll() }, { k: "Deselect All", act: () => Cmd.deselectAll() },
+                { k: "Front View", act: () => Cmd.setView('front') }, { k: "Top View", act: () => Cmd.setView('top') },
+                { k: "Toggle Edit Mode", act: () => Cmd.setMode(State.mode==='OBJECT'?'EDIT':'OBJECT') }
+            ],
+            show: function() { this.modal.style.display = 'flex'; this.input.value = ''; this.renderList(); setTimeout(()=>this.input.focus(), 50); },
+            hide: function() { this.modal.style.display = 'none'; document.getElementById('viewport-wrapper').focus(); },
+            renderList: function() {
+                let term = this.input.value.toLowerCase(); let matches = this.commands.filter(c => c.k.toLowerCase().includes(term));
+                this.list.innerHTML = matches.map((c,i) => `<div class="f3-item ${i===0?'selected':''}" onclick="F3.executeCmd('${c.k}')">${c.k}</div>`).join('');
+            },
+            executeCmd: function(name) { let cmd = this.commands.find(c => c.k === name); if(cmd) { cmd.act(); this.hide(); } }
+        };
+
+        F3.input.addEventListener('input', () => F3.renderList());
+        F3.input.addEventListener('keydown', (e) => { if(e.key === 'Enter') { let first = F3.list.querySelector('.f3-item'); if(first) first.click(); } if(e.key === 'Escape') F3.hide(); });
+
+        // --- 8. INPUT HANDLING (Mouse Selection & Raycasting) ---
+        let Input = {
+            isDragging: false, isPanning: false, isMovingObj: false, isBoxSelecting: false, gizmoAxis: null, lx: 0, ly: 0, selectStartX: 0, selectStartY: 0, selectBase: [],
+            
+            init: function() {
+                let cvs = Engine.canvas;
+                const gizmo = document.getElementById('gizmo');
+                gizmo.querySelectorAll('span[data-axis]').forEach(axis => axis.addEventListener('mousedown', e => {
+                    if (!State.activeId || State.tool !== 'MOVE') return;
+                    e.preventDefault(); e.stopPropagation();
+                    this.isDragging = true; this.isMovingObj = true; this.gizmoAxis = axis.dataset.axis;
+                    this.lx = e.clientX; this.ly = e.clientY;
+                    cvs.style.cursor = 'grabbing';
+                }));
+                
+                // EGÉR MOZGATÁS ÉS HOVER
+                cvs.addEventListener('mousemove', e => {
+                    let rect = cvs.getBoundingClientRect();
+                    let mx = e.clientX - rect.left, my = e.clientY - rect.top;
+                    
+                    // Hover (Rámutatás) Raycast
+                    let hoverHit = null;
+                    for(let i = Engine.renderedPolygons.length - 1; i >= 0; i--) {
+                        if(Math3D.pointInPoly([mx, my], Engine.renderedPolygons[i].points)) { hoverHit = Engine.renderedPolygons[i].objId; break; }
+                    }
+                    State.hoverId = hoverHit; 
+                    cvs.style.cursor = hoverHit ? (this.isDragging ? 'grabbing' : 'pointer') : (this.isDragging ? 'grabbing' : 'default');
+
+                    if(!this.isDragging) return;
+
+                    let dx = e.clientX - this.lx, dy = e.clientY - this.ly;
+
+                    if (this.isBoxSelecting) {
+                        const left = Math.min(this.selectStartX, mx), top = Math.min(this.selectStartY, my);
+                        const width = Math.abs(mx - this.selectStartX), height = Math.abs(my - this.selectStartY);
+                        const box = document.getElementById('selection-rectangle');
+                        box.style.left = `${left}px`; box.style.top = `${top}px`;
+                        box.style.width = `${width}px`; box.style.height = `${height}px`;
+                        Cmd.selectBox(left, top, left + width, top + height, true, this.selectBase);
+                        this.lx = e.clientX; this.ly = e.clientY;
+                        return;
+                    }
+                    
+                    if(this.isMovingObj && State.activeId) {
+                        let obj = State.scene.find(o => o.id === State.activeId);
+                        if(obj) {
+                            const moveIds = Cmd.getMoveRoots();
+                            const amount = (dx + dy) * 0.5;
+                            if (this.gizmoAxis) {
+                                const previous = {...obj.loc};
+                                const axisAmount = (this.gizmoAxis === 'y' ? -dy : dx) * 0.5;
+                                State.scene.filter(item => moveIds.includes(item.id)).forEach(item => {
+                                    item.loc[this.gizmoAxis] += axisAmount;
+                                    if (State.snap) item.loc[this.gizmoAxis] = Math.round(item.loc[this.gizmoAxis] / 5) * 5;
+                                });
+                                const root = State.scene.find(item => item.id === moveIds[0]) || obj;
+                                Cmd.constrainContact(root, previous);
+                                UI.updateProperties();
+                                Engine.draw();
+                                this.lx = e.clientX; this.ly = e.clientY;
+                                return;
+                            }
+                            if (State.tool === 'ROTATE') {
+                                // R után X/Y/Z billentyűvel választható tengely; alapértelmezés Y.
+                                const axis = State.rotateAxis || 'Y';
+                                State.scene.filter(item => moveIds.includes(item.id)).forEach(item => {
+                                    const amount = (axis === 'Y' ? dx : dy) * 0.8;
+                                    item.rot[axis.toLowerCase()] += amount;
+                                });
+                                if (State.snap) {
+                                    State.scene.filter(item => moveIds.includes(item.id)).forEach(item => {
+                                        const key = axis.toLowerCase();
+                                        item.rot[key] = Math.round(item.rot[key] / 15) * 15;
+                                    });
+                                }
+                            } else if (State.tool === 'SCALE') {
+                                // Uniform scale by default; Shift allows vertical-only scaling.
+                                const factor = Math.max(0.05, 1 + amount * 0.01);
+                                State.scene.filter(item => moveIds.includes(item.id)).forEach(item => {
+                                    if (e.shiftKey) item.sca.y = Math.max(0.05, item.sca.y * factor);
+                                    else {
+                                        item.sca.x = Math.max(0.05, item.sca.x * factor);
+                                        item.sca.y = Math.max(0.05, item.sca.y * factor);
+                                        item.sca.z = Math.max(0.05, item.sca.z * factor);
+                                    }
+                                });
+                                if (State.snap) {
+                                    obj.sca.x = Math.max(0.05, Math.round(obj.sca.x));
+                                    obj.sca.y = Math.max(0.05, Math.round(obj.sca.y));
+                                    obj.sca.z = Math.max(0.05, Math.round(obj.sca.z));
+                                }
+                            } else if (e.shiftKey) {
+                                State.scene.filter(item => moveIds.includes(item.id)).forEach(item => { item.loc.y -= dy * 0.2; });
+                            } else {
+                                const moveX = (dx*Math.cos(State.cam.ry) + dy*Math.sin(State.cam.ry))*0.5;
+                                const moveZ = (-dx*Math.sin(State.cam.ry) + dy*Math.cos(State.cam.ry))*0.5;
+                                State.scene.filter(item => moveIds.includes(item.id)).forEach(item => {
+                                    item.loc.x += moveX;
+                                    item.loc.z += moveZ;
+                                });
+                            }
+                            // Húzás közben is működjön a mágneses illesztés, ne csak nyilaknál.
+                            if (State.tool === 'MOVE') {
+                                const beforeContact = {
+                                    x: obj.loc.x - (dx*Math.cos(State.cam.ry) + dy*Math.sin(State.cam.ry))*0.5,
+                                    y: obj.loc.y + (e.shiftKey ? dy * 0.2 : 0),
+                                    z: obj.loc.z - (-dx*Math.sin(State.cam.ry) + dy*Math.cos(State.cam.ry))*0.5
+                                };
+                                this.lastDragPosition = this.lastDragPosition || beforeContact;
+                                const root = State.scene.find(item => item.id === moveIds[0]) || obj;
+                                Cmd.constrainContact(root, this.lastDragPosition);
+                                this.lastDragPosition = {...root.loc};
+                            }
+                            if (State.tool === 'MOVE' && State.snap) {
+                                obj.loc.x = Math.round(obj.loc.x / 5) * 5;
+                                obj.loc.y = Math.round(obj.loc.y / 5) * 5;
+                                obj.loc.z = Math.round(obj.loc.z / 5) * 5;
+                            }
+                            UI.updateProperties();
+                            Engine.draw();
+                        }
+                    } else if(this.isPanning) {
+                        State.cam.panX += dx; State.cam.panY += dy;
+                        Engine.draw();
+                    } else {
+                        State.cam.ry += dx * 0.01; State.cam.rx += dy * 0.01;
+                        Engine.draw();
+                    }
+                    this.lx = e.clientX; this.ly = e.clientY;
+                });
+
+                // EGÉR KATTINTÁS (Kijelölés)
+                cvs.addEventListener('mousedown', e => {
+                    let rect = cvs.getBoundingClientRect();
+                    let mx = e.clientX - rect.left, my = e.clientY - rect.top;
+
+                    this.lx = e.clientX; this.ly = e.clientY;
+                    this.selectStartX = mx; this.selectStartY = my;
+                    this.selectBase = e.shiftKey ? [...State.selectedIds] : [];
+                    this.isDragging = true;
+                    this.isBoxSelecting = e.button === 0 && e.shiftKey && State.mode === 'OBJECT';
+                    this.lastDragPosition = null;
+                    this.isPanning = !this.isBoxSelecting && (e.button === 1 || e.button === 2); 
+
+                    if (this.isBoxSelecting) {
+                        const box = document.getElementById('selection-rectangle');
+                        box.style.display = 'block';
+                        box.style.left = `${mx}px`; box.style.top = `${my}px`;
+                        box.style.width = '0px'; box.style.height = '0px';
+                        return;
+                    }
+
+                    if (!this.isPanning && State.mode === 'EDIT') {
+                        const hit = Engine.renderedPolygons.slice().reverse().find(poly => Math3D.pointInPoly([mx, my], poly.points) && poly.objId === State.activeId);
+                        if (hit) { State.faceSelection = hit.faceIndex; Engine.draw(); UI.setStatusMsg('Face selected. Állítsd a távolságot és nyomd meg: Extrude Face.'); }
+                        return;
+                    }
+                    if (!this.isPanning && State.mode === 'OBJECT') {
+                        if(State.hoverId) { 
+                            const hitObject = State.scene.find(o => o.id === State.hoverId);
+                            Cmd.select(State.hoverId, e.ctrlKey, e.altKey);
+                            this.isMovingObj = true; 
+                        }
+                        else { Cmd.select(null); }
+                    }
+                });
+
+                window.addEventListener('mouseup', () => { 
+                    if (this.isBoxSelecting) {
+                        document.getElementById('selection-rectangle').style.display = 'none';
+                    }
+                    if(this.isMovingObj) { State.pushHistory(); UI.updateProperties(); }
+                    this.isDragging = false; this.isPanning = false; this.isMovingObj = false; this.isBoxSelecting = false; this.gizmoAxis = null; this.lastDragPosition = null;
+                    cvs.style.cursor = 'default';
+                });
+
+                // GÖRGŐ (Zoom): előre közelít, hátra távolít.
+                cvs.addEventListener('wheel', e => {
+                    e.preventDefault();
+                    const zoomFactor = e.deltaY < 0 ? 0.88 : 1.14;
+                    State.cam.zoom = Math.max(200, Math.min(3000, State.cam.zoom * zoomFactor));
+                    Engine.draw();
+                }, {passive: false});
+
+                // BILLENTYŰZET (Shortcuts)
+                document.addEventListener('keydown', e => {
+                    // A nyilak ne írják át a tulajdonságmezőket vagy az F3 keresőt.
+                    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+                    let k = e.key.toLowerCase();
+                    if(k === 'f3') { e.preventDefault(); F3.show(); }
+                    if(k === 'tab') { e.preventDefault(); Cmd.setMode(State.mode==='OBJECT'?'EDIT':'OBJECT'); }
+                    if(k === 'delete' || k === 'x') { Cmd.delete(); }
+                    if(k === 'z' && e.ctrlKey && !e.shiftKey) { Cmd.undo(); }
+                    if(k === 'z' && e.ctrlKey && e.shiftKey) { Cmd.redo(); }
+                    if(k === 'd' && e.shiftKey) { Cmd.duplicate(); }
+                    if(k === 'a' && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); Cmd.selectAll(); }
+                    if(k === 'a' && e.altKey) { e.preventDefault(); Cmd.deselectAll(); }
+                    if(k === 'g' && e.ctrlKey && !e.shiftKey) { e.preventDefault(); Cmd.group(); return; }
+                    if(k === 'g' && e.ctrlKey && e.shiftKey) { e.preventDefault(); Cmd.ungroup(); return; }
+                    if(k === 'g') Cmd.setTool('MOVE');
+                    if(k === 'r') Cmd.setTool('ROTATE');
+                    if(k === 's') Cmd.setTool('SCALE');
+                    if (State.tool === 'ROTATE' && ['x', 'y', 'z'].includes(k)) {
+                        e.preventDefault();
+                        Cmd.setRotateAxis(k.toUpperCase());
+                    }
+
+                    // Nyilakkal finoman mozgatható az aktív elem; Shift = nagyobb lépés.
+                    const nudgeKeys = {
+                        ArrowLeft:  [-1, 0, 0],
+                        ArrowRight: [ 1, 0, 0],
+                        ArrowUp:    [ 0, 0,-1],
+                        ArrowDown:  [ 0, 0, 1]
+                    };
+                    if (nudgeKeys[e.key] && State.activeId) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const [nx, ny, nz] = nudgeKeys[e.key];
+                        Cmd.nudge(nx, ny, nz, e.shiftKey);
+                    }
+                    if (k === 'pageup' && State.activeId) {
+                        e.preventDefault();
+                        Cmd.nudge(0, 1, 0, e.shiftKey);
+                    }
+                    if (k === 'pagedown' && State.activeId) {
+                        e.preventDefault();
+                        Cmd.nudge(0, -1, 0, e.shiftKey);
+                    }
+                    
+                    if(k === '1') Cmd.setView('front');
+                    if(k === '3') Cmd.setView('right');
+                    if(k === '7') Cmd.setView('top');
+                    if(k === '0') Cmd.setView('reset');
+                    if(k === '5') Cmd.toggleProjection();
+                });
+            }
+        };
+
+        // --- BOOT ---
+        window.onload = () => {
+            const viewport = document.getElementById('viewport-wrapper');
+            Engine.resize();
+            Input.init();
+            Cmd.addTankSetup();
+            State.pushHistory();
+            UI.init();
+            Engine.draw();
+
+            // A panelek átméretezése után is pontos maradjon a canvas belső mérete.
+            window.addEventListener('resize', () => Engine.resize());
+            if (window.ResizeObserver) {
+                new ResizeObserver(() => Engine.resize()).observe(viewport);
+            }
+        };
+    </script>
+</body>
+</html>
