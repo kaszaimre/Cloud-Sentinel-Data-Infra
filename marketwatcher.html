@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="hu">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0e11" />
+    <title>Crypto Terminal — BTC/USD</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Crypto Terminal főoldal">
+          <span class="brand-mark">₿</span>
+          <span>crypto<span class="brand-light">terminal</span></span>
+        </a>
+        <nav class="main-nav" aria-label="Fő navigáció">
+          <a class="active" href="#market">Piacok</a>
+          <a href="#chart">Grafikon</a>
+          <a href="#watchlist">Figyelőlista</a>
+        </nav>
+        <div class="top-actions">
+          <span class="market-status"><i></i> Piac nyitva</span>
+          <button class="avatar" aria-label="Profil">A</button>
+        </div>
+      </header>
+
+      <main id="market" class="dashboard">
+        <section class="market-heading">
+          <div class="asset-title">
+            <div class="coin-icon">₿</div>
+            <div>
+              <div class="eyebrow">PIAC <span class="slash">/</span> SPOT</div>
+              <h1>Bitcoin <span class="ticker">BTC / USD</span></h1>
+            </div>
+          </div>
+          <div class="price-block">
+            <strong id="mainPrice">67,482.18</strong>
+            <span class="positive">+2.84% <small>últóbbi 24 óra</small></span>
+          </div>
+          <div class="market-stats">
+            <div><span>24 órás maximum</span><b>$68,124.50</b></div>
+            <div><span>24 órás minimum</span><b>$65,208.12</b></div>
+            <div><span>24 órás forgalom</span><b>$1.24B</b></div>
+            <div><span>Piaci kapitalizáció</span><b>$1.33T</b></div>
+          </div>
+        </section>
+
+        <div class="content-grid">
+          <section class="panel chart-panel" id="chart" aria-label="Bitcoin árfolyamgrafikon">
+            <div class="chart-toolbar">
+              <div class="toolbar-left">
+                <div class="intervals" aria-label="Időtáv">
+                  <button data-range="1H">1H</button>
+                  <button data-range="4H">4H</button>
+                  <button class="selected" data-range="1D">1N</button>
+                  <button data-range="1W">1H</button>
+                  <button data-range="1M">1HÓ</button>
+                </div>
+                <span class="toolbar-divider"></span>
+                <button class="tool-button" id="candleMode" aria-label="Grafikontípus váltása">▥ <span>Gyertyák</span></button>
+              </div>
+              <div class="chart-tools"><button aria-label="Teljes képernyő">⛶</button><button aria-label="Beállítások">⚙</button></div>
+            </div>
+            <div class="legend"><span class="legend-title">BTC/USD · <span id="rangeLabel">1 nap</span></span><span class="legend-value positive">O 66,920.40&nbsp;&nbsp; H 68,124.50&nbsp;&nbsp; L 66,701.22&nbsp;&nbsp; C 67,482.18&nbsp;&nbsp; +561.78 (+0.84%)</span></div>
+            <div class="chart-wrap"><canvas id="priceChart" aria-label="BTC/USD gyertyagrafikon"></canvas></div>
+            <div class="chart-footer"><span>◷&nbsp; 2024. május 21. 14:32 (UTC)</span><span>LOG&nbsp;&nbsp; %&nbsp;&nbsp; <b>▶</b></span></div>
+          </section>
+
+          <aside class="panel watchlist" id="watchlist">
+            <div class="panel-heading"><div><h2>Figyelőlista</h2><span class="subheading">Kripto, részvények és piacok</span></div><button class="more-button" aria-label="Továbbiak">•••</button></div>
+            <div class="market-tabs" role="tablist" aria-label="Eszközkategóriák">
+              <button class="active" type="button" data-market="crypto" role="tab" aria-selected="true">Kripto</button>
+              <button type="button" data-market="stocks" role="tab" aria-selected="false">Részvény</button>
+              <button type="button" data-market="indices" role="tab" aria-selected="false">Index</button>
+              <button type="button" data-market="commodities" role="tab" aria-selected="false">Nyersanyag</button>
+              <button type="button" data-market="etfs" role="tab" aria-selected="false">ETF</button>
+            </div>
+            <div class="watchlist-head"><span>ESZKÖZ</span><span>ÁR</span><span>24 ÓRA</span></div>
+            <div id="assetRows" aria-live="polite"></div>
+            <button class="add-asset" type="button">＋&nbsp; Eszköz hozzáadása</button>
+            <div class="watchlist-note"><span class="live-dot"></span> Mintaárak · nem élő piaci adatok</div>
+          </aside>
+
+          <section class="panel indicators-panel">
+            <div class="panel-heading indicators-heading"><div><h2>Piaci áttekintés</h2><span class="subheading">Bitcoin · technikai indikátorok</span></div><span class="period-tag">1 NAP</span></div>
+            <div class="indicator-list">
+              <div class="indicator"><div class="indicator-label"><span class="indicator-icon purple">〽</span><span><b>RSI (14)</b><small>Relatív erősség index</small></span></div><div class="indicator-result"><b>58.42</b><div class="meter"><i class="rsi-meter"></i></div><small class="neutral">Semleges</small></div></div>
+              <div class="indicator"><div class="indicator-label"><span class="indicator-icon blue">∿</span><span><b>MACD (12, 26, 9)</b><small>Konvergencia / divergencia</small></span></div><div class="indicator-result"><b class="positive">+142.68</b><small class="positive">▲ Bullish jelzés</small></div></div>
+              <div class="indicator"><div class="indicator-label"><span class="indicator-icon orange">〰</span><span><b>Mozgóátlag (50)</b><small>SMA · 1 napos</small></span></div><div class="indicator-result"><b>$66,248.90</b><small class="positive">Árfolyam felette</small></div></div>
+            </div>
+            <div class="custom-indicators">
+              <div class="indicator-menu-wrap">
+                <button class="add-indicator" id="indicatorMenuToggle" type="button" aria-expanded="false" aria-controls="indicatorMenu">＋ Indikátor hozzáadása <span>⌄</span></button>
+                <div class="indicator-menu" id="indicatorMenu" role="menu" hidden></div>
+              </div>
+              <div class="custom-indicator-list" id="customIndicatorList" aria-live="polite"></div>
+            </div>
+          </section>
+
+          <section class="panel sentiment-panel">
+            <div class="panel-heading"><div><h2>Piaci hangulat</h2><span class="subheading">Befektetői érzelmek</span></div><span class="sentiment-emoji">◉</span></div>
+            <div class="sentiment-score"><strong>72</strong><span>/ 100</span></div>
+            <div class="sentiment-label">Kapzsiság <span>●●●●●●●○○○</span></div>
+            <div class="sentiment-track"><i></i></div>
+            <div class="sentiment-scale"><span>Félelem</span><span>Kapzsiság</span></div>
+            <p class="sentiment-caption">A hangulat pozitív, de érdemes körültekintően dönteni.</p>
+          </section>
+        </div>
+        <footer class="page-footer"><span>CRYPTO TERMINAL <span class="footer-separator">·</span> PIACI ADATOK</span><span>Tervezési koncepció · Nem befektetési tanács</span></footer>
+      </main>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
