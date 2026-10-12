@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Borsodi Matrix // ETL & SQL Kiber-Szimulátor (Fix)</title>
+    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@4.0.0"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        body { font-family: 'JetBrains Mono', monospace; background-color: #0b0f19; color: #10b981; }
+        .terminal-box { background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .glow-green { text-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
+
+        :root {
+            color-scheme: dark;
+            --neon: #34d399;
+            --panel: rgba(13, 22, 37, 0.82);
+        }
+
+        body {
+            min-height: 100vh;
+            position: relative;
+            isolation: isolate;
+            background:
+                radial-gradient(ellipse at 12% 0%, rgba(6, 95, 70, 0.28), transparent 38%),
+                radial-gradient(ellipse at 92% 16%, rgba(8, 145, 178, 0.16), transparent 32%),
+                #070b13;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.16;
+            background-image: linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+            background-size: 38px 38px;
+            mask-image: linear-gradient(to bottom, black, transparent 85%);
+        }
+
+        .terminal-box {
+            background: linear-gradient(145deg, rgba(15, 25, 42, 0.94), var(--panel));
+            border: 1px solid rgba(110, 231, 183, 0.16);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.24), inset 0 1px rgba(255, 255, 255, 0.025);
+            backdrop-filter: blur(12px);
+        }
+
+        button {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grid button {
+            transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+        }
+
+        .grid button:hover {
+            transform: translateY(-2px);
+            border-color: rgba(110, 231, 183, 0.5);
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.1);
+        }
+
+        textarea {
+            line-height: 1.65;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.35);
+        }
+
+        table thead {
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        table th {
+            letter-spacing: 0.08em;
+            font-size: 10px;
+        }
+
+        .sort-button {
+            padding: 0;
+            border: 0;
+            color: inherit;
+            background: transparent;
+            font: inherit;
+            letter-spacing: inherit;
+            cursor: pointer;
+        }
+
+        .sort-button:hover,
+        .sort-button:focus-visible {
+            color: #6ee7b7;
+            outline: none;
+        }
+
+        table tbody tr {
+            transition: background-color 160ms ease;
+        }
+
+        #logOutput,
+        .overflow-x-auto {
+            scrollbar-color: rgba(52, 211, 153, 0.45) rgba(15, 23, 42, 0.5);
+            scrollbar-width: thin;
+        }
+
+        #logOutput {
+            line-height: 1.7;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6">
+    <div class="max-w-7xl mx-auto space-y-4">
+        
+        <!-- FŐCÍM & STATUSZ -->
+        <div class="terminal-box p-4 rounded-xl shadow-lg border-emerald-500/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 class="text-lg md:text-xl font-bold text-emerald-400 glow-green">⚡ BORSODI MATRIX // ETL & SQL PIPELINE ENGINE v5.1</h1>
+                <p class="text-xs text-gray-400 mt-1">Lokális Adatfeldolgozó, Adattisztító és SQL Szimulátor Műszerfal</p>
+            </div>
+            <div class="flex flex-wrap gap-2 text-xs">
+                <span class="px-3 py-1 rounded bg-emerald-950 border border-emerald-500/50 text-emerald-300">SERVER: ONLINE</span>
+                <span class="px-3 py-1 rounded bg-slate-800 border border-slate-700 text-gray-300">KOHÓ: 1480 °C</span>
+                <span class="px-3 py-1 rounded bg-slate-800 border border-slate-700 text-gray-300">PF: 1.7+</span>
+            </div>
+        </div>
+
+        <!-- VEZÉRLŐ GOMBOK -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <button onclick="runETLPipeline()" class="p-3 terminal-box rounded-xl hover:bg-emerald-950/40 transition cursor-pointer text-left border-l-4 border-l-emerald-500">
+                <div class="text-[10px] text-gray-400">1. LÉPÉS</div>
+                <div class="text-xs font-bold text-emerald-300 mt-0.5">🔄 ETL Pipeline Futtatása</div>
+                <div class="text-[10px] text-gray-500 mt-1">Nyers adatok tisztítása</div>
+            </button>
+            <button onclick="runSQLIndexing()" class="p-3 terminal-box rounded-xl hover:bg-emerald-950/40 transition cursor-pointer text-left border-l-4 border-l-cyan-500">
+                <div class="text-[10px] text-gray-400">2. LÉPÉS</div>
+                <div class="text-xs font-bold text-cyan-300 mt-0.5">⚡ SQL Indexelés & Cache</div>
+                <div class="text-[10px] text-gray-500 mt-1">Milliszekundumos gyorsaság</div>
+            </button>
+            <button onclick="executeSQLQuery()" class="p-3 terminal-box rounded-xl hover:bg-emerald-950/40 transition cursor-pointer text-left border-l-4 border-l-amber-500">
+                <div class="text-[10px] text-gray-400">3. LÉPÉS</div>
+                <div class="text-xs font-bold text-amber-300 mt-0.5">🔍 SQL Lekérdezés</div>
+                <div class="text-[10px] text-gray-500 mt-1">Szűrt mintaadatok lekérdezése</div>
+            </button>
+            <button onclick="clearConsole()" class="p-3 terminal-box rounded-xl hover:bg-red-950/20 transition cursor-pointer text-left border-l-4 border-l-red-500">
+                <div class="text-[10px] text-gray-400">RESET</div>
+                <div class="text-xs font-bold text-red-400 mt-0.5">🧹 Terminál Törlése</div>
+                <div class="text-[10px] text-gray-500 mt-1">Logok alaphelyzetbe</div>
+            </button>
+        </div>
+
+        <!-- SQL LEKÉRDEZÉS & ADATTÁBLA -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            
+            <!-- SQL Console / Editor -->
+            <div class="terminal-box p-4 rounded-xl flex flex-col space-y-3">
+                <span class="text-xs text-gray-400 font-bold uppercase">SQL Parancs / Query Input</span>
+                <label for="queryPreset" class="text-[10px] text-gray-500">Gyors lekérdezések</label>
+                <select id="queryPreset" aria-label="Előre elkészített SQL-lekérdezés kiválasztása" onchange="loadQueryPreset(this.value)" class="w-full bg-black/60 border border-gray-700 rounded px-3 py-2 text-xs text-emerald-200 focus:outline-none focus:border-emerald-500">
+                    <option value="0">Top score — legnagyobb volume</option>
+                    <option value="1">Egy ticker keresése — GOOGL</option>
+                    <option value="2">Crypto eszközök</option>
+                    <option value="3">Nagy volume — 90 felett</option>
+                    <option value="4">Figyelő státuszú rekordok</option>
+                    <option value="5">Minden rekord, ticker szerint</option>
+                </select>
+                <textarea id="sqlQueryBox" rows="4" class="w-full bg-black/80 border border-emerald-500/30 rounded p-2 text-xs text-emerald-300 focus:outline-none focus:border-emerald-500 font-mono resize-none">SELECT ticker, score, volume, status FROM top_portfolio WHERE score = '3/3' ORDER BY volume DESC LIMIT 10;</textarea>
+                <button onclick="executeCustomQuery()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-black font-bold text-xs rounded transition cursor-pointer">QUERY VÉGREHAJTÁSA</button>
+                
+                <div class="mt-2 pt-3 border-t border-gray-800">
+                    <span class="text-xs text-gray-400 font-bold uppercase">Szerver Státusz Metrikák</span>
+                    <div class="space-y-1.5 mt-2 text-xs">
+                        <div class="flex justify-between"><span>Memóriabeli rekord:</span> <span id="statRecords" class="text-emerald-400 font-bold">5 db</span></div>
+                        <div class="flex justify-between"><span>SQL feldolgozási idő:</span> <span id="statTime" class="text-cyan-400 font-bold">—</span></div>
+                        <div class="flex justify-between"><span>Helyi cache találat:</span> <span id="statCache" class="text-amber-400 font-bold">0.0%</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Eredmény / Adattábla -->
+            <div class="lg:col-span-2 terminal-box p-4 rounded-xl flex flex-col">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                    <span class="text-xs text-gray-400 font-bold uppercase">SQL Tábla Eredmények & Adatfolyam</span>
+                    <span id="resultCount" class="text-[10px] text-emerald-400">3 rekord</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2 mb-3">
+                    <input id="tableSearch" type="search" placeholder="Keresés tickerre vagy szektorra..." aria-label="Keresés" oninput="renderTable()" class="w-full bg-black/60 border border-gray-700 rounded px-3 py-2 text-xs text-emerald-200 placeholder-gray-500 focus:outline-none focus:border-emerald-500">
+                    <select id="sectorFilter" aria-label="Szektor szűrése" onchange="renderTable()" class="w-full bg-black/60 border border-gray-700 rounded px-3 py-2 text-xs text-emerald-200 focus:outline-none focus:border-emerald-500">
+                        <option value="">Minden szektor</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Crypto">Crypto</option>
+                    </select>
+                    <select id="scoreFilter" aria-label="Score szűrése" onchange="renderTable()" class="w-full bg-black/60 border border-gray-700 rounded px-3 py-2 text-xs text-emerald-200 focus:outline-none focus:border-emerald-500">
+                        <option value="">Minden score</option>
+                        <option value="3/3">3/3</option>
+                        <option value="2/3">2/3</option>
+                    </select>
+                    <select id="statusFilter" aria-label="Státusz szűrése" onchange="renderTable()" class="w-full bg-black/60 border border-gray-700 rounded px-3 py-2 text-xs text-emerald-200 focus:outline-none focus:border-emerald-500">
+                        <option value="">Minden státusz</option>
+                        <option value="AKTÍV">AKTÍV</option>
+                        <option value="FIGYELŐ">FIGYELŐ</option>
+                    </select>
+                </div>
+                <div class="overflow-x-auto flex-1 bg-black/60 rounded border border-gray-800 p-2 min-h-[200px]">
+                    <table class="w-full text-left text-xs whitespace-nowrap">
+                        <thead id="resultTableHead"></thead>
+                        <tbody id="resultTableBody">
+                            <tr class="border-b border-gray-900/50 hover:bg-emerald-950/20">
+                                <td class="p-2 text-emerald-400 font-bold">NASDAQ:NVDA</td>
+                                <td class="p-2 text-gray-300">Technology</td>
+                                <td class="p-2 text-emerald-300">3/3</td>
+                                <td class="p-2 text-amber-400">Magas</td>
+                                <td class="p-2 text-emerald-400">🟢 AKTÍV</td>
+                            </tr>
+                            <tr class="border-b border-gray-900/50 hover:bg-emerald-950/20">
+                                <td class="p-2 text-emerald-400 font-bold">NASDAQ:MSFT</td>
+                                <td class="p-2 text-gray-300">Technology</td>
+                                <td class="p-2 text-emerald-300">3/3</td>
+                                <td class="p-2 text-amber-400">Magas</td>
+                                <td class="p-2 text-emerald-400">🟢 AKTÍV</td>
+                            </tr>
+                            <tr class="border-b border-gray-900/50 hover:bg-emerald-950/20">
+                                <td class="p-2 text-emerald-400 font-bold">BINANCE:PENDLE</td>
+                                <td class="p-2 text-gray-300">Crypto</td>
+                                <td class="p-2 text-emerald-300">3/3</td>
+                                <td class="p-2 text-amber-400">99%</td>
+                                <td class="p-2 text-emerald-400">🟢 AKTÍV</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- LOG TERMINÁL -->
+        <div class="terminal-box p-4 rounded-xl">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-xs text-gray-400 font-bold uppercase">Élő Rendszernapló (ETL & SQL Logs)</span>
+                <span class="text-[10px] text-emerald-500 animate-pulse font-bold">● LOGGING ACTIVE</span>
+            </div>
+            <div id="logOutput" class="bg-black/80 p-3 rounded h-32 overflow-y-auto text-xs text-gray-300 space-y-1 font-mono border border-gray-900">
+                <div class="text-emerald-500">[20:45:10] T800 Kernel v5.1 inicializálva. Helyi mintatáblázat betöltve.</div>
+                <div class="text-cyan-400">[20:45:12] Helyi cache készen áll; 5 minta rekord érhető el.</div>
+                <div class="text-gray-400">[20:45:15] Várakozás a parancsra vagy ETL futtatásra...</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function logMessage(text, colorClass = "text-gray-300") {
+            const logBox = document.getElementById('logOutput');
+            const time = new Date().toTimeString().split(' ')[0];
+            const div = document.createElement('div');
+            div.className = colorClass;
+            div.innerText = `[${time}] ${text}`;
+            logBox.appendChild(div);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function runETLPipeline() {
+            logMessage("🔄 ETL demó indítva: a beépített mintaadatok ellenőrzése...", "text-emerald-400");
+            setTimeout(() => {
+                logMessage("🧹 Adattisztítás kész: az 5 helyi mintarekord ellenőrizve.", "text-emerald-300");
+                document.getElementById('statRecords').innerText = `${tableData.length} db`;
+            }, 600);
+        }
+
+        function runSQLIndexing() {
+            logMessage("⚡ Helyi demóindex készítése a ticker mezőhöz...", "text-cyan-400");
+            setTimeout(() => {
+                logMessage("🚀 Demó indexelés kész. A válaszidőt és cache-találatot a lekérdezések mérik.", "text-cyan-300");
+            }, 800);
+        }
+
+        const queryPresets = [
+            "SELECT ticker, score, volume, status FROM top_portfolio WHERE score = '3/3' ORDER BY volume DESC LIMIT 10;",
+            "SELECT ticker, sector, score, volume, status FROM top_portfolio WHERE ticker = 'NASDAQ:GOOGL';",
+            "SELECT ticker, sector, score, volume, status FROM top_portfolio WHERE sector = 'Crypto' ORDER BY volume DESC;",
+            "SELECT ticker, score, volume, status FROM top_portfolio WHERE volume >= 90 ORDER BY volume DESC;",
+            "SELECT ticker, sector, score, status FROM top_portfolio WHERE status = 'FIGYELŐ';",
+            "SELECT * FROM top_portfolio ORDER BY ticker ASC;"
+        ];
+
+        function loadQueryPreset(index) {
+            const query = queryPresets[Number(index)];
+            if (query) document.getElementById('sqlQueryBox').value = query;
+        }
+
+        function executeSQLQuery() {
+            loadQueryPreset(0);
+            document.getElementById('queryPreset').value = "0";
+            executeCustomQuery();
+        }
+
+        function executeCustomQuery() {
+            const query = document.getElementById('sqlQueryBox').value;
+            logMessage(`⚙️ SQL feldolgozása: "${query}"`, "text-amber-300");
+            runQuery(query);
+        }
+
+        const columnLabels = {
+            ticker: "TICKER", sector: "SZEKTOR", score: "SCORE",
+            volume: "VOLUME", status: "STATUS"
+        };
+        function parseSQLQuery(query) {
+            const match = query.trim().replace(/;$/, "").match(
+                /^SELECT\s+(.+?)\s+FROM\s+top_portfolio(?:\s+WHERE\s+(.+?))?(?:\s+ORDER\s+BY\s+(ticker|sector|score|volume|status)(?:\s+(ASC|DESC))?)?(?:\s+LIMIT\s+(\d+))?\s*$/i
+            );
+            if (!match) throw new Error("Csak SELECT ... FROM top_portfolio lekérdezés támogatott, opcionális WHERE, ORDER BY és LIMIT résszel.");
+
+            const columns = match[1].trim() === "*"
+                ? Object.keys(columnLabels)
+                : match[1].split(",").map(column => column.trim().toLowerCase());
+            if (!columns.length || columns.some(column => !columnLabels[column])) {
+                throw new Error("Ismeretlen oszlop. Használható: ticker, sector, score, volume, status.");
+            }
+
+            const conditions = match[2] ? match[2].split(/\s+AND\s+/i).map(condition => {
+                const parsed = condition.trim().match(/^(ticker|sector|score|volume|status)\s*(=|!=|<>|>=|<=|>|<|LIKE)\s*(?:'([^']*)'|"([^"]*)"|(-?\d+(?:\.\d+)?))$/i);
+                if (!parsed) throw new Error(`Nem támogatott WHERE feltétel: ${condition}`);
+                return {
+                    field: parsed[1].toLowerCase(), operator: parsed[2].toUpperCase(),
+                    value: parsed[3] ?? parsed[4] ?? Number(parsed[5])
+                };
+            }) : [];
+
+            return {
+                columns,
+                conditions,
+                orderBy: match[3]?.toLowerCase() || null,
+                direction: (match[4] || "ASC").toUpperCase() === "DESC" ? -1 : 1,
+                limit: match[5] === undefined ? null : Number(match[5])
+            };
+        }
+
+        function matchesCondition(row, condition) {
+            const actual = row[condition.field];
+            const expected = typeof actual === "number" ? Number(condition.value) : String(condition.value);
+            switch (condition.operator) {
+                case "=": return actual === expected;
+                case "!=": case "<>": return actual !== expected;
+                case ">": return actual > expected;
+                case "<": return actual < expected;
+                case ">=": return actual >= expected;
+                case "<=": return actual <= expected;
+                case "LIKE": return String(actual).toLowerCase().includes(String(expected).replace(/%/g, "").toLowerCase());
+                default: return false;
+            }
+        }
+
+        function runQuery(query) {
+            const started = performance.now();
+            queryCount++;
+            const cacheKey = query.trim();
+            let result;
+            try {
+                if (queryCache.has(cacheKey)) {
+                    cacheHits++;
+                    result = queryCache.get(cacheKey);
+                } else {
+                    const parsed = parseSQLQuery(query);
+                    result = tableData.filter(row => parsed.conditions.every(condition => matchesCondition(row, condition)));
+                    if (parsed.orderBy) {
+                        const field = parsed.orderBy;
+                        result.sort((a, b) => (typeof a[field] === "number"
+                            ? a[field] - b[field]
+                            : String(a[field]).localeCompare(String(b[field]))) * parsed.direction);
+                    }
+                    if (parsed.limit !== null) result = result.slice(0, parsed.limit);
+                    queryCache.set(cacheKey, { rows: result, columns: parsed.columns });
+                    result = queryCache.get(cacheKey);
+                }
+                displayedData = result.rows;
+                resultColumns = result.columns;
+                currentSort = { key: null, direction: 1 };
+                renderTable();
+                logMessage(`✅ Lekérdezés kész: ${displayedData.length} találat a ${tableData.length} memóriabeli mintarekordból.`, "text-emerald-400");
+            } catch (error) {
+                logMessage(`❌ SQL hiba: ${error.message}`, "text-red-400");
+            }
+            document.getElementById('statTime').innerText = `${(performance.now() - started).toFixed(2)} ms`;
+            document.getElementById('statRecords').innerText = `${tableData.length.toLocaleString('hu-HU')} db`;
+            document.getElementById('statCache').innerText = `${((cacheHits / queryCount) * 100).toFixed(1)}%`;
+        }
+
+        function clearConsole() {
+            document.getElementById('logOutput').innerHTML = '<div class="text-gray-500">[SYSTEM] Terminál törölve és alaphelyzetbe állítva.</div>';
+            logMessage("T800 Kernel készenlétben.", "text-emerald-500");
+        }
+
+        const tableData = [
+            { ticker: "NASDAQ:NVDA", sector: "Technology", score: "3/3", volume: 98, volumeLabel: "Magas", status: "AKTÍV" },
+            { ticker: "NASDAQ:MSFT", sector: "Technology", score: "3/3", volume: 92, volumeLabel: "Magas", status: "AKTÍV" },
+            { ticker: "NASDAQ:AAPL", sector: "Technology", score: "3/3", volume: 85, volumeLabel: "Magas", status: "AKTÍV" },
+            { ticker: "BINANCE:PENDLE", sector: "Crypto", score: "3/3", volume: 99, volumeLabel: "99%", status: "AKTÍV" },
+            { ticker: "NASDAQ:GOOGL", sector: "Technology", score: "2/3", volume: 68, volumeLabel: "Közepes", status: "FIGYELŐ" }
+        ];
+        let displayedData = tableData;
+        let resultColumns = Object.keys(columnLabels);
+        const queryCache = new Map();
+        let queryCount = 0;
+        let cacheHits = 0;
+        let currentSort = { key: null, direction: 1 };
+
+        function sortTable(key) {
+            currentSort.direction = currentSort.key === key ? currentSort.direction * -1 : 1;
+            currentSort.key = key;
+            renderTable();
+        }
+
+        function renderTable() {
+            const search = document.getElementById('tableSearch').value.trim().toLowerCase();
+            const sector = document.getElementById('sectorFilter').value;
+            const score = document.getElementById('scoreFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const rows = displayedData.filter(row =>
+                `${row.ticker} ${row.sector}`.toLowerCase().includes(search) &&
+                (!sector || row.sector === sector) &&
+                (!score || row.score === score) &&
+                (!status || row.status === status)
+            );
+
+            if (currentSort.key) {
+                rows.sort((a, b) => {
+                    const first = a[currentSort.key];
+                    const second = b[currentSort.key];
+                    const comparison = currentSort.key === "score"
+                        ? parseInt(first, 10) - parseInt(second, 10)
+                        : typeof first === "number"
+                            ? first - second
+                            : String(first).localeCompare(String(second));
+                    return comparison * currentSort.direction;
+                });
+            }
+
+            const thead = document.getElementById('resultTableHead');
+            thead.replaceChildren();
+            const headerRow = document.createElement('tr');
+            headerRow.className = "border-b border-gray-800 text-gray-400";
+            resultColumns.forEach(column => {
+                const th = document.createElement('th');
+                th.className = "p-2";
+                const button = document.createElement('button');
+                button.type = "button";
+                button.className = "sort-button";
+                button.textContent = columnLabels[column];
+                button.onclick = () => sortTable(column);
+                th.appendChild(button);
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+
+            const tbody = document.getElementById('resultTableBody');
+            tbody.replaceChildren();
+            rows.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-gray-900/50 hover:bg-emerald-950/20";
+                resultColumns.forEach((column, index) => {
+                    const td = document.createElement('td');
+                    td.className = `p-2 ${column === "ticker" ? "text-emerald-400 font-bold" : column === "sector" ? "text-gray-300" : column === "score" ? "text-emerald-300" : column === "volume" ? "text-amber-400" : row.status === "AKTÍV" ? "text-emerald-400" : "text-amber-300"}`;
+                    const value = column === "volume" ? row.volumeLabel : column === "status" ? `${row.status === "AKTÍV" ? "🟢" : "🟡"} ${row.status}` : row[column];
+                    td.textContent = value;
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+            document.getElementById('resultCount').textContent = `${rows.length} rekord`;
+        }
+
+        renderTable();
+    </script>
+</body>
+</html>
